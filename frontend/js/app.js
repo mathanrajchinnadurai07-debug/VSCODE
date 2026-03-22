@@ -30,7 +30,7 @@ function updateAuthUI() {
 
 function getLocalCart() { return JSON.parse(localStorage.getItem('curfee_cart') || '[]'); }
 function saveLocalCart(cart) { localStorage.setItem('curfee_cart', JSON.stringify(cart)); updateCartCount(); }
-function addToLocalCart(product, weight = '500g', quantity = 1) {
+function addToLocalCart(product, weight = '250g', quantity = 1) {
   const cart = getLocalCart();
   const idx = cart.findIndex(i => i.productId === product._id && i.weight === weight);
   if (idx > -1) { cart[idx].quantity += quantity; } else {
@@ -58,14 +58,15 @@ function showToast(message, type = 'info') {
 
 function starsHTML(rating) { let h=''; for (let i=1;i<=5;i++) { h += i <= Math.floor(rating) ? '★' : i-0.5<=rating ? '★' : '☆'; } return h; }
 
-function getCategoryEmoji(category) { return { vegetables:'🥬', fruits:'🍎', dairy:'🥛' }[category] || '🌿'; }
+function getCategoryEmoji(category) { return { vegetables:'🥬', fruits:'🍎', dairy:'🥛', snacks:'🍪', herbal:'🌿' }[category] || '🛒'; }
 
 function productCardHTML(product) {
-  const discount = product.price > 0 ? Math.round(((product.price - (product.discountPrice || product.price)) / product.price) * 100) : 0;
-  const inW = isInWishlist(product._id || product.slug);
+  const firstW = product.weights?.[0]; const showPrice = firstW ? (firstW.discountPrice || firstW.price) : (product.discountPrice || product.price); const showOriginal = firstW ? firstW.price : product.price;
+  const discount = showOriginal > 0 ? Math.round(((showOriginal - showPrice) / showOriginal) * 100) : 0;
+  const inW = isInWishlist(product._id || product.slug); const outOfStock = product.stock <= 0;
   const stockLabel = product.stock > 20 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock';
   const stockClass = product.stock > 20 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock';
-  return `<div class="product-card" data-id="${product._id||product.slug}"><div class="product-badges"><span class="badge badge-organic">🌿 Organic</span>${discount>0?`<span class="badge badge-sale">${discount}% OFF</span>`:''}</div><button class="wishlist-btn ${inW?'active':''}" onclick="handleWishlist('${product._id||product.slug}',this)"><i class="${inW?'fas':'far'} fa-heart"></i></button><a href="product-detail.html?slug=${product.slug}" class="product-image"><div class="placeholder-icon">${getCategoryEmoji(product.category)}</div></a><div class="product-info"><div class="product-category">${product.category}</div><h3 class="product-name"><a href="product-detail.html?slug=${product.slug}">${product.name}</a></h3><div class="product-rating"><span class="stars">${starsHTML(product.rating)}</span><span class="rating-count">(${product.numReviews||0})</span></div><div class="product-price"><span class="price-current">₹${product.discountPrice||product.price}</span>${discount>0?`<span class="price-original">₹${product.price}</span><span class="price-discount">${discount}% off</span>`:''}</div><div class="weight-options">${(product.weights||[]).slice(0,3).map((w,i)=>`<span class="weight-option ${i===1?'active':''}" data-weight="${w.label}" data-price="${w.discountPrice||w.price}">${w.label}</span>`).join('')}</div><div class="product-stock ${stockClass}"><i class="fas fa-circle" style="font-size:0.5rem"></i> ${stockLabel}</div><button class="add-to-cart-btn" onclick="handleAddToCart(event,'${product.slug}')"><i class="fas fa-cart-plus"></i> Add to Cart</button></div></div>`;
+  return `<div class="product-card${outOfStock?' out-of-stock-card':''}" data-id="${product._id||product.slug}"><div class="product-badges"><span class="badge badge-organic">🌿 Organic</span>${discount>0?`<span class="badge badge-sale">${discount}% OFF</span>`:''}</div><button class="wishlist-btn ${inW?'active':''}" onclick="handleWishlist('${product._id||product.slug}',this)"><i class="${inW?'fas':'far'} fa-heart"></i></button><a href="product-detail.html?slug=${product.slug}" class="product-image"><div class="placeholder-icon">${getCategoryEmoji(product.category)}</div></a><div class="product-info"><div class="product-category">${product.category}</div><h3 class="product-name"><a href="product-detail.html?slug=${product.slug}">${product.name}</a></h3><div class="product-rating"><span class="stars">${starsHTML(product.rating)}</span><span class="rating-count">(${product.numReviews||0})</span></div><div class="product-price"><span class="price-current">₹${showPrice}</span>${discount>0?`<span class="price-original">₹${showOriginal}</span><span class="price-discount">${discount}% off</span>`:''}</div><div class="weight-options">${(product.weights||[]).slice(0,3).map((w,i)=>`<span class="weight-option ${i===0?'active':''}" data-weight="${w.label}" data-price="${w.discountPrice||w.price}">${w.label}</span>`).join('')}</div><div class="product-stock ${stockClass}"><i class="fas fa-circle" style="font-size:0.5rem"></i> ${stockLabel}</div><button class="add-to-cart-btn" ${outOfStock?'disabled style="opacity:0.5;cursor:not-allowed;"':''}onclick="handleAddToCart(event,'${product.slug}')"><i class="fas fa-${outOfStock?'ban':'cart-plus'}"></i> ${outOfStock?'Out of Stock':'Add to Cart'}</button></div></div>`;
 }
 
 function handleWishlist(productId, btn) { const active = toggleWishlist(productId); const icon = btn.querySelector('i'); if (active) { btn.classList.add('active'); icon.className='fas fa-heart'; } else { btn.classList.remove('active'); icon.className='far fa-heart'; } }
@@ -73,7 +74,7 @@ function handleWishlist(productId, btn) { const active = toggleWishlist(productI
 let productsCache = {};
 async function handleAddToCart(event, slug) {
   event.preventDefault(); event.stopPropagation();
-  const card = event.target.closest('.product-card'); let weight = '500g';
+  const card = event.target.closest('.product-card'); let weight = '250g';
   if (card) { const aw = card.querySelector('.weight-option.active'); if (aw) weight = aw.dataset.weight; }
   let product = productsCache[slug];
   if (!product) { try { const d = await api(`/products/slug/${slug}`); product = d; productsCache[slug] = product; } catch { product = { _id:slug, slug, name: card?.querySelector('.product-name a')?.textContent||slug, price:0, discountPrice:0, images:[], stock:100 }; } }

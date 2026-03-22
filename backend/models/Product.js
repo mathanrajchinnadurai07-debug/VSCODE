@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
   description: { type: String },
-  category: { type: String, enum: ['vegetables', 'fruits', 'dairy'], required: true },
+  category: { type: String, enum: ['vegetables', 'fruits', 'dairy', 'snacks', 'herbal'], required: true },
   price: { type: Number, required: true },
   discountPrice: { type: Number },
   images: [{ type: String }],
@@ -20,6 +20,7 @@ const productSchema = new mongoose.Schema({
   deliveryInfo: { type: String, default: 'Delivered in 2-4 days' },
   returnPolicy: { type: String, default: '7-day easy returns' },
   tags: [{ type: String }],
+  videoUrl: { type: String, default: '' },
 }, { timestamps: true });
 
 productSchema.index({ name: 'text', description: 'text', tags: 'text' });
