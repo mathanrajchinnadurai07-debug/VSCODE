@@ -1,23 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>My Account — Curfee Organic Market</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></head>
-<body>
-  <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> +91 78457 44038</div><div><a href="support.html">Help & Support</a></div></div></div>
-  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon">🌿</div>Curfee<span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option></select><input type="text" id="searchInput" placeholder="Search..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
-  <div class="container"><div class="dashboard-layout">
-    <aside class="dashboard-sidebar">
-      <div class="user-info"><div class="user-avatar" id="userAvatar">U</div><h3 id="userName">User</h3><p style="font-size:0.8rem;color:var(--text-light);" id="userEmail">user@email.com</p></div>
-      <nav><a href="#" class="active" data-section="orders"><i class="fas fa-box"></i> My Orders</a><a href="#" data-section="addresses"><i class="fas fa-map-marker-alt"></i> Addresses</a><a href="#" data-section="wishlist"><i class="fas fa-heart"></i> Wishlist</a><a href="#" data-section="profile"><i class="fas fa-user-cog"></i> Profile Settings</a><a href="#" data-section="support"><i class="fas fa-headset"></i> Contact Support</a><a href="#" onclick="logout()" style="color:var(--danger);margin-top:12px;"><i class="fas fa-sign-out-alt"></i> Logout</a></nav>
-    </aside>
-    <main class="dashboard-content">
-      <div id="section-orders"><h2 style="font-size:1.3rem;margin-bottom:20px;"><i class="fas fa-box"></i> My Orders</h2><div id="ordersList"></div></div>
-      <div id="section-addresses" class="hidden"><h2 style="font-size:1.3rem;margin-bottom:20px;"><i class="fas fa-map-marker-alt"></i> Saved Addresses</h2><div id="addressList"></div><button class="btn btn-outline" style="margin-top:16px;" onclick="showToast('Address feature — connect API','info')"><i class="fas fa-plus"></i> Add New Address</button></div>
-      <div id="section-wishlist" class="hidden"><h2 style="font-size:1.3rem;margin-bottom:20px;"><i class="fas fa-heart"></i> My Wishlist</h2><div class="product-grid" id="wishlistGrid"></div></div>
-      <div id="section-profile" class="hidden"><h2 style="font-size:1.3rem;margin-bottom:20px;"><i class="fas fa-user-cog"></i> Profile Settings</h2><form id="profileForm" style="max-width:500px;"><div class="form-group"><label>Full Name</label><input type="text" id="profileName"></div><div class="form-group"><label>Email</label><input type="email" id="profileEmail"></div><div class="form-group"><label>Phone</label><input type="tel" id="profilePhone"></div><button type="submit" class="btn btn-primary">Save Changes</button></form></div>
-      <div id="section-support" class="hidden"><h2 style="font-size:1.3rem;margin-bottom:20px;"><i class="fas fa-headset"></i> Contact Support</h2><p style="color:var(--text-light);margin-bottom:20px;">Need help? Reach out to us.</p><div style="display:grid;gap:12px;max-width:400px;"><a href="mailto:support@curfee.com" class="btn btn-outline"><i class="fas fa-envelope"></i> support@curfee.com</a><a href="tel:+917845744038" class="btn btn-outline"><i class="fas fa-phone"></i> +91 78457 44038</a><a href="support.html" class="btn btn-primary"><i class="fas fa-headset"></i> Visit Help Center</a></div></div>
-    </main>
-  </div></div>
-  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 Curfee Organic Market.</p></div></div></footer>
-  <div class="toast-container" id="toastContainer"></div><div id="wishlistCount" style="display:none"></div>
-  <script src="js/app.js"></script><script src="js/dashboard.js"></script>
-</body></html>
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My Account — Curfee Organic Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/flipkart-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="fk-account-page">
+
+  <!-- Top Bar -->
+  <div class="fk-topbar">
+    <div class="fk-topbar-inner">
+      <a href="index.html" class="fk-logo">🌿 Curfee <span>Explore Organic</span></a>
+      <div class="fk-search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search for products..." id="searchInput">
+        <button class="fk-mic"><i class="fas fa-microphone"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Card -->
+  <div class="fk-user-card">
+    <div class="fk-user-info">
+      <h2 id="userName">Guest User</h2>
+      <div class="fk-membership">
+        <span class="fk-membership-badge">ORGANIC</span>
+        <span>Explore <strong style="color:#2d6a4f;">Green Member</strong></span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+    <div class="fk-coins"><i class="fas fa-coins"></i> <span id="userCoins">0</span></div>
+  </div>
+
+  <!-- Quick Action Buttons -->
+  <div class="fk-quick-grid">
+    <a href="#" class="fk-quick-btn" onclick="showSection('orders')"><i class="fas fa-box"></i> Orders</a>
+    <a href="#" class="fk-quick-btn" onclick="showSection('wishlist')"><i class="fas fa-heart" style="color:#e53935;"></i> Wishlist</a>
+    <a href="#" class="fk-quick-btn" onclick="showSection('coupons')"><i class="fas fa-ticket-alt" style="color:#ff9800;"></i> Coupons</a>
+    <a href="support.html" class="fk-quick-btn"><i class="fas fa-headset" style="color:#1565c0;"></i> Help Center</a>
+  </div>
+
+  <!-- Email Verification Banner -->
+  <div class="fk-alert-banner">
+    <div class="fk-alert-icon">📧</div>
+    <div class="fk-alert-text">
+      <strong>Add/Verify your Email <span style="color:#ff5722;">●</span></strong>
+      <span>Get latest updates of your orders</span>
+    </div>
+    <button class="fk-alert-btn" onclick="showSection('profile')">Update</button>
+  </div>
+
+  <!-- Orders Section (hidden by default on mobile, shown on click) -->
+  <div id="section-orders" class="fk-section" style="display:none;">
+    <h3 class="fk-section-title"><i class="fas fa-box"></i> My Orders</h3>
+    <div id="ordersList"></div>
+  </div>
+
+  <!-- Wishlist Section -->
+  <div id="section-wishlist" class="fk-section" style="display:none;">
+    <h3 class="fk-section-title"><i class="fas fa-heart" style="color:#e53935;"></i> My Wishlist</h3>
+    <div class="product-grid" id="wishlistGrid"></div>
+  </div>
+
+  <!-- Coupons Section -->
+  <div id="section-coupons" class="fk-section" style="display:none;">
+    <h3 class="fk-section-title"><i class="fas fa-ticket-alt" style="color:#ff9800;"></i> My Coupons</h3>
+    <div style="padding:20px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">🎫</div>
+      <p style="color:#888;margin-bottom:16px;">Use code <strong style="color:#2d6a4f;">CURFEE499</strong> for free delivery on orders above ₹499</p>
+      <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);padding:16px;border-radius:10px;border:2px dashed #2d6a4f;">
+        <strong style="font-size:1.1rem;color:#2d6a4f;">CURFEE499</strong><br>
+        <span style="font-size:0.8rem;color:#666;">Free delivery on ₹499+ orders</span>
+      </div>
+      <div style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);padding:16px;border-radius:10px;border:2px dashed #ff9800;margin-top:12px;">
+        <strong style="font-size:1.1rem;color:#e65100;">ORGANIC20</strong><br>
+        <span style="font-size:0.8rem;color:#666;">20% off on first order</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Section -->
+  <div id="section-profile" class="fk-section" style="display:none;">
+    <h3 class="fk-section-title"><i class="fas fa-user-cog"></i> Profile Settings</h3>
+    <form id="profileForm" style="max-width:500px;">
+      <div class="form-group"><label>Full Name</label><input type="text" id="profileName" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="profileEmail" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;"></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="profilePhone" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;"></div>
+      <button type="submit" style="width:100%;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Save Changes</button>
+    </form>
+  </div>
+
+  <!-- Finance Options -->
+  <div class="fk-section">
+    <h3 class="fk-section-title">💰 Savings & Offers</h3>
+    <a href="#" class="fk-list-item" onclick="showSection('coupons')">
+      <div class="fk-list-icon">🎫</div>
+      <div class="fk-list-content">
+        <strong>Curfee Coupons</strong>
+        <span>Free delivery & discounts on organic products</span>
+      </div>
+      <i class="fas fa-chevron-right fk-list-arrow"></i>
+    </a>
+    <a href="#" class="fk-list-item" onclick="showToast('Coming soon!','info')">
+      <div class="fk-list-icon">🏷️</div>
+      <div class="fk-list-content">
+        <strong>Refer & Earn ₹100</strong>
+        <span>Invite friends, earn organic rewards</span>
+      </div>
+      <i class="fas fa-chevron-right fk-list-arrow"></i>
+    </a>
+    <a href="#" class="fk-list-item" onclick="showToast('Coming soon!','info')">
+      <div class="fk-list-icon">🌱</div>
+      <div class="fk-list-content">
+        <strong>Green Member Benefits</strong>
+        <span>Extra 5% off on all organic products</span>
+      </div>
+      <i class="fas fa-chevron-right fk-list-arrow"></i>
+    </a>
+  </div>
+
+  <!-- Payment Options -->
+  <div class="fk-section">
+    <h3 class="fk-section-title">💳 Payment Methods</h3>
+    <a href="#" class="fk-list-item" onclick="showToast('UPI setup coming soon','info')">
+      <div class="fk-list-icon">📱</div>
+      <div class="fk-list-content">
+        <strong>UPI — Pay Instantly</strong>
+        <span>GPay, PhonePe, Paytm | 3% cashback</span>
+      </div>
+      <i class="fas fa-chevron-right fk-list-arrow"></i>
+    </a>
+    <a href="#" class="fk-list-item" onclick="showToast('Card setup coming soon','info')">
+      <div class="fk-list-icon">💳</div>
+      <div class="fk-list-content">
+        <strong>Saved Cards</strong>
+        <span>Credit & Debit cards for quick checkout</span>
+      </div>
+      <i class="fas fa-chevron-right fk-list-arrow"></i>
+    </a>
+  </div>
+
+  <!-- Settings -->
+  <div class="fk-settings-list">
+    <a href="#" class="fk-settings-item" onclick="showSection('profile')"><i class="fas fa-user-cog"></i><span>Edit Profile</span><i class="fas fa-chevron-right fk-arrow"></i></a>
+    <a href="#" class="fk-settings-item" onclick="showToast('Address management coming soon','info')"><i class="fas fa-map-marker-alt"></i><span>Saved Addresses</span><i class="fas fa-chevron-right fk-arrow"></i></a>
+    <a href="#" class="fk-settings-item" onclick="showToast('Notifications settings coming soon','info')"><i class="fas fa-bell"></i><span>Notification Preferences</span><i class="fas fa-chevron-right fk-arrow"></i></a>
+    <a href="support.html" class="fk-settings-item"><i class="fas fa-question-circle"></i><span>FAQ & Help</span><i class="fas fa-chevron-right fk-arrow"></i></a>
+    <a href="support.html" class="fk-settings-item"><i class="fas fa-file-alt"></i><span>Terms & Privacy Policy</span><i class="fas fa-chevron-right fk-arrow"></i></a>
+  </div>
+
+  <!-- Logout -->
+  <a href="#" class="fk-logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+
+  <div style="height:80px;"></div>
+
+  <!-- Bottom Nav -->
+  <nav class="fk-bottom-nav">
+    <a href="index.html" class="fk-bnav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="categories.html" class="fk-bnav-item"><i class="fas fa-th-large"></i><span>Categories</span></a>
+    <a href="products.html?featured=true" class="fk-bnav-item"><i class="fas fa-star"></i><span>Top Picks</span></a>
+    <a href="dashboard.html" class="fk-bnav-item active"><i class="fas fa-user"></i><span>Account</span></a>
+    <a href="cart.html" class="fk-bnav-item"><i class="fas fa-shopping-cart"></i><span class="fk-bnav-badge" id="cartCount" style="display:none">0</span><span>Cart</span></a>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <div id="wishlistCount" style="display:none"></div>
+  <script src="js/app.js"></script>
+  <script src="js/products-data.js"></script>
+  <script src="js/products-data2.js"></script>
+  <script>
+    // Dashboard Logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = getUser();
+      if (user) {
+        document.getElementById('userName').textContent = user.name || 'User';
+        if (document.getElementById('profileName')) document.getElementById('profileName').value = user.name || '';
+        if (document.getElementById('profileEmail')) document.getElementById('profileEmail').value = user.email || '';
+        if (document.getElementById('profilePhone')) document.getElementById('profilePhone').value = user.phone || '';
+      }
+      document.getElementById('userCoins').textContent = Math.floor(Math.random()*50);
+      loadOrders();
+      loadWishlist();
+      // Auto-show section from URL hash
+      const hash = window.location.hash.replace('#','');
+      if (hash) showSection(hash);
+    });
+
+    function showSection(name) {
+      event?.preventDefault();
+      ['orders','wishlist','coupons','profile'].forEach(s => {
+        const el = document.getElementById('section-'+s);
+        if (el) el.style.display = s===name ? 'block' : 'none';
+      });
+      window.scrollTo({top:200,behavior:'smooth'});
+    }
+
+    function loadOrders() {
+      const orders = JSON.parse(localStorage.getItem('curfee_orders')||'[]');
+      const el = document.getElementById('ordersList');
+      if (!orders.length) { el.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:3rem;margin-bottom:12px;">📦</div><p style="color:#888;margin-bottom:16px;">No orders yet</p><a href="products.html" style="color:#2d6a4f;font-weight:600;">Start Shopping →</a></div>'; return; }
+      el.innerHTML = orders.slice(0,10).map(o => `
+        <div class="fk-order-card">
+          <div class="fk-order-head">
+            <span class="fk-order-num">${o.orderNumber}</span>
+            <span class="fk-order-status ${o.status==='delivered'?'delivered':'placed'}">${o.status||'Placed'}</span>
+          </div>
+          <div class="fk-order-items">${(o.items||[]).map(i=>i.name+' × '+i.quantity).join(', ')}</div>
+          <div class="fk-order-total">₹${o.total} · ${new Date(o.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+        </div>
+      `).join('');
+    }
+
+    function loadWishlist() {
+      const wl = getWishlist();
+      const grid = document.getElementById('wishlistGrid');
+      if (!wl.length) { grid.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:3rem;margin-bottom:12px;">❤️</div><p style="color:#888;">Your wishlist is empty</p></div>'; return; }
+      const all = (typeof ALL_PRODUCTS!=='undefined'?ALL_PRODUCTS:[]).concat(typeof ALL_PRODUCTS_PART2!=='undefined'?ALL_PRODUCTS_PART2:[]);
+      const products = wl.map(id => all.find(p => (p._id===id||p.slug===id))).filter(Boolean);
+      if (products.length) { grid.innerHTML = products.map(p => productCardHTML(p)).join(''); }
+      else { grid.innerHTML = '<div style="text-align:center;padding:30px;color:#888;">Wishlist items not found in catalog</div>'; }
+    }
+
+    document.getElementById('profileForm')?.addEventListener('submit', e => {
+      e.preventDefault();
+      const user = getUser() || {};
+      user.name = document.getElementById('profileName').value;
+      user.email = document.getElementById('profileEmail').value;
+      user.phone = document.getElementById('profilePhone').value;
+      localStorage.setItem('curfee_user', JSON.stringify(user));
+      document.getElementById('userName').textContent = user.name;
+      showToast('Profile updated! 🌿','success');
+    });
+
+    // Search
+    document.getElementById('searchInput')?.addEventListener('keypress', e => {
+      if (e.key==='Enter') { const q=e.target.value.trim(); if(q) window.location.href='products.html?search='+encodeURIComponent(q); }
+    });
+  </script>
+</body>
+</html>

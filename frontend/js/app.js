@@ -58,7 +58,7 @@ function showToast(message, type = 'info') {
 
 function starsHTML(rating) { let h=''; for (let i=1;i<=5;i++) { h += i <= Math.floor(rating) ? '★' : i-0.5<=rating ? '★' : '☆'; } return h; }
 
-function getCategoryEmoji(category) { return { vegetables:'🥬', fruits:'🍎', dairy:'🥛', snacks:'🍪', herbal:'🌿' }[category] || '🛒'; }
+function getCategoryEmoji(category) { return {vegetables:'🥬',fruits:'🍎',biscuits:'🍪',snacks:'🥜',mushroom:'🍄',chicken:'🍗',mutton:'🍖',grocery:'🏪',herbal:'🌿',dryfruits:'🥣',flour:'🌾',beverages:'☕',spreads:'🍯',pickles:'🥒',superfoods:'🧬',readytocook:'🍲'}[category] || '🛒'; }
 
 function productCardHTML(product) {
   const firstW = product.weights?.[0]; const showPrice = firstW ? (firstW.discountPrice || firstW.price) : (product.discountPrice || product.price); const showOriginal = firstW ? firstW.price : product.price;

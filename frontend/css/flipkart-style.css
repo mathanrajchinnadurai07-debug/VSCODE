@@ -1,0 +1,116 @@
+/* ============================================================
+   Flipkart-Style Category Grid & Account Page CSS
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ===== CATEGORY PAGE ===== */
+.fk-cat-page { font-family:'Inter',sans-serif; background:#f1f3f6; min-height:100vh; padding-bottom:80px; }
+
+/* Top bar */
+.fk-topbar { background:linear-gradient(135deg,#2d6a4f,#40916c); padding:12px 16px; position:sticky; top:0; z-index:100; }
+.fk-topbar-inner { display:flex; align-items:center; gap:12px; }
+.fk-topbar .fk-logo { color:#fff; font-weight:800; font-size:1.2rem; text-decoration:none; display:flex; align-items:center; gap:6px; }
+.fk-topbar .fk-logo span { font-weight:500; font-size:0.7rem; color:rgba(255,255,255,0.8); display:block; margin-top:-2px; }
+.fk-search-bar { flex:1; display:flex; align-items:center; background:#fff; border-radius:8px; padding:0 12px; height:40px; }
+.fk-search-bar i { color:#999; font-size:0.85rem; }
+.fk-search-bar input { border:none; outline:none; flex:1; padding:0 10px; font-size:0.85rem; font-family:inherit; }
+.fk-search-bar .fk-mic { border:none; background:none; cursor:pointer; color:#999; }
+
+/* Category sections */
+.fk-cat-section { padding:16px; }
+.fk-cat-section-title { font-size:1.1rem; font-weight:700; color:#212121; margin-bottom:16px; padding-left:4px; }
+.fk-cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px 8px; }
+.fk-cat-item { text-align:center; text-decoration:none; color:#333; }
+.fk-cat-img-wrap { width:72px; height:72px; margin:0 auto 8px; border-radius:50%; border:3px solid #e8d5f5; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; transition:all 0.2s ease; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.fk-cat-item:hover .fk-cat-img-wrap { border-color:#9b59b6; transform:scale(1.08); box-shadow:0 4px 16px rgba(155,89,182,0.2); }
+.fk-cat-img-wrap img { width:56px; height:56px; object-fit:cover; border-radius:50%; }
+.fk-cat-img-wrap .fk-emoji { font-size:2rem; }
+.fk-cat-label { font-size:0.72rem; font-weight:500; color:#555; line-height:1.3; display:block; }
+
+/* Divider */
+.fk-divider { height:8px; background:#e8e8e8; margin:4px 0; }
+
+/* Buy more bar */
+.fk-promo-bar { position:fixed; bottom:60px; left:0; right:0; z-index:90; background:linear-gradient(135deg,#fff9e6,#fcf0c8); padding:10px 16px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f0e0a0; box-shadow:0 -2px 8px rgba(0,0,0,0.05); }
+.fk-promo-bar span { font-size:0.85rem; font-weight:600; color:#333; }
+.fk-promo-bar i { color:#666; }
+
+/* Bottom nav */
+.fk-bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:100; background:#fff; display:flex; border-top:1px solid #e0e0e0; box-shadow:0 -2px 12px rgba(0,0,0,0.08); }
+.fk-bnav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 0; text-decoration:none; color:#888; font-size:0.65rem; font-weight:500; gap:3px; transition:color 0.2s; position:relative; }
+.fk-bnav-item i { font-size:1.1rem; }
+.fk-bnav-item.active { color:#2d6a4f; }
+.fk-bnav-item.active::after { content:''; position:absolute; top:0; left:20%; right:20%; height:2.5px; background:#2d6a4f; border-radius:0 0 4px 4px; }
+.fk-bnav-badge { position:absolute; top:2px; right:calc(50% - 18px); background:#ff5722; color:#fff; font-size:0.6rem; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; }
+
+/* ===== ACCOUNT PAGE ===== */
+.fk-account-page { font-family:'Inter',sans-serif; background:#f1f3f6; min-height:100vh; padding-bottom:80px; }
+
+/* User card */
+.fk-user-card { background:#fff; margin:0; padding:20px 16px; display:flex; align-items:center; justify-content:space-between; }
+.fk-user-info h2 { font-size:1.2rem; font-weight:700; color:#212121; margin:0 0 4px; }
+.fk-user-info p { font-size:0.8rem; color:#2d6a4f; margin:0; font-weight:500; }
+.fk-user-info p i { font-size:0.7rem; }
+.fk-coins { display:flex; align-items:center; gap:6px; background:#fff8e1; border:1.5px solid #ffc107; border-radius:20px; padding:6px 14px; font-size:0.85rem; font-weight:700; color:#f57f17; }
+.fk-coins i { color:#ffc107; }
+
+/* Quick actions */
+.fk-quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 16px; background:#fff; }
+.fk-quick-btn { display:flex; align-items:center; gap:10px; padding:14px 16px; border:1.5px solid #e0e0e0; border-radius:10px; text-decoration:none; color:#212121; font-size:0.85rem; font-weight:600; background:#fff; transition:all 0.2s; }
+.fk-quick-btn:hover { border-color:#2d6a4f; background:rgba(45,106,79,0.03); }
+.fk-quick-btn i { font-size:1.1rem; color:#2d6a4f; width:20px; text-align:center; }
+
+/* Alert banner */
+.fk-alert-banner { display:flex; align-items:center; gap:12px; padding:14px 16px; background:#fff; margin-top:8px; border-bottom:1px solid #f0f0f0; }
+.fk-alert-banner .fk-alert-icon { width:36px; height:36px; background:linear-gradient(135deg,#ff9800,#ff5722); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.fk-alert-banner .fk-alert-text { flex:1; }
+.fk-alert-banner .fk-alert-text strong { font-size:0.85rem; color:#212121; display:block; }
+.fk-alert-banner .fk-alert-text span { font-size:0.75rem; color:#888; }
+.fk-alert-banner .fk-alert-btn { background:#2d6a4f; color:#fff; border:none; padding:6px 16px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; }
+
+/* Account sections */
+.fk-section { background:#fff; margin-top:8px; padding:16px; }
+.fk-section-title { font-size:1rem; font-weight:700; color:#212121; margin-bottom:12px; }
+.fk-list-item { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid #f5f5f5; text-decoration:none; color:#212121; }
+.fk-list-item:last-child { border-bottom:none; }
+.fk-list-item .fk-list-icon { width:36px; height:36px; border-radius:8px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.fk-list-item .fk-list-content { flex:1; }
+.fk-list-item .fk-list-content strong { font-size:0.85rem; display:block; margin-bottom:2px; }
+.fk-list-item .fk-list-content span { font-size:0.72rem; color:#888; }
+.fk-list-item .fk-list-arrow { color:#ccc; font-size:0.75rem; }
+
+/* Settings list */
+.fk-settings-list { background:#fff; margin-top:8px; }
+.fk-settings-item { display:flex; align-items:center; gap:14px; padding:14px 16px; border-bottom:1px solid #f5f5f5; text-decoration:none; color:#212121; font-size:0.85rem; transition:background 0.2s; }
+.fk-settings-item:hover { background:#f9f9f9; }
+.fk-settings-item i { width:20px; text-align:center; color:#666; font-size:1rem; }
+.fk-settings-item span { flex:1; }
+.fk-settings-item .fk-arrow { color:#ccc; }
+
+/* Membership strip */
+.fk-membership { display:flex; align-items:center; gap:8px; padding:8px 16px; background:linear-gradient(135deg,#f5f5f5,#ebebeb); border-radius:0 0 8px 8px; }
+.fk-membership-badge { background:linear-gradient(135deg,#9b9b9b,#c0c0c0); color:#fff; padding:2px 8px; border-radius:4px; font-size:0.65rem; font-weight:700; letter-spacing:0.5px; }
+.fk-membership span { font-size:0.75rem; color:#666; }
+.fk-membership i { color:#888; font-size:0.7rem; }
+
+/* Logout */
+.fk-logout-btn { display:block; margin:20px 16px; padding:14px; background:#fff; border:1.5px solid #e53935; border-radius:10px; color:#e53935; font-size:0.9rem; font-weight:600; text-align:center; text-decoration:none; transition:all 0.2s; }
+.fk-logout-btn:hover { background:#e53935; color:#fff; }
+.fk-logout-btn i { margin-right:6px; }
+
+/* Orders tab in account */
+.fk-order-card { background:#fff; border:1px solid #e8e8e8; border-radius:10px; padding:16px; margin-bottom:12px; }
+.fk-order-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.fk-order-head .fk-order-num { font-weight:700; font-size:0.85rem; color:#212121; }
+.fk-order-status { padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:600; }
+.fk-order-status.placed { background:#e3f2fd; color:#1565c0; }
+.fk-order-status.delivered { background:#e8f5e9; color:#2e7d32; }
+.fk-order-items { font-size:0.8rem; color:#666; line-height:1.8; }
+.fk-order-total { font-size:0.9rem; font-weight:700; color:#212121; margin-top:8px; }
+
+@media (max-width:400px) {
+  .fk-cat-grid { gap:10px 4px; }
+  .fk-cat-img-wrap { width:64px; height:64px; }
+  .fk-cat-img-wrap img { width:48px; height:48px; }
+  .fk-cat-label { font-size:0.68rem; }
+}

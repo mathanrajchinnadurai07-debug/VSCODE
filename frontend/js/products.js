@@ -1,68 +1,64 @@
-/* Products Page Logic — Filtering, sorting, pagination */
-document.addEventListener('DOMContentLoaded', () => { const p = new URLSearchParams(window.location.search); if (p.get('category')) { document.querySelectorAll('input[name="category"]').forEach(cb => { if (cb.value === p.get('category')) cb.checked = true; }); document.getElementById('pageTitle').textContent = capitalize(p.get('category')); } if (p.get('search')) { document.getElementById('searchInput').value = p.get('search'); document.getElementById('pageTitle').textContent = `Search: "${p.get('search')}"`; } if (p.get('featured')) document.getElementById('featuredFilter').checked = true; loadProducts(); initFilters(); });
+/* Products Page Logic — Uses ALL_PRODUCTS + ALL_PRODUCTS_PART2 from data files */
+document.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('category')) {
+    document.querySelectorAll('input[name="category"]').forEach(cb => { if (cb.value === p.get('category')) cb.checked = true; });
+    document.getElementById('pageTitle').textContent = capitalize(p.get('category'));
+  }
+  if (p.get('search')) { document.getElementById('searchInput').value = p.get('search'); document.getElementById('pageTitle').textContent = `Search: "${p.get('search')}"`; }
+  if (p.get('featured')) document.getElementById('featuredFilter').checked = true;
+  loadProducts();
+  initFilters();
+});
 
 let allProducts = [], currentPage = 1;
 
 async function loadProducts() {
   const params = buildQueryParams();
-  try { const data = await api(`/products?${params}`); if (data.products?.length) { allProducts = data.products; renderGrid(data.products); renderPagination(data.pages, data.page); document.getElementById('productCount').textContent = `${data.total} products found`; return; } } catch { }
+  try {
+    const data = await api(`/products?${params}`);
+    if (data.products?.length) { allProducts = data.products; renderGrid(data.products); renderPagination(data.pages, data.page); document.getElementById('productCount').textContent = `${data.total} products found`; return; }
+  } catch { }
   loadFallbackAll();
 }
 
 function loadFallbackAll() {
-  const img = 'assets/images/products/';
-  const products = [
-    { _id: '1', slug: 'organic-tomato', name: 'Tomato', category: 'vegetables', price: 60, discountPrice: 49, rating: 4.5, numReviews: 128, stock: 150, images: [img + 'tomato.png'], videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', weights: [{ label: '250g', price: 20, discountPrice: 15 }, { label: '500g', price: 35, discountPrice: 28 }, { label: '1kg', price: 60, discountPrice: 49 }], isFeatured: true, isBestSeller: true },
-    { _id: '2', slug: 'organic-onion', name: 'Onion', category: 'vegetables', price: 45, discountPrice: 38, rating: 4.3, numReviews: 95, stock: 200, images: [img + 'onion.png'], weights: [{ label: '250g', price: 15, discountPrice: 12 }, { label: '500g', price: 25, discountPrice: 20 }, { label: '1kg', price: 45, discountPrice: 38 }] },
-    { _id: '3', slug: 'organic-potato', name: 'Potato', category: 'vegetables', price: 40, discountPrice: 32, rating: 4.2, numReviews: 73, stock: 300, images: [img + 'potato.png'], weights: [{ label: '250g', price: 12, discountPrice: 10 }, { label: '500g', price: 22, discountPrice: 18 }, { label: '1kg', price: 40, discountPrice: 32 }] },
-    { _id: '4', slug: 'organic-carrot', name: 'Carrot', category: 'vegetables', price: 55, discountPrice: 45, rating: 4.6, numReviews: 86, stock: 120, images: [img + 'carrot.png'], weights: [{ label: '250g', price: 18, discountPrice: 14 }, { label: '500g', price: 30, discountPrice: 25 }, { label: '1kg', price: 55, discountPrice: 45 }], isFeatured: true },
-    { _id: '5', slug: 'organic-spinach', name: 'Spinach', category: 'vegetables', price: 35, discountPrice: 28, rating: 4.4, numReviews: 62, stock: 80, images: [img + 'spinach.png'], weights: [{ label: '250g', price: 12, discountPrice: 10 }, { label: '500g', price: 20, discountPrice: 16 }, { label: '1kg', price: 35, discountPrice: 28 }], isFeatured: true },
-    { _id: '6', slug: 'organic-broccoli', name: 'Broccoli', category: 'vegetables', price: 85, discountPrice: 72, rating: 4.7, numReviews: 45, stock: 60, images: [img + 'broccoli.png'], weights: [{ label: '250g', price: 25, discountPrice: 20 }, { label: '500g', price: 45, discountPrice: 38 }, { label: '1kg', price: 85, discountPrice: 72 }], isFeatured: true },
-    { _id: '7', slug: 'organic-banana', name: 'Banana', category: 'fruits', price: 50, discountPrice: 42, rating: 4.5, numReviews: 156, stock: 200, images: [img + 'banana.png'], videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', weights: [{ label: '250g (2-3pcs)', price: 15, discountPrice: 12 }, { label: '500g (5-6pcs)', price: 30, discountPrice: 25 }, { label: '1kg (10-12pcs)', price: 50, discountPrice: 42 }], isFeatured: true, isBestSeller: true },
-    { _id: '8', slug: 'organic-mango', name: 'Mango', category: 'fruits', price: 350, discountPrice: 299, rating: 4.8, numReviews: 210, stock: 50, images: [img + 'mango.png'], videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', weights: [{ label: '250g (1pc)', price: 90, discountPrice: 75 }, { label: '500g (2pcs)', price: 180, discountPrice: 150 }, { label: '1kg (3-4pcs)', price: 350, discountPrice: 299 }], isFeatured: true, isBestSeller: true },
-    { _id: '9', slug: 'organic-apple', name: 'Apple', category: 'fruits', price: 180, discountPrice: 155, rating: 4.6, numReviews: 132, stock: 90, images: [img + 'apple.png'], weights: [{ label: '250g (1-2pcs)', price: 50, discountPrice: 42 }, { label: '500g (3-4pcs)', price: 95, discountPrice: 80 }, { label: '1kg (6-7pcs)', price: 180, discountPrice: 155 }], isFeatured: true },
-    { _id: '10', slug: 'organic-strawberry', name: 'Strawberry', category: 'fruits', price: 120, discountPrice: 99, rating: 4.7, numReviews: 89, stock: 40, images: [img + 'strawberry.png'], weights: [{ label: '250g', price: 65, discountPrice: 55 }, { label: '500g', price: 120, discountPrice: 99 }], isFeatured: true },
-    { _id: '11', slug: 'organic-papaya', name: 'Papaya', category: 'fruits', price: 65, discountPrice: 55, rating: 4.3, numReviews: 67, stock: 70, images: [img + 'banana.png'], weights: [{ label: '250g', price: 18, discountPrice: 15 }, { label: '500g', price: 35, discountPrice: 28 }, { label: '1kg', price: 65, discountPrice: 55 }] },
-    { _id: '12', slug: 'organic-guava', name: 'Guava', category: 'fruits', price: 70, discountPrice: 58, rating: 4.4, numReviews: 53, stock: 85, images: [img + 'apple.png'], weights: [{ label: '250g', price: 20, discountPrice: 16 }, { label: '500g', price: 38, discountPrice: 30 }, { label: '1kg', price: 70, discountPrice: 58 }] },
-    { _id: '13', slug: 'organic-milk', name: 'Milk', category: 'dairy', price: 75, discountPrice: 65, rating: 4.8, numReviews: 234, stock: 50, images: [img + 'milk.png'], videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', weights: [{ label: '250ml', price: 22, discountPrice: 18 }, { label: '500ml', price: 40, discountPrice: 35 }, { label: '1L', price: 75, discountPrice: 65 }], isFeatured: true, isBestSeller: true },
-    { _id: '14', slug: 'organic-butter', name: 'Butter', category: 'dairy', price: 120, discountPrice: 105, rating: 4.6, numReviews: 98, stock: 80, images: [img + 'butter.png'], weights: [{ label: '100g', price: 55, discountPrice: 48 }, { label: '250g', price: 95, discountPrice: 82 }, { label: '500g', price: 120, discountPrice: 105 }], isBestSeller: true },
-    { _id: '15', slug: 'organic-paneer', name: 'Paneer', category: 'dairy', price: 150, discountPrice: 130, rating: 4.5, numReviews: 112, stock: 60, images: [img + 'paneer.png'], weights: [{ label: '250g', price: 85, discountPrice: 72 }, { label: '500g', price: 150, discountPrice: 130 }], isFeatured: true },
-    { _id: '16', slug: 'organic-ghee', name: 'Ghee', category: 'dairy', price: 650, discountPrice: 549, rating: 4.9, numReviews: 305, stock: 45, images: [img + 'ghee.png'], videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', weights: [{ label: '250ml', price: 350, discountPrice: 299 }, { label: '500ml', price: 650, discountPrice: 549 }], isFeatured: true, isBestSeller: true },
-    { _id: '17', slug: 'organic-yogurt', name: 'Yogurt', category: 'dairy', price: 55, discountPrice: 45, rating: 4.4, numReviews: 87, stock: 70, images: [img + 'yogurt.png'], weights: [{ label: '250g', price: 30, discountPrice: 25 }, { label: '500g', price: 55, discountPrice: 45 }] },
-    { _id: '18', slug: 'organic-millet-cookies', name: 'Millet Cookies', category: 'snacks', price: 180, discountPrice: 149, rating: 4.6, numReviews: 94, stock: 120, images: [img + 'millet_cookies.png'], weights: [{ label: '100g', price: 65, discountPrice: 55 }, { label: '250g', price: 180, discountPrice: 149 }, { label: '500g', price: 320, discountPrice: 269 }], isFeatured: true, isBestSeller: true },
-    { _id: '19', slug: 'organic-quinoa-crackers', name: 'Quinoa Crackers', category: 'snacks', price: 220, discountPrice: 189, rating: 4.5, numReviews: 67, stock: 80, images: [img + 'millet_cookies.png'], weights: [{ label: '100g', price: 85, discountPrice: 72 }, { label: '250g', price: 220, discountPrice: 189 }], isFeatured: true },
-    { _id: '20', slug: 'organic-jaggery-biscuits', name: 'Jaggery Biscuits', category: 'snacks', price: 120, discountPrice: 99, rating: 4.4, numReviews: 118, stock: 150, images: [img + 'millet_cookies.png'], weights: [{ label: '100g', price: 45, discountPrice: 38 }, { label: '250g', price: 120, discountPrice: 99 }, { label: '500g', price: 210, discountPrice: 179 }], isBestSeller: true },
-    { _id: '21', slug: 'organic-trail-mix', name: 'Dry Fruit Trail Mix', category: 'snacks', price: 350, discountPrice: 299, rating: 4.7, numReviews: 78, stock: 60, images: [img + 'trail_mix.png'], weights: [{ label: '100g', price: 120, discountPrice: 99 }, { label: '250g', price: 350, discountPrice: 299 }, { label: '500g', price: 650, discountPrice: 549 }], isFeatured: true },
-    { _id: '22', slug: 'organic-neem-soap', name: 'Neem Soap', category: 'herbal', price: 150, discountPrice: 125, rating: 4.6, numReviews: 176, stock: 200, images: [img + 'trail_mix.png'], weights: [{ label: '75g', price: 80, discountPrice: 65 }, { label: '125g', price: 150, discountPrice: 125 }, { label: '375g (3 bars)', price: 400, discountPrice: 340 }], isFeatured: true, isBestSeller: true },
-    { _id: '23', slug: 'organic-coconut-oil', name: 'Coconut Oil', category: 'herbal', price: 350, discountPrice: 299, rating: 4.8, numReviews: 245, stock: 120, images: [img + 'ghee.png'], weights: [{ label: '250ml', price: 190, discountPrice: 160 }, { label: '500ml', price: 350, discountPrice: 299 }, { label: '1L', price: 650, discountPrice: 549 }], isFeatured: true, isBestSeller: true },
-    { _id: '24', slug: 'organic-lip-balm', name: 'Lip Balm', category: 'herbal', price: 199, discountPrice: 169, rating: 4.5, numReviews: 132, stock: 150, images: [img + 'trail_mix.png'], weights: [{ label: '5g', price: 99, discountPrice: 85 }, { label: '10g', price: 199, discountPrice: 169 }], isFeatured: true },
-    { _id: '25', slug: 'organic-hair-oil', name: 'Bhringraj Hair Oil', category: 'herbal', price: 320, discountPrice: 269, rating: 4.7, numReviews: 198, stock: 90, images: [img + 'ghee.png'], weights: [{ label: '100ml', price: 150, discountPrice: 125 }, { label: '250ml', price: 320, discountPrice: 269 }, { label: '500ml', price: 580, discountPrice: 499 }], isFeatured: true, isBestSeller: true },
-    { _id: '26', slug: 'organic-face-pack', name: 'Face Pack', category: 'herbal', price: 180, discountPrice: 149, rating: 4.5, numReviews: 109, stock: 100, images: [img + 'trail_mix.png'], weights: [{ label: '50g', price: 80, discountPrice: 65 }, { label: '100g', price: 180, discountPrice: 149 }, { label: '250g', price: 380, discountPrice: 320 }], isFeatured: true },
-    { _id: '27', slug: 'organic-hair-pack', name: 'Amla Hair Pack', category: 'herbal', price: 160, discountPrice: 135, rating: 4.4, numReviews: 87, stock: 110, images: [img + 'trail_mix.png'], weights: [{ label: '50g', price: 65, discountPrice: 55 }, { label: '100g', price: 160, discountPrice: 135 }, { label: '250g', price: 350, discountPrice: 299 }] },
-  ];
-  allProducts = products; applyLocalFilters();
+  // Use ALL_PRODUCTS and ALL_PRODUCTS_PART2 from products-data.js and products-data2.js
+  const part1 = (typeof ALL_PRODUCTS !== 'undefined') ? ALL_PRODUCTS : [];
+  const part2 = (typeof ALL_PRODUCTS_PART2 !== 'undefined') ? ALL_PRODUCTS_PART2 : [];
+  allProducts = part1.concat(part2);
+  applyLocalFilters();
 }
 
 function applyLocalFilters() {
   let filtered = [...allProducts]; const params = new URLSearchParams(window.location.search);
   const cats = [...document.querySelectorAll('input[name="category"]:checked')].map(c => c.value);
-  if (cats.length) filtered = filtered.filter(p => cats.includes(p.category)); else if (params.get('category')) filtered = filtered.filter(p => p.category === params.get('category'));
-  const search = params.get('search') || document.getElementById('searchInput')?.value; if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  if (cats.length) filtered = filtered.filter(p => cats.includes(p.category));
+  else if (params.get('category')) filtered = filtered.filter(p => p.category === params.get('category'));
+  const search = params.get('search') || document.getElementById('searchInput')?.value;
+  if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
   const min = document.getElementById('minPrice')?.value; const max = document.getElementById('maxPrice')?.value;
-  if (min) filtered = filtered.filter(p => (p.discountPrice || p.price) >= Number(min)); if (max) filtered = filtered.filter(p => (p.discountPrice || p.price) <= Number(max));
-  const rating = document.querySelector('input[name="rating"]:checked')?.value; if (rating) filtered = filtered.filter(p => p.rating >= Number(rating));
+  if (min) filtered = filtered.filter(p => (p.discountPrice || p.price) >= Number(min));
+  if (max) filtered = filtered.filter(p => (p.discountPrice || p.price) <= Number(max));
+  const rating = document.querySelector('input[name="rating"]:checked')?.value;
+  if (rating) filtered = filtered.filter(p => p.rating >= Number(rating));
   if (document.getElementById('featuredFilter')?.checked || params.get('featured')) filtered = filtered.filter(p => p.isFeatured);
-  if (params.get('bestseller')) filtered = filtered.filter(p => p.isBestSeller);
+  if (params.get('bestseller')) filtered = filtered.filter(p => p.isBestSeller || p.isFeatured);
   const sort = document.getElementById('sortSelect')?.value;
   if (sort === 'price_low') filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
   else if (sort === 'price_high') filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
   else if (sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
-  filtered.forEach(p => { productsCache[p.slug] = p; }); document.getElementById('productCount').textContent = `${filtered.length} products found`; renderGrid(filtered);
+  filtered.forEach(p => { productsCache[p.slug] = p; });
+  document.getElementById('productCount').textContent = `${filtered.length} products found`;
+  renderGrid(filtered);
 }
 
-function renderGrid(products) { const g = document.getElementById('productGrid'); g.innerHTML = products.length ? products.map(p => productCardHTML(p)).join('') : '<p style="text-align:center;padding:40px;color:var(--text-light);">No products found.</p>'; }
+function renderGrid(products) {
+  const g = document.getElementById('productGrid');
+  g.innerHTML = products.length ? products.map(p => productCardHTML(p)).join('') : '<p style="text-align:center;padding:40px;color:var(--text-light);">No products found.</p>';
+}
 function renderPagination(totalPages, cur) { const c = document.getElementById('pagination'); if (totalPages <= 1) { c.innerHTML = ''; return; } let h = ''; for (let i = 1; i <= totalPages; i++) h += `<button class="btn btn-sm ${i === cur ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`; c.innerHTML = h; }
 function goToPage(page) { currentPage = page; loadProducts(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-function buildQueryParams() { const p = new URLSearchParams(window.location.search); const cats = [...document.querySelectorAll('input[name="category"]:checked')].map(c => c.value); let q = `page=${currentPage}&limit=12`; if (cats.length === 1) q += `&category=${cats[0]}`; else if (p.get('category')) q += `&category=${p.get('category')}`; if (p.get('search')) q += `&search=${p.get('search')}`; if (p.get('featured')) q += `&featured=true`; if (p.get('bestseller')) q += `&bestseller=true`; const min = document.getElementById('minPrice')?.value; const max = document.getElementById('maxPrice')?.value; if (min) q += `&minPrice=${min}`; if (max) q += `&maxPrice=${max}`; const rating = document.querySelector('input[name="rating"]:checked')?.value; if (rating) q += `&rating=${rating}`; const sort = document.getElementById('sortSelect')?.value; if (sort) q += `&sort=${sort}`; return q; }
+function buildQueryParams() { const p = new URLSearchParams(window.location.search); const cats = [...document.querySelectorAll('input[name="category"]:checked')].map(c => c.value); let q = `page=${currentPage}&limit=24`; if (cats.length === 1) q += `&category=${cats[0]}`; else if (p.get('category')) q += `&category=${p.get('category')}`; if (p.get('search')) q += `&search=${p.get('search')}`; if (p.get('featured')) q += `&featured=true`; if (p.get('bestseller')) q += `&bestseller=true`; const min = document.getElementById('minPrice')?.value; const max = document.getElementById('maxPrice')?.value; if (min) q += `&minPrice=${min}`; if (max) q += `&maxPrice=${max}`; const rating = document.querySelector('input[name="rating"]:checked')?.value; if (rating) q += `&rating=${rating}`; const sort = document.getElementById('sortSelect')?.value; if (sort) q += `&sort=${sort}`; return q; }
 function initFilters() { document.querySelectorAll('.filter-sidebar input, .filter-sidebar select').forEach(el => el.addEventListener('change', () => { currentPage = 1; loadProducts(); })); document.getElementById('sortSelect')?.addEventListener('change', () => { currentPage = 1; loadProducts(); }); document.getElementById('clearFilters')?.addEventListener('click', () => { document.querySelectorAll('.filter-sidebar input').forEach(i => { i.checked = false; i.value = ''; }); document.getElementById('sortSelect').value = ''; window.location.href = 'products.html'; }); }
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }

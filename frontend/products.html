@@ -1,12 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Browse organic vegetables, fruits & dairy at Curfee Organic Market."><title>Products — Curfee Organic Market</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Browse 200+ organic products at Curfee Organic Market — 16 categories."><title>Products — Curfee Organic Market</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></head>
 <body>
   <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> +91 78457 44038 | <a href="support.html">Help</a></div><div><a href="#" id="locationBtn"><i class="fas fa-map-marker-alt"></i> <span id="userLocation">Detect Location</span></a></div></div></div>
-  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon">🌿</div>Curfee<span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option><option value="vegetables">Vegetables</option><option value="fruits">Fruits</option><option value="dairy">Dairy</option></select><input type="text" id="searchInput" placeholder="Search organic products..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="dashboard.html" class="nav-btn" id="wishlistNavBtn"><i class="fas fa-heart"></i><span>Wishlist</span><div class="count" id="wishlistCount" style="display:none">0</div></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
+  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon">🌿</div>Curfee<span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option><option value="vegetables">Vegetables</option><option value="fruits">Fruits</option><option value="biscuits">Biscuits</option><option value="snacks">Snacks</option><option value="mushroom">Mushroom</option><option value="chicken">Chicken</option><option value="mutton">Mutton</option><option value="grocery">Grocery</option><option value="herbal">Herbal</option><option value="dryfruits">Dry Fruits</option><option value="flour">Flour</option><option value="beverages">Beverages</option><option value="spreads">Spreads</option><option value="pickles">Pickles</option><option value="superfoods">Superfoods</option><option value="readytocook">Ready to Cook</option></select><input type="text" id="searchInput" placeholder="Search 200+ organic products..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="dashboard.html" class="nav-btn" id="wishlistNavBtn"><i class="fas fa-heart"></i><span>Wishlist</span><div class="count" id="wishlistCount" style="display:none">0</div></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
   <div class="container"><div class="page-layout">
     <aside class="filter-sidebar"><h2 style="font-size:1.1rem;margin-bottom:20px;">Filters</h2>
-      <div class="filter-group"><h3>Category</h3><label><input type="checkbox" name="category" value="vegetables"> 🥬 Vegetables</label><label><input type="checkbox" name="category" value="fruits"> 🍎 Fruits</label><label><input type="checkbox" name="category" value="dairy"> 🥛 Dairy</label><label><input type="checkbox" name="category" value="snacks"> 🍪 Snacks</label><label><input type="checkbox" name="category" value="herbal"> 🌿 Herbal</label></div>
+      <div class="filter-group"><h3>Category</h3>
+        <label><input type="checkbox" name="category" value="vegetables"> 🥬 Vegetables</label>
+        <label><input type="checkbox" name="category" value="fruits"> 🍎 Fruits</label>
+        <label><input type="checkbox" name="category" value="biscuits"> 🍪 Biscuits</label>
+        <label><input type="checkbox" name="category" value="snacks"> 🥜 Snacks</label>
+        <label><input type="checkbox" name="category" value="mushroom"> 🍄 Mushroom</label>
+        <label><input type="checkbox" name="category" value="chicken"> 🍗 Chicken</label>
+        <label><input type="checkbox" name="category" value="mutton"> 🍖 Mutton</label>
+        <label><input type="checkbox" name="category" value="grocery"> 🏪 Grocery</label>
+        <label><input type="checkbox" name="category" value="herbal"> 🌿 Herbal</label>
+        <label><input type="checkbox" name="category" value="dryfruits"> 🥣 Dry Fruits</label>
+        <label><input type="checkbox" name="category" value="flour"> 🌾 Flour</label>
+        <label><input type="checkbox" name="category" value="beverages"> ☕ Beverages</label>
+        <label><input type="checkbox" name="category" value="spreads"> 🍯 Spreads</label>
+        <label><input type="checkbox" name="category" value="pickles"> 🥒 Pickles</label>
+        <label><input type="checkbox" name="category" value="superfoods"> 🧬 Superfoods</label>
+        <label><input type="checkbox" name="category" value="readytocook"> 🍲 Ready to Cook</label>
+      </div>
       <div class="filter-group"><h3>Price Range</h3><div class="price-range"><input type="number" id="minPrice" placeholder="Min" min="0"><span>—</span><input type="number" id="maxPrice" placeholder="Max" min="0"></div></div>
       <div class="filter-group"><h3>Rating</h3><label><input type="radio" name="rating" value="4"> ★★★★☆ & up</label><label><input type="radio" name="rating" value="3"> ★★★☆☆ & up</label></div>
       <div class="filter-group"><h3>Availability</h3><label><input type="checkbox" id="inStockFilter" checked> In Stock</label><label><input type="checkbox" id="featuredFilter"> Featured only</label></div>
@@ -20,5 +37,8 @@
   </div></div>
   <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 Curfee Organic Market.</p></div></div></footer>
   <div class="toast-container" id="toastContainer"></div>
-  <script src="js/app.js"></script><script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/products-data.js"></script>
+  <script src="js/products-data2.js"></script>
+  <script src="js/products.js"></script>
 </body></html>
