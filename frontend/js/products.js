@@ -32,41 +32,24 @@ function loadFallbackAll() {
 
 function applyLocalFilters() {
   let filtered = [...allProducts]; const params = new URLSearchParams(window.location.search);
-  
-  let cats = [...document.querySelectorAll('input[name="category"]:checked')].map(c => c.value);
-  const mobCats = [...document.querySelectorAll('.mob-cat-param:checked')].map(c => c.value);
-  cats = [...new Set([...cats, ...mobCats])];
-  
+  const cats = [...document.querySelectorAll('input[name="category"]:checked')].map(c => c.value);
   if (cats.length) filtered = filtered.filter(p => cats.includes(p.category));
   else if (params.get('category')) filtered = filtered.filter(p => p.category === params.get('category'));
-  
-  const search = params.get('search') || document.getElementById('searchInput')?.value || document.getElementById('mobSearchInput')?.value;
+  const search = params.get('search') || document.getElementById('searchInput')?.value;
   if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
-  
   const min = document.getElementById('minPrice')?.value; const max = document.getElementById('maxPrice')?.value;
   if (min) filtered = filtered.filter(p => (p.discountPrice || p.price) >= Number(min));
   if (max) filtered = filtered.filter(p => (p.discountPrice || p.price) <= Number(max));
-  
-  const rating = document.querySelector('input[name="rating"]:checked')?.value || document.querySelector('input[name="mob_rating"]:checked')?.value;
+  const rating = document.querySelector('input[name="rating"]:checked')?.value;
   if (rating) filtered = filtered.filter(p => p.rating >= Number(rating));
-  
-  if (document.getElementById('mobInStock')?.checked || document.getElementById('inStockFilter')?.checked) filtered = filtered.filter(p => (p.stock || p.stockQuantity || 10) > 0);
-  
   if (document.getElementById('featuredFilter')?.checked || params.get('featured')) filtered = filtered.filter(p => p.isFeatured);
-  
   if (params.get('bestseller')) filtered = filtered.filter(p => p.isBestSeller || p.isFeatured);
-  
   const sort = document.getElementById('sortSelect')?.value;
   if (sort === 'price_low') filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
   else if (sort === 'price_high') filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
   else if (sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
-  
   filtered.forEach(p => { productsCache[p.slug] = p; });
-  
   document.getElementById('productCount').textContent = `${filtered.length} products found`;
-  const mfc = document.getElementById('mobFilterCount');
-  if (mfc) mfc.textContent = `${filtered.length} products found`;
-  
   renderGrid(filtered);
 }
 
