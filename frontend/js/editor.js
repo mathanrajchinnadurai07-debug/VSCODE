@@ -59,6 +59,7 @@ function getAllProducts() {
 
 function getStockOverrides() { return DB.get('stock_overrides', {}); }
 function getPriceOverrides() { return DB.get('price_overrides', {}); }
+function getDetailOverrides() { return DB.get('detail_overrides', {}); }
 
 function getProductStock(p) {
   const overrides = getStockOverrides();
@@ -287,6 +288,7 @@ function updatePrice(id, type, val) {
 function openEditProduct(id) {
   const p = getAllProducts().find(x => x._id === id);
   if (!p) return;
+  const dets = getDetailOverrides()[id] || {};
   document.getElementById('editProdId').value = id;
   document.getElementById('editProdName').value = p.name;
   document.getElementById('editProdCat').value = p.category;
@@ -294,7 +296,9 @@ function openEditProduct(id) {
   document.getElementById('editProdDiscPrice').value = getProductDiscPrice(p);
   document.getElementById('editProdStock').value = getProductStock(p);
   document.getElementById('editProdRating').value = p.rating || 4.3;
-  document.getElementById('editProdDesc').value = p.description || '';
+  document.getElementById('editProdDesc').value = dets.description !== undefined ? dets.description : (p.description || '');
+  document.getElementById('editProdImage').value = dets.images ? dets.images.join(', ') : (p.images ? p.images.map(i => i.split('/').pop()).join(', ') : '');
+  document.getElementById('editProdVideo').value = dets.videoUrl !== undefined ? dets.videoUrl : (p.videoUrl || '');
   document.getElementById('editProductModal').classList.add('active');
 }
 
@@ -304,6 +308,17 @@ function saveEditProduct(e) {
   updateStock(id, document.getElementById('editProdStock').value);
   updatePrice(id, 'price', document.getElementById('editProdPrice').value);
   updatePrice(id, 'disc', document.getElementById('editProdDiscPrice').value);
+  
+  const overrides = getDetailOverrides();
+  const imgsStr = document.getElementById('editProdImage').value;
+  const imgs = imgsStr ? imgsStr.split(',').map(s=>s.trim()).filter(Boolean).map(s => s.startsWith('http') ? s : 'assets/images/products/' + s) : [];
+  overrides[id] = {
+    description: document.getElementById('editProdDesc').value.trim(),
+    videoUrl: document.getElementById('editProdVideo').value.trim(),
+    images: imgs.length > 0 ? imgs : undefined
+  };
+  DB.set('detail_overrides', overrides);
+
   closeModal('editProductModal');
   showToast('Product updated successfully!', 'success');
   renderProductTable();
@@ -321,7 +336,8 @@ function deleteProduct(id) {
 // ===== ADD PRODUCT =====
 function saveNewProduct(e) {
   e.preventDefault();
-  const imgFile = document.getElementById('pImage').value.trim() || 'tomato.png';
+  const imgsInput = document.getElementById('pImage').value;
+  const imgs = imgsInput ? imgsInput.split(',').map(s=>s.trim()).filter(Boolean).map(s => s.startsWith('http') ? s : 'assets/images/products/' + s) : ['assets/images/products/tomato.png'];
   const slug = document.getElementById('pName').value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   const product = {
     _id: 'custom_' + Date.now(),
@@ -335,7 +351,8 @@ function saveNewProduct(e) {
     rating: parseFloat(document.getElementById('pRating').value) || 4.3,
     numReviews: 0,
     isFeatured: document.getElementById('pFeatured').checked,
-    images: ['assets/images/products/' + imgFile],
+    images: imgs,
+    videoUrl: document.getElementById('pVideoUrl').value.trim(),
     weights: [{ label: '250g', price: parseFloat(document.getElementById('pPrice').value), discountPrice: parseFloat(document.getElementById('pDiscPrice').value || document.getElementById('pPrice').value) }]
   };
   const custom = DB.get('custom_products', []);

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrganicMart Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --green:#1a6b3c;--green-light:#e6f5ec;--green-mid:#2d8f55;
+  --amber:#d4820a;--amber-light:#fff8e6;
+  --red:#c0392b;--red-light:#fdecea;
+  --blue:#1a5fa6;--blue-light:#e8f1fb;
+  --bg:#f4f5f7;--white:#fff;
+  --text:#1c1c1c;--text-muted:#666;--text-light:#999;
+  --border:#e0e0e0;--sidebar:220px;
+  --shadow:0 1px 6px rgba(0,0,0,0.08);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50}
+.sidebar-logo{padding:18px 20px;border-bottom:1px solid var(--border);font-size:18px;font-weight:700;color:var(--green)}
+.sidebar-logo span{font-size:11px;display:block;color:var(--text-muted);font-weight:400;margin-top:2px}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-section{padding:6px 16px 4px;font-size:10px;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.8px;margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.nav-item .icon{width:18px;text-align:center;font-size:16px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted)}
+.sidebar-footer strong{display:block;color:var(--text);font-size:13px;margin-bottom:2px}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.topbar-actions button{background:var(--green);color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.page{padding:24px;display:none}
+.page.active{display:block}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:10px;border:1px solid var(--border);padding:16px 20px}
+.stat-label{font-size:12px;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.stat-value{font-size:24px;font-weight:600;margin-bottom:4px}
+.stat-change{font-size:12px;color:var(--green)}
+.stat-change.neg{color:var(--red)}
+
+/* TABLES */
+.card{background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+.card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:14px;font-weight:600}
+.card-header .actions{display:flex;gap:8px}
+.btn-sm{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border:1.5px solid var(--border);background:var(--white)}
+.btn-sm.primary{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-sm.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-sm.warn{background:var(--amber);color:#fff;border-color:var(--amber)}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--bg)}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.active{background:var(--green-light);color:var(--green)}
+.badge.low{background:var(--amber-light);color:var(--amber)}
+.badge.out{background:var(--red-light);color:var(--red)}
+.badge.pending{background:#f0e8ff;color:#6b21a8}
+.badge.delivered{background:var(--green-light);color:var(--green)}
+.badge.processing{background:#e8f1fb;color:var(--blue)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:20px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:12px;font-weight:600;color:var(--text-muted)}
+input[type=text],input[type=number],input[type=email],select,textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;background:var(--white);transition:border .2s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{resize:vertical;min-height:80px}
+.img-upload{border:2px dashed var(--border);border-radius:8px;padding:30px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.img-upload:hover{border-color:var(--green);background:var(--green-light)}
+.img-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.img-thumb{width:70px;height:70px;border-radius:7px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:30px;border:1px solid var(--border);position:relative;cursor:pointer}
+.img-thumb .del{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.form-actions{padding:0 20px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:16px;margin-top:4px}
+
+/* QTY CONTROLS */
+.qty-adj{display:flex;align-items:center;gap:8px}
+.qty-adj button{background:var(--bg);border:1px solid var(--border);width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:600}
+.qty-adj input{width:60px;text-align:center;padding:4px;border:1px solid var(--border);border-radius:5px;font-size:13px;font-family:inherit}
+
+/* REVENUE */
+.revenue-bar{height:12px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:6px}
+.revenue-bar-fill{height:100%;background:var(--green);border-radius:6px;transition:width .6s}
+
+/* TOGGLE */
+.toggle{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:22px;transition:.3s}
+.slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+input:checked+.slider{background:var(--green)}
+input:checked+.slider:before{transform:translateX(18px)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:520px;max-height:85vh;overflow-y:auto;max-width:95vw}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:15px;font-weight:600}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted)}
+
+/* CHARTS (simple CSS bars) */
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;background:var(--green-light);border-radius:4px 4px 0 0;border:1px solid var(--green);transition:height .5s;min-height:4px}
+.bar-label{font-size:10px;color:var(--text-muted)}
+
+.toast{position:fixed;bottom:20px;right:20px;background:#1c1c1c;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">🌿 OrganicMart <span>Admin Dashboard</span></div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('orders',this)"><span class="icon">📦</span> Orders</div>
+
+    <div class="nav-section">Inventory</div>
+    <div class="nav-item" onclick="showPage('products',this)"><span class="icon">🥦</span> Products</div>
+    <div class="nav-item" onclick="showPage('add-product',this)"><span class="icon">➕</span> Add Product</div>
+    <div class="nav-item" onclick="showPage('packages',this)"><span class="icon">🎁</span> Packages & Plans</div>
+
+    <div class="nav-section">Partners</div>
+    <div class="nav-item" onclick="showPage('sellers',this)"><span class="icon">🧑🌾</span> Sellers / Farmers</div>
+    <div class="nav-item" onclick="showPage('delivery',this)"><span class="icon">🚚</span> Delivery Partners</div>
+    <div class="nav-item" onclick="showPage('revenue',this)"><span class="icon">💰</span> Revenue & Payouts</div>
+
+    <div class="nav-section">Manage</div>
+    <div class="nav-item" onclick="showPage('customers',this)"><span class="icon">👥</span> Customers</div>
+    <div class="nav-item" onclick="showPage('offers',this)"><span class="icon">🏷️</span> Offers & Coupons</div>
+    <div class="nav-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span> Settings</div>
+  </div>
+  <div class="sidebar-footer">
+    <strong>Admin User</strong>
+    admin@organicmart.in
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions">
+      <span style="font-size:13px;color:var(--text-muted)">🌿 OrganicMart v2.0</span>
+      <button onclick="showPage('add-product',document.querySelector('.nav-item:nth-child(5)'))">+ Add Product</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">💰 Total Revenue</div><div class="stat-value">₹4,82,390</div><div class="stat-change">↑ 18% this month</div></div>
+      <div class="stat-card"><div class="stat-label">📦 Total Orders</div><div class="stat-value">2,847</div><div class="stat-change">↑ 12% vs last month</div></div>
+      <div class="stat-card"><div class="stat-label">👥 Customers</div><div class="stat-value">1,234</div><div class="stat-change">↑ 34 new today</div></div>
+      <div class="stat-card"><div class="stat-label">🥦 Products Active</div><div class="stat-value">186</div><div class="stat-change neg">↓ 3 out of stock</div></div>
+      <div class="stat-card"><div class="stat-label">🧑🌾 Sellers</div><div class="stat-value">42</div><div class="stat-change">↑ 4 new this week</div></div>
+      <div class="stat-card"><div class="stat-label">🚚 Deliveries Today</div><div class="stat-value">128</div><div class="stat-change">↑ 96% on time</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+      <div class="card">
+        <div class="card-header"><h3>Weekly Revenue (₹)</h3></div>
+        <div style="padding:16px">
+          <div class="chart-bars" id="rev-chart"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Low Stock Alerts</h3></div>
+        <table>
+          <tr><th>Product</th><th>Stock</th><th>Status</th></tr>
+          <tr><td>Organic Spinach</td><td>8 kg</td><td><span class="badge low">Low</span></td></tr>
+          <tr><td>Desi Ghee 500g</td><td>3 units</td><td><span class="badge out">Out Soon</span></td></tr>
+          <tr><td>Raw Honey 1kg</td><td>12 units</td><td><span class="badge low">Low</span></td></tr>
+          <tr><td>A2 Milk 1L</td><td>0 units</td><td><span class="badge out">Out</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Recent Orders</h3><div class="actions"><button class="btn-sm" onclick="showPage('orders',null)">View All</button></div></div>
+      <table>
+        <tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+        <tr><td><span style="font-family:monospace;font-size:12px">#OM-4821</span></td><td>Priya Sharma</td><td>Weekly Family Box</td><td>₹1,249</td><td><span class="badge delivered">Delivered</span></td><td>Today</td></tr>
+        <tr><td><span style="font-family:monospace;font-size:12px">#OM-4820</span></td><td>Rajesh Kumar</td><td>3 items</td><td>₹387</td><td><span class="badge processing">Processing</span></td><td>Today</td></tr>
+        <tr><td><span style="font-family:monospace;font-size:12px">#OM-4819</span></td><td>Meena Iyer</td><td>Monthly Mega Box</td><td>₹4,299</td><td><span class="badge delivered">Delivered</span></td><td>Yesterday</td></tr>
+        <tr><td><span style="font-family:monospace;font-size:12px">#OM-4818</span></td><td>Arun Nair</td><td>5 items</td><td>₹620</td><td><span class="badge pending">Pending</span></td><td>Yesterday</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="page" id="page-products">
+    <div class="card">
+      <div class="card-header">
+        <h3>All Products (186)</h3>
+        <div class="actions">
+          <input type="text" placeholder="Search products..." style="padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;font-family:inherit">
+          <select style="padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;font-family:inherit"><option>All Categories</option><option>Vegetables</option><option>Fruits</option><option>Dairy</option></select>
+          <button class="btn-sm primary" onclick="showPage('add-product',null)">+ Add Product</button>
+        </div>
+      </div>
+      <table id="products-table">
+        <tr><th>Product</th><th>Category</th><th>Price (₹)</th><th>Stock</th><th>Adjust Qty</th><th>Status</th><th>Actions</th></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADD PRODUCT -->
+  <div class="page" id="page-add-product">
+    <div class="card">
+      <div class="card-header"><h3>Add / Edit Product</h3></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" placeholder="e.g. Organic Spinach" id="prod-name">
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="prod-cat">
+            <option>Vegetables</option><option>Fruits</option><option>Dairy</option>
+            <option>Eggs</option><option>Grains</option><option>Honey</option>
+            <option>Herbs & Spices</option><option>Oils</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>MRP (₹) *</label>
+          <input type="number" placeholder="110" id="prod-mrp">
+        </div>
+        <div class="form-group">
+          <label>Selling Price (₹) *</label>
+          <input type="number" placeholder="89" id="prod-price">
+        </div>
+        <div class="form-group">
+          <label>Unit / Weight</label>
+          <input type="text" placeholder="e.g. 1kg, 500g, 1L, 12 pcs" id="prod-unit">
+        </div>
+        <div class="form-group">
+          <label>Initial Stock Quantity *</label>
+          <input type="number" placeholder="50" id="prod-stock">
+        </div>
+        <div class="form-group">
+          <label>Seller / Farmer</label>
+          <select id="prod-seller">
+            <option>Ramesh Organic Farm (Tamil Nadu)</option>
+            <option>Green Valley Farms (Maharashtra)</option>
+            <option>Nandini Dairy (Karnataka)</option>
+            <option>Himalayan Bee Farms (HP)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Badge Label</label>
+          <input type="text" placeholder="e.g. Organic, Farm Fresh, Seasonal">
+        </div>
+        <div class="form-group full">
+          <label>Description</label>
+          <textarea placeholder="Describe the product, origin, benefits..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Product Images</label>
+          <div class="img-upload" onclick="fakeUpload()">
+            <div style="font-size:32px;margin-bottom:8px">📷</div>
+            <div style="font-size:13px;font-weight:500">Click to upload images</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP up to 5MB each</div>
+          </div>
+          <div class="img-preview" id="img-preview">
+            <div class="img-thumb">🥦<span class="del" onclick="this.parentNode.remove()">✕</span></div>
+            <div class="img-thumb">🌿<span class="del" onclick="this.parentNode.remove()">✕</span></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Available</label>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="form-group">
+          <label>Featured Product</label>
+          <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-sm" onclick="showPage('products',null)">Cancel</button>
+        <button class="btn-sm primary" onclick="saveProduct()">💾 Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="page" id="page-orders">
+    <div class="card">
+      <div class="card-header">
+        <h3>All Orders</h3>
+        <div class="actions">
+          <select style="padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;font-family:inherit"><option>All Status</option><option>Pending</option><option>Processing</option><option>Delivered</option><option>Cancelled</option></select>
+          <button class="btn-sm">Export CSV</button>
+        </div>
+      </div>
+      <table>
+        <tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Amount</th><th>Delivery Partner</th><th>Status</th><th>Action</th></tr>
+        <tr><td>#OM-4821</td><td>Priya Sharma</td><td>Weekly Family Box</td><td>₹1,249</td><td>Ravi Kumar</td><td><span class="badge delivered">Delivered</span></td><td><button class="btn-sm">View</button></td></tr>
+        <tr><td>#OM-4820</td><td>Rajesh Kumar</td><td>3 items</td><td>₹387</td><td>Suresh S</td><td><span class="badge processing">Processing</span></td><td><button class="btn-sm">View</button></td></tr>
+        <tr><td>#OM-4819</td><td>Meena Iyer</td><td>Monthly Mega Box</td><td>₹4,299</td><td>Mohan T</td><td><span class="badge delivered">Delivered</span></td><td><button class="btn-sm">View</button></td></tr>
+        <tr><td>#OM-4818</td><td>Arun Nair</td><td>5 items</td><td>₹620</td><td>Unassigned</td><td><span class="badge pending">Pending</span></td><td><button class="btn-sm warn" onclick="showToast('Assigning delivery partner...')">Assign</button></td></tr>
+        <tr><td>#OM-4817</td><td>Kavitha R</td><td>Starter Weekly</td><td>₹649</td><td>Ravi Kumar</td><td><span class="badge delivered">Delivered</span></td><td><button class="btn-sm">View</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SELLERS -->
+  <div class="page" id="page-sellers">
+    <div class="card">
+      <div class="card-header"><h3>Seller / Farmer Partners</h3><button class="btn-sm primary" onclick="openSellerModal()">+ Add Seller</button></div>
+      <table>
+        <tr><th>Seller Name</th><th>Location</th><th>Products</th><th>Revenue (This Month)</th><th>Commission %</th><th>Status</th><th>Action</th></tr>
+        <tr>
+          <td><strong>Ramesh Organic Farm</strong><br><span style="font-size:11px;color:var(--text-muted)">ramesh@farm.in</span></td>
+          <td>Coimbatore, TN</td><td>24</td><td>₹38,200</td>
+          <td><input type="number" value="70" style="width:60px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Commission updated!')"> %</td>
+          <td><span class="badge active">Active</span></td>
+          <td><button class="btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><strong>Green Valley Farms</strong><br><span style="font-size:11px;color:var(--text-muted)">green@valley.in</span></td>
+          <td>Nashik, MH</td><td>18</td><td>₹52,100</td>
+          <td><input type="number" value="72" style="width:60px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Commission updated!')"> %</td>
+          <td><span class="badge active">Active</span></td>
+          <td><button class="btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><strong>Nandini Dairy</strong><br><span style="font-size:11px;color:var(--text-muted)">nandini@dairy.in</span></td>
+          <td>Mysuru, KA</td><td>8</td><td>₹29,450</td>
+          <td><input type="number" value="68" style="width:60px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Commission updated!')"> %</td>
+          <td><span class="badge active">Active</span></td>
+          <td><button class="btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><strong>Himalayan Bee Farms</strong><br><span style="font-size:11px;color:var(--text-muted)">bee@himalaya.in</span></td>
+          <td>Shimla, HP</td><td>5</td><td>₹18,900</td>
+          <td><input type="number" value="65" style="width:60px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Commission updated!')"> %</td>
+          <td><span class="badge low">Review</span></td>
+          <td><button class="btn-sm">View</button></td>
+        </tr>
+      </table>
+    </div>
+    <div style="padding:12px 0;font-size:12px;color:var(--text-muted)">💡 Seller gets the set %, OrganicMart retains the remainder. Adjust per-seller in the field above.</div>
+  </div>
+
+  <!-- DELIVERY -->
+  <div class="page" id="page-delivery">
+    <div class="card">
+      <div class="card-header"><h3>Delivery Partners</h3><button class="btn-sm primary">+ Add Partner</button></div>
+      <table>
+        <tr><th>Partner Name</th><th>Zone</th><th>Deliveries (Month)</th><th>On-Time %</th><th>Revenue Share %</th><th>Status</th></tr>
+        <tr><td>Ravi Kumar</td><td>Coimbatore North</td><td>312</td><td>97%</td>
+          <td><input type="number" value="12" style="width:55px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Payout % updated!')"> %</td>
+          <td><span class="badge active">Active</span></td></tr>
+        <tr><td>Suresh S</td><td>Coimbatore South</td><td>289</td><td>94%</td>
+          <td><input type="number" value="12" style="width:55px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Payout % updated!')"> %</td>
+          <td><span class="badge active">Active</span></td></tr>
+        <tr><td>Mohan T</td><td>Erode</td><td>198</td><td>91%</td>
+          <td><input type="number" value="11" style="width:55px;padding:4px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:13px" onchange="showToast('Payout % updated!')"> %</td>
+          <td><span class="badge low">Warning</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- REVENUE -->
+  <div class="page" id="page-revenue">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">💰 Total Revenue</div><div class="stat-value">₹4,82,390</div><div class="stat-change">This month</div></div>
+      <div class="stat-card"><div class="stat-label">🧑🌾 Seller Payouts</div><div class="stat-value">₹3,37,673</div><div class="stat-change">~70% avg share</div></div>
+      <div class="stat-card"><div class="stat-label">🚚 Delivery Payouts</div><div class="stat-value">₹57,887</div><div class="stat-change">~12% avg</div></div>
+      <div class="stat-card"><div class="stat-label">🏦 OrganicMart Net</div><div class="stat-value">₹86,830</div><div class="stat-change">~18% platform fee</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Revenue Split by Partner</h3></div>
+      <div style="padding:20px">
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🧑🌾 Sellers (avg 70%)</span><span style="font-weight:600">₹3,37,673</span></div>
+          <div class="revenue-bar"><div class="revenue-bar-fill" style="width:70%;background:var(--green)"></div></div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🚚 Delivery Partners (avg 12%)</span><span style="font-weight:600">₹57,887</span></div>
+          <div class="revenue-bar"><div class="revenue-bar-fill" style="width:12%;background:var(--blue)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>🏦 Platform Fee (18%)</span><span style="font-weight:600">₹86,830</span></div>
+          <div class="revenue-bar"><div class="revenue-bar-fill" style="width:18%;background:var(--amber)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Payout Schedule</h3><button class="btn-sm primary" onclick="showToast('Processing all payouts...')">Process All Payouts</button></div>
+      <table>
+        <tr><th>Partner</th><th>Type</th><th>Amount Due</th><th>Period</th><th>Action</th></tr>
+        <tr><td>Ramesh Organic Farm</td><td>Seller</td><td>₹26,740</td><td>June 1–15</td><td><button class="btn-sm primary" onclick="showToast('✅ Payout sent!')">Pay Now</button></td></tr>
+        <tr><td>Green Valley Farms</td><td>Seller</td><td>₹36,470</td><td>June 1–15</td><td><button class="btn-sm primary" onclick="showToast('✅ Payout sent!')">Pay Now</button></td></tr>
+        <tr><td>Ravi Kumar</td><td>Delivery</td><td>₹19,344</td><td>June 1–15</td><td><button class="btn-sm primary" onclick="showToast('✅ Payout sent!')">Pay Now</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PACKAGES -->
+  <div class="page" id="page-packages">
+    <div class="card">
+      <div class="card-header"><h3>Subscription Plans</h3><button class="btn-sm primary" onclick="showToast('Plan editor coming soon!')">+ New Plan</button></div>
+      <table>
+        <tr><th>Plan Name</th><th>Type</th><th>Price (₹)</th><th>Subscribers</th><th>Status</th><th>Action</th></tr>
+        <tr><td>Starter Weekly</td><td>Weekly</td><td>₹649</td><td>234</td><td><span class="badge active">Active</span></td><td><button class="btn-sm">Edit</button></td></tr>
+        <tr><td>Family Weekly</td><td>Weekly</td><td>₹1,249</td><td>512</td><td><span class="badge active">Active</span></td><td><button class="btn-sm">Edit</button></td></tr>
+        <tr><td>Monthly Mega Box</td><td>Monthly</td><td>₹4,299</td><td>189</td><td><span class="badge active">Active</span></td><td><button class="btn-sm">Edit</button></td></tr>
+        <tr><td>Dairy Daily Pack</td><td>Daily</td><td>₹79/day</td><td>87</td><td><span class="badge low">Draft</span></td><td><button class="btn-sm">Edit</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="page" id="page-customers">
+    <div class="card">
+      <div class="card-header"><h3>Customers (1,234)</h3><input type="text" placeholder="Search customers..." style="padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;font-family:inherit"></div>
+      <table>
+        <tr><th>Name</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Subscription</th><th>Action</th></tr>
+        <tr><td>Priya Sharma</td><td>+91 98765 43210</td><td>18</td><td>₹22,450</td><td><span class="badge active">Family Weekly</span></td><td><button class="btn-sm">View</button></td></tr>
+        <tr><td>Rajesh Kumar</td><td>+91 87654 32109</td><td>7</td><td>₹4,200</td><td><span class="badge out">None</span></td><td><button class="btn-sm">View</button></td></tr>
+        <tr><td>Meena Iyer</td><td>+91 76543 21098</td><td>24</td><td>₹1,03,176</td><td><span class="badge active">Monthly Mega</span></td><td><button class="btn-sm">View</button></td></tr>
+        <tr><td>Arun Nair</td><td>+91 65432 10987</td><td>3</td><td>₹1,860</td><td><span class="badge out">None</span></td><td><button class="btn-sm">View</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- OFFERS -->
+  <div class="page" id="page-offers">
+    <div class="card">
+      <div class="card-header"><h3>Coupons & Offers</h3><button class="btn-sm primary">+ New Coupon</button></div>
+      <table>
+        <tr><th>Code</th><th>Type</th><th>Discount</th><th>Min Order</th><th>Used</th><th>Status</th><th>Action</th></tr>
+        <tr><td><strong>FIRST20</strong></td><td>First Order</td><td>20%</td><td>₹299</td><td>412</td><td><span class="badge active">Active</span></td><td><button class="btn-sm danger" onclick="showToast('Coupon deactivated')">Stop</button></td></tr>
+        <tr><td><strong>FAMILY100</strong></td><td>Flat Off</td><td>₹100</td><td>₹999</td><td>287</td><td><span class="badge active">Active</span></td><td><button class="btn-sm danger" onclick="showToast('Coupon deactivated')">Stop</button></td></tr>
+        <tr><td><strong>MONSOON30</strong></td><td>Seasonal</td><td>30%</td><td>₹499</td><td>0</td><td><span class="badge low">Scheduled</span></td><td><button class="btn-sm">Edit</button></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="card">
+      <div class="card-header"><h3>Platform Settings</h3></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Platform Name</label><input type="text" value="OrganicMart"></div>
+        <div class="form-group"><label>Support Email</label><input type="email" value="support@organicmart.in"></div>
+        <div class="form-group"><label>Default Platform Commission (%)</label><input type="number" value="18"></div>
+        <div class="form-group"><label>Free Delivery Above (₹)</label><input type="number" value="499"></div>
+        <div class="form-group"><label>Low Stock Alert Threshold</label><input type="number" value="10"></div>
+        <div class="form-group"><label>FSSAI License Number</label><input type="text" value="FSSAI-2024-TN-001"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-sm primary" onclick="showToast('✅ Settings saved!')">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const productData=[
+  {id:1,name:'Organic Spinach',cat:'Vegetables',price:49,stock:85,status:'active',emoji:'🥬'},
+  {id:2,name:'Red Tomatoes',cat:'Vegetables',price:89,stock:120,status:'active',emoji:'🍅'},
+  {id:3,name:'Alphonso Mangoes',cat:'Fruits',price:249,stock:8,status:'low',emoji:'🥭'},
+  {id:4,name:'A2 Organic Milk',cat:'Dairy',price:79,stock:0,status:'out',emoji:'🥛'},
+  {id:5,name:'Desi Eggs',cat:'Dairy',price:119,stock:45,status:'active',emoji:'🥚'},
+  {id:6,name:'Raw Honey',cat:'Honey',price:349,stock:12,status:'low',emoji:'🍯'},
+  {id:7,name:'Black Rice',cat:'Grains',price:189,stock:60,status:'active',emoji:'🌾'},
+];
+
+function renderProductTable(){
+  const t=document.getElementById('products-table');
+  const header=t.rows[0];
+  t.innerHTML='';
+  t.appendChild(header);
+  productData.forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${p.emoji} ${p.name}</td>
+      <td>${p.cat}</td>
+      <td>₹${p.price}</td>
+      <td id="stock-${p.id}">${p.stock}</td>
+      <td>
+        <div class="qty-adj">
+          <button onclick="adjStock(${p.id},-1)">−</button>
+          <input type="number" id="qty-in-${p.id}" value="${p.stock}" style="width:60px;text-align:center;padding:4px;border:1px solid var(--border);border-radius:5px;font-size:13px;font-family:inherit">
+          <button onclick="adjStock(${p.id},1)">+</button>
+          <button class="btn-sm" onclick="setStock(${p.id})">Set</button>
+        </div>
+      </td>
+      <td><span class="badge ${p.status==='active'?'active':p.status==='low'?'low':'out'}">${p.status==='active'?'Active':p.status==='low'?'Low Stock':'Out of Stock'}</span></td>
+      <td>
+        <button class="btn-sm" onclick="showPage('add-product',null)">Edit</button>
+        <button class="btn-sm danger" onclick="showToast('Product removed!')">Del</button>
+      </td>
+    `;
+    t.appendChild(tr);
+  });
+}
+
+function adjStock(id,delta){
+  const inp=document.getElementById('qty-in-'+id);
+  const val=Math.max(0,parseInt(inp.value||0)+delta);
+  inp.value=val;
+}
+
+function setStock(id){
+  const val=parseInt(document.getElementById('qty-in-'+id).value||0);
+  const p=productData.find(x=>x.id===id);
+  p.stock=val;
+  p.status=val===0?'out':val<15?'low':'active';
+  renderProductTable();
+  showToast('✅ Stock updated to '+val+' units');
+}
+
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={'dashboard':'Dashboard','products':'Products','add-product':'Add / Edit Product','orders':'Orders','sellers':'Seller Partners','delivery':'Delivery Partners','revenue':'Revenue & Payouts','packages':'Packages & Plans','customers':'Customers','offers':'Offers & Coupons','settings':'Settings'};
+  document.getElementById('page-title').textContent=titles[name]||name;
+  if(name==='products') renderProductTable();
+}
+
+function saveProduct(){
+  const n=document.getElementById('prod-name').value;
+  if(!n){showToast('⚠️ Please enter product name');return;}
+  showToast('✅ Product "'+n+'" saved successfully!');
+  setTimeout(()=>showPage('products',null),1000);
+}
+
+function fakeUpload(){
+  const emojis=['🫑','🧅','🫛','🍋','🥝'];
+  const e=emojis[Math.floor(Math.random()*emojis.length)];
+  const div=document.createElement('div');
+  div.className='img-thumb';
+  div.innerHTML=e+'<span class="del" onclick="this.parentNode.remove()">✕</span>';
+  document.getElementById('img-preview').appendChild(div);
+  showToast('📷 Image uploaded!');
+}
+
+function openSellerModal(){showToast('Seller registration form coming soon!');}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// Draw revenue chart
+function drawChart(){
+  const data=[42000,58000,51000,67000,79000,72000,88000];
+  const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const max=Math.max(...data);
+  const c=document.getElementById('rev-chart');
+  if(!c) return;
+  c.innerHTML=data.map((v,i)=>`
+    <div class="bar-col">
+      <span style="font-size:10px;color:var(--text-muted)">₹${Math.round(v/1000)}k</span>
+      <div class="bar" style="height:${Math.round((v/max)*100)}px"></div>
+      <span class="bar-label">${labels[i]}</span>
+    </div>
+  `).join('');
+}
+
+drawChart();
+renderProductTable();
+</script>
+</body>
+</html>

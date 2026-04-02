@@ -2,8 +2,71 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Browse 200+ organic products at Curfee Organic Market — 16 categories."><title>Products — Curfee Organic Market</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></head>
 <body>
-  <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> +91 78457 44038 | <a href="support.html">Help</a></div><div><a href="#" id="locationBtn"><i class="fas fa-map-marker-alt"></i> <span id="userLocation">Detect Location</span></a></div></div></div>
+  <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> <span class="app-dynamic-helpline">+91 78457 44038</span> | <a href="support.html">Help</a></div><div><a href="#" id="locationBtn"><i class="fas fa-map-marker-alt"></i> <span id="userLocation">Detect Location</span></a></div></div></div>
   <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon">🌿</div>Curfee<span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option><option value="vegetables">Vegetables</option><option value="fruits">Fruits</option><option value="biscuits">Biscuits</option><option value="snacks">Snacks</option><option value="mushroom">Mushroom</option><option value="chicken">Chicken</option><option value="mutton">Mutton</option><option value="grocery">Grocery</option><option value="herbal">Herbal</option><option value="dryfruits">Dry Fruits</option><option value="flour">Flour</option><option value="beverages">Beverages</option><option value="spreads">Spreads</option><option value="pickles">Pickles</option><option value="superfoods">Superfoods</option><option value="readytocook">Ready to Cook</option></select><input type="text" id="searchInput" placeholder="Search 200+ organic products..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="dashboard.html" class="nav-btn" id="wishlistNavBtn"><i class="fas fa-heart"></i><span>Wishlist</span><div class="count" id="wishlistCount" style="display:none">0</div></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
+
+  <!-- Mobile UI Revamp: Yellow Header -->
+  <div class="mob-yellow-header">
+    <div class="mob-header-top">
+      <button class="mob-back" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+      <div class="mob-search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="mobSearchInput" placeholder="Search products...">
+      </div>
+      <a href="cart.html" class="mob-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="mob-cart-badge" id="mobCartCount" style="display:none">0</span>
+      </a>
+    </div>
+    <div class="mob-header-bottom">
+      <button class="mob-sort-btn" id="mobSortBtn">Sort</button>
+      <div style="width:1px;height:24px;background:#ddd;"></div>
+      <button class="mob-filter-btn" id="mobFilterBtn"><i class="fas fa-filter" style="margin-right:6px;"></i> Filter</button>
+    </div>
+  </div>
+
+  <!-- Mobile UI Revamp: Advanced Filter Modal -->
+  <div class="mob-filter-overlay" id="mobFilterOverlay">
+    <div class="mob-filter-modal">
+      <div class="mob-filter-head">
+        <button id="closeMobFilter" style="background:none;border:none;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:12px;color:white;"><i class="fas fa-arrow-left"></i> Filters</button>
+        <button id="clearMobFilters" style="background:none;border:none;color:white;font-weight:600;font-size:0.85rem;">Clear Filters</button>
+      </div>
+      <div class="mob-filter-body">
+        <div class="mob-filter-tabs">
+          <button class="mob-tab-btn active" data-tab="category">Category</button>
+          <button class="mob-tab-btn" data-tab="rating">Customer Ratings</button>
+          <button class="mob-tab-btn" data-tab="availability">Availability</button>
+        </div>
+        <div class="mob-filter-content">
+          <div class="mob-tab-pane active" id="mobTab-category">
+            <div style="padding-bottom:12px;border-bottom:1px solid #eee;margin-bottom:12px;">
+              <input type="text" placeholder="Search Category" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;">
+            </div>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="vegetables"> Vegetables</label>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="fruits"> Fruits</label>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="grocery"> Grocery Essentials</label>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="snacks"> Chips & Namkeen</label>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="biscuits"> Biscuits & Cookies</label>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="beverages"> Beverages</label>
+            <label class="mob-filter-check"><input type="checkbox" class="mob-cat-param" value="superfoods"> Superfoods</label>
+          </div>
+          <div class="mob-tab-pane" id="mobTab-rating">
+            <label class="mob-filter-check"><input type="radio" name="mob_rating" value="4"> 4 Stars & Up</label>
+            <label class="mob-filter-check"><input type="radio" name="mob_rating" value="3"> 3 Stars & Up</label>
+          </div>
+          <div class="mob-tab-pane" id="mobTab-availability">
+            <label class="mob-filter-check"><input type="checkbox" id="mobInStock"> In Stock Only</label>
+          </div>
+        </div>
+      </div>
+      <div class="mob-filter-foot">
+        <span id="mobFilterCount" style="font-weight:700;font-size:0.9rem;">0 products found</span>
+        <button class="mob-apply-btn" id="applyMobFilters">Apply</button>
+      </div>
+    </div>
+  </div>
+
   <div class="container"><div class="page-layout">
     <aside class="filter-sidebar"><h2 style="font-size:1.1rem;margin-bottom:20px;">Filters</h2>
       <div class="filter-group"><h3>Category</h3>

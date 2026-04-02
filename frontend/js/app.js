@@ -100,4 +100,17 @@ function initChat() {
 
 document.addEventListener('click', e => { if (e.target.classList.contains('weight-option')) { const card = e.target.closest('.product-card'); if (card) { card.querySelectorAll('.weight-option').forEach(w => w.classList.remove('active')); e.target.classList.add('active'); const price = e.target.dataset.price; if (price) { const p = card.querySelector('.price-current'); if (p) p.textContent = '₹' + price; } } } });
 
-document.addEventListener('DOMContentLoaded', () => { updateAuthUI(); updateCartCount(); updateWishlistCount(); initSearch(); initLocation(); initChat(); });
+function loadStoreConfig() {
+  try {
+    const s = JSON.parse(localStorage.getItem('ce_store_settings') || '{}');
+    const helpline = s.helpline || '+91 78457 44038';
+    const storeName = s.storeName || 'Curfee Organic Market';
+    document.querySelectorAll('.app-dynamic-helpline').forEach(el => {
+      if (el.tagName === 'A') el.href = `tel:${helpline.replace(/\s+/g, '')}`;
+      el.textContent = helpline;
+    });
+    document.querySelectorAll('.app-dynamic-storename').forEach(el => el.textContent = storeName);
+  } catch (err) { console.error('Error loading store config', err); }
+}
+
+document.addEventListener('DOMContentLoaded', () => { updateAuthUI(); updateCartCount(); updateWishlistCount(); initSearch(); initLocation(); initChat(); loadStoreConfig(); });

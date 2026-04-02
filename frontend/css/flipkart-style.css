@@ -114,3 +114,11 @@
   .fk-cat-img-wrap img { width:48px; height:48px; }
   .fk-cat-label { font-size:0.68rem; }
 }
+
+/* BigBasket Mobile Categories Revamp */
+.bb-cat-section { background: white; padding: 16px 12px; margin-bottom: 2px; }
+.bb-cat-title { font-size: 1.1rem; font-weight: 800; color: #222; margin: 0 0 16px 0; border-bottom: none; text-align: left; }
+.bb-cat-img { width: 70px; height: 70px; border-radius: 16px; background: #f4e8ff; border: 1px solid #e0c8fb; margin: 0 auto 8px auto; box-shadow: none; display: flex; align-items: center; justify-content: center; }
+.bb-cat-img img { max-width: 85%; max-height: 85%; border-radius: 4px; object-fit: contain; }
+.bb-label { font-size: 0.75rem; font-weight: 600; line-height: 1.25; text-align: center; color: #333; display: block; }
+.mb-3 { margin-bottom: 16px; }
