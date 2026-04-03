@@ -50,6 +50,7 @@ function applyLocalFilters() {
   else if (sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
   filtered.forEach(p => { productsCache[p.slug] = p; });
   document.getElementById('productCount').textContent = `${filtered.length} products found`;
+  if(document.getElementById('mobFoundCount')) document.getElementById('mobFoundCount').textContent = filtered.length;
   renderGrid(filtered);
 }
 
@@ -64,28 +65,10 @@ function initFilters() { document.querySelectorAll('.filter-sidebar input, .filt
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
 // Mobile Filter UI Logic
-document.addEventListener('DOMContentLoaded', () => {
-  const mobFilterBtn = document.getElementById('mobFilterBtn');
-  const mobFilterOverlay = document.getElementById('mobFilterOverlay');
-  const closeMobFilter = document.getElementById('closeMobFilter');
-  const applyMobFilters = document.getElementById('applyMobFilters');
-  
-  if(mobFilterBtn) {
-    mobFilterBtn.addEventListener('click', () => { mobFilterOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; });
-    closeMobFilter.addEventListener('click', () => { mobFilterOverlay.classList.remove('active'); document.body.style.overflow = ''; });
-    applyMobFilters.addEventListener('click', () => { mobFilterOverlay.classList.remove('active'); document.body.style.overflow = ''; applyLocalFilters(); });
-  }
-
-  const tabBtns = document.querySelectorAll('.mob-tab-btn');
-  const tabPanes = document.querySelectorAll('.mob-tab-pane');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      tabPanes.forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      const tabId = btn.getAttribute('data-tab');
-      document.getElementById('mobTab-' + tabId)?.classList.add('active');
-    });
-  });
-});
+function switchFilterTab(tabId, btn) {
+  document.querySelectorAll('.mob-filter-sidebar button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mob-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mob-panel-' + tabId).classList.add('active');
+}
 

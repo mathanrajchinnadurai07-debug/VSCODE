@@ -18,17 +18,40 @@ function renderDetail(product) {
   const emoji = getCategoryEmoji(product.category); const outOfStock = product.stock <= 0;
 
   document.getElementById('detailContent').innerHTML = `
-    <div class="product-gallery"><div class="main-image">${product.images&&product.images.length?`<img id="mainDetailImage" src="${product.images[0]}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius);">`:`<div style="font-size:8rem">${emoji}</div>`}</div><div class="thumb-list">${product.images&&product.images.length?product.images.map((img,i)=>`<div class="thumb ${i===0?'active':''}" style="display:flex;align-items:center;justify-content:center;background:var(--bg);padding:0;overflow:hidden;" onclick="document.getElementById('mainDetailImage').src='${img}';document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active');"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);" alt="thumb"></div>`).join(''):`<div class="thumb active" style="display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--bg);">${emoji}</div><div class="thumb" style="display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--bg);">🌿</div>`}${product.videoUrl?'<div class="thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--bg);cursor:pointer;" onclick="showProductVideo()">▶️ Video</div>':''}</div>${product.videoUrl?`<div id="productVideo" style="display:none;margin-top:12px;"><video controls style="width:100%;border-radius:var(--radius-sm);max-height:300px;" poster=""><source src="${product.videoUrl}" type="video/mp4">Your browser does not support video.</video></div>`:''}</div>
+    <div class="product-gallery" style="position:relative;">
+      <div class="main-image" style="background:#f8fafc;position:relative;">
+        <button class="btn-icon" style="position:absolute;top:16px;right:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.1);border-radius:50%;width:40px;height:40px;z-index:10;"><i class="fas fa-heart text-gray"></i></button>
+        <button class="btn-icon" style="position:absolute;top:66px;right:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.1);border-radius:50%;width:40px;height:40px;z-index:10;"><i class="fas fa-share text-gray"></i></button>
+        ${product.images&&product.images.length?`<img id="mainDetailImage" src="${product.images[0]}" alt="${product.name}" style="width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;">`:`<div style="font-size:8rem;display:flex;align-items:center;justify-content:center;height:100%;">${emoji}</div>`}
+        <div style="position:absolute;bottom:16px;left:16px;background:#fff;padding:4px 8px;border-radius:16px;font-size:0.75rem;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,0.1);z-index:10;">${product.rating} <i class="fas fa-star" style="color:var(--success);"></i> <span style="color:#d1d5db;margin:0 4px;">|</span> ${product.numReviews}</div>
+      </div>
+      <div class="thumb-list">${product.images&&product.images.length?product.images.map((img,i)=>`<div class="thumb ${i===0?'active':''}" style="display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e2e8f0;padding:0;overflow:hidden;" onclick="document.getElementById('mainDetailImage').src='${img}';document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active');"><img src="${img}" style="width:100%;height:100%;object-fit:contain;" alt="thumb"></div>`).join(''):`<div class="thumb active" style="display:flex;align-items:center;justify-content:center;font-size:2rem;background:#fff;">${emoji}</div>`}</div>
+    </div>
     <div class="detail-info">
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"><span class="badge" style="background:var(--primary);color:#fff;">${product.category}</span>${discount > 0 ? '<span class="badge badge-sale">'+discount+'% OFF</span>' : ''}${outOfStock?'<span class="badge" style="background:var(--danger);color:#fff;">Out of Stock</span>':''}</div>
-      <h1 class="detail-title">${product.name}</h1>
-      <div class="product-rating" style="margin-bottom:12px;"><span class="stars" style="font-size:1rem;">${starsHTML(product.rating)}</span><span style="font-size:0.9rem;color:var(--text-light);">${product.rating} (${product.numReviews} reviews)</span></div>
-      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;"><span class="detail-price">₹${showPrice}</span>${discount>0?`<span class="detail-original">₹${showOriginal}</span><span class="detail-discount">Save ₹${showOriginal - showPrice}</span>`:''}</div>
-      <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:20px;line-height:1.8;">${product.description || 'Premium organic product from certified farms.'}</p>
-      <div style="margin-bottom:20px;"><label style="font-weight:600;font-size:0.9rem;margin-bottom:8px;display:block;">Weight / Pack Size:</label><div class="weight-options" id="detailWeights">${(product.weights||[]).map((w,i) => `<span class="weight-option ${i===0?'active':''}" data-weight="${w.label}" data-price="${w.discountPrice||w.price}" data-original="${w.price}" onclick="selectWeight(this)">${w.label} — ₹${w.discountPrice||w.price}</span>`).join('')}</div></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;"><label style="font-weight:600;font-size:0.9rem;">Qty:</label><div class="quantity-control"><button onclick="changeQty(-1)">−</button><input type="number" id="detailQty" value="1" min="1" max="10"><button onclick="changeQty(1)">+</button></div><span class="product-stock ${outOfStock?'out-of-stock':product.stock>20?'in-stock':'low-stock'}"><i class="fas fa-circle" style="font-size:0.5rem"></i> ${outOfStock?'Out of Stock':product.stock>20?'In Stock — '+product.stock+' available':'Only '+product.stock+' left — Hurry!'}</span></div>
-      <div style="display:flex;gap:12px;margin-bottom:20px;">${outOfStock?'<button class="btn btn-lg" disabled style="flex:1;opacity:0.5;background:var(--text-light);color:#fff;border:none;cursor:not-allowed;border-radius:var(--radius-sm);"><i class="fas fa-ban"></i> Out of Stock</button>':'<button class="btn btn-primary btn-lg" onclick="addDetailToCart()" style="flex:1;"><i class="fas fa-cart-plus"></i> Add to Cart</button><button class="btn btn-accent btn-lg" onclick="buyNow()" style="flex:1;"><i class="fas fa-bolt"></i> Buy Now</button>'}</div>
-      <div style="display:flex;gap:16px;font-size:0.85rem;color:var(--text-light);flex-wrap:wrap;"><span><i class="fas fa-truck"></i> ${product.deliveryInfo?product.deliveryInfo.substring(0,60)+'...':'Delivered in 2-4 days'}</span><span><i class="fas fa-undo"></i> ${product.returnPolicy?product.returnPolicy.substring(0,40)+'...':'7-day returns'}</span><span><i class="fas fa-shield-alt"></i> 100% Quality Guarantee</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;"><span class="badge" style="background:var(--primary);color:#fff;">${product.category}</span>${discount > 0 ? '<span class="badge badge-sale">'+discount+'% OFF</span>' : ''}${outOfStock?'<span class="badge" style="background:var(--danger);color:#fff;">Out of Stock</span>':''}</div>
+      <h1 class="detail-title" style="font-size:1.15rem;margin-bottom:8px;line-height:1.4;">${product.name}</h1>
+      <p style="color:var(--text-light);font-size:0.85rem;margin-bottom:16px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${product.description || 'Premium organic product from certified farms.'} <a href="#tabsSection" style="color:var(--primary);font-weight:600;">...more</a></p>
+      
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;"><span class="detail-price" style="font-size:1.6rem;font-weight:800;">₹${showPrice}</span>${discount>0?`<span class="detail-original" style="text-decoration:line-through;color:var(--text-light);font-size:1rem;">₹${showOriginal}</span><span class="detail-discount" style="color:var(--success);font-weight:700;font-size:0.85rem;">${discount}% off</span>`:''}</div>
+      
+      <div style="margin-bottom:20px;"><label style="font-weight:600;font-size:0.85rem;margin-bottom:8px;display:block;">Weight / Pack Size:</label><div class="weight-options" id="detailWeights">${(product.weights||[]).map((w,i) => `<span class="weight-option ${i===0?'active':''}" data-weight="${w.label}" data-price="${w.discountPrice||w.price}" data-original="${w.price}" onclick="selectWeight(this)">${w.label}</span>`).join('')}</div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;"><div style="display:flex;align-items:center;gap:12px;"><label style="font-weight:600;font-size:0.85rem;">Qty:</label><div class="quantity-control" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;"><button onclick="changeQty(-1)" style="border:none;background:none;padding:5px 12px;font-weight:700;">−</button><input type="number" id="detailQty" value="1" min="1" max="10" style="background:transparent;width:30px;font-size:0.9rem;" readonly><button onclick="changeQty(1)" style="border:none;background:none;padding:5px 12px;font-weight:700;">+</button></div></div><span class="product-stock ${outOfStock?'out-of-stock':product.stock>20?'in-stock':'low-stock'}" style="font-weight:600;font-size:0.8rem;"><i class="fas ${outOfStock?'fa-times-circle':'fa-check-circle'}"></i> ${outOfStock?'Out of Stock':'In Stock'}</span></div>
+      
+      <div class="mob-sticky-bottom" style="display:flex;gap:12px;padding:12px 16px;background:#fff;border-top:1px solid #e2e8f0;position:fixed;bottom:0;left:0;right:0;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,0.05);">
+        ${outOfStock?
+          '<button class="btn btn-lg" disabled style="flex:1;opacity:0.5;background:var(--text-light);color:#fff;border:none;text-align:center;width:100%;">Out of Stock</button>'
+          :
+          '<button class="btn btn-outline btn-lg" onclick="addDetailToCart()" style="flex:1;font-weight:700;border:1px solid #e2e8f0;background:#fff;color:var(--text);">Add to cart</button><button class="btn btn-lg" onclick="buyNow()" style="flex:1;font-weight:700;background:var(--primary);color:#fff;border:none;">Buy at <span id="stickyBuyPrice">₹'+showPrice+'</span></button>'
+        }
+      </div>
+      <div style="height:60px;display:none;" class="mob-spacer"></div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.75rem;color:var(--text-light);background:#f8fafc;padding:16px;border-radius:8px;">
+        <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-truck text-gray"></i> Free Delivery</span>
+        <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-undo text-gray"></i> 7 Days Replacement</span>
+        <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-money-bill-wave text-gray"></i> Cash on Delivery</span>
+        <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-leaf text-gray"></i> 100% Organic</span>
+      </div>
     </div>`;
 
   document.getElementById('tabsSection').style.display = 'block';
@@ -99,9 +122,11 @@ function selectWeight(el) {
   el.closest('.weight-options').querySelectorAll('.weight-option').forEach(w => w.classList.remove('active'));
   el.classList.add('active');
   document.querySelector('.detail-price').textContent = '₹' + el.dataset.price;
+  const stickyPrice = document.getElementById('stickyBuyPrice');
+  if (stickyPrice) stickyPrice.textContent = '₹' + el.dataset.price;
   if (el.dataset.original && el.dataset.price !== el.dataset.original) {
     const origEl = document.querySelector('.detail-original'); if (origEl) origEl.textContent = '₹' + el.dataset.original;
-    const saveEl = document.querySelector('.detail-discount'); if (saveEl) saveEl.textContent = 'Save ₹' + (el.dataset.original - el.dataset.price);
+    const saveEl = document.querySelector('.detail-discount'); if (saveEl) saveEl.textContent = Math.round(((el.dataset.original - el.dataset.price)/el.dataset.original)*100) + '% off';
   }
 }
 function changeQty(delta) { const i = document.getElementById('detailQty'); i.value = Math.max(1, Math.min(10, parseInt(i.value) + delta)); }
