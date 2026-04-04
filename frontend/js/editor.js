@@ -31,7 +31,7 @@ function goSection(name) {
   const titles = {
     dashboard: 'Dashboard', payout: 'Payout Splits', products: 'Products & Stock',
     addproduct: 'Add Product', customers: 'Customers', sellers: 'Sellers & Delivery',
-    orders: 'Order Management', settings: 'Store Settings', payment: 'Payment Config'
+    orders: 'Order Management', branding: 'Branding', settings: 'Store Settings', payment: 'Payment Config'
   };
   document.getElementById('pageTitle').textContent = titles[name] || name;
   document.getElementById('pageBreadcrumb').textContent = `Curfee Store Editor → ${titles[name] || name}`;
@@ -40,6 +40,7 @@ function goSection(name) {
   if (name === 'sellers') renderSellerTable();
   if (name === 'orders') renderOrderTable();
   if (name === 'payout') { updateSplitPreview(); simulatePayout(); }
+  if (name === 'branding') loadBrandingForm();
   if (name === 'settings') loadSettings();
   if (name === 'payment') loadPaymentConfig();
   if (window.innerWidth < 900) document.getElementById('editorSidebar').classList.remove('open');
@@ -674,3 +675,73 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDashboard();
   updateSplitPreview();
 });
+
+// ===== BRANDING =====
+function loadBrandingForm() {
+  const b = typeof getBranding === 'function' ? getBranding() : {
+    companyName:'Curfee', companyFull:'Curfee Organic Market', tagline:'Explore Organic',
+    logoEmoji:'\ud83c\udf3f', primaryColor:'#2d6a4f', primaryLight:'#52b788', primaryPale:'#d8f3dc',
+    accentColor:'#f77f00', footerText:'\u00a9 2024 Curfee Organic Market. Made with \ud83c\udf3f in India'
+  };
+  document.getElementById('brandName').value = b.companyName || '';
+  document.getElementById('brandFullName').value = b.companyFull || '';
+  document.getElementById('brandTagline').value = b.tagline || '';
+  document.getElementById('brandLogoEmoji').value = b.logoEmoji || '';
+  document.getElementById('brandFooterText').value = b.footerText || '';
+  document.getElementById('brandPrimaryColor').value = b.primaryColor || '#2d6a4f';
+  document.getElementById('brandPrimaryColorText').value = b.primaryColor || '#2d6a4f';
+  document.getElementById('brandPrimaryLight').value = b.primaryLight || '#52b788';
+  document.getElementById('brandPrimaryLightText').value = b.primaryLight || '#52b788';
+  document.getElementById('brandPrimaryPale').value = b.primaryPale || '#d8f3dc';
+  document.getElementById('brandPrimaryPaleText').value = b.primaryPale || '#d8f3dc';
+  document.getElementById('brandAccentColor').value = b.accentColor || '#f77f00';
+  document.getElementById('brandAccentColorText').value = b.accentColor || '#f77f00';
+  updateBrandPreview();
+}
+
+function updateBrandPreview() {
+  const primary = document.getElementById('brandPrimaryColor')?.value || '#2d6a4f';
+  const accent  = document.getElementById('brandAccentColor')?.value || '#f77f00';
+  const name    = document.getElementById('brandName')?.value || 'Curfee';
+  const tagline = document.getElementById('brandTagline')?.value || 'Explore Organic';
+  const emoji   = document.getElementById('brandLogoEmoji')?.value || '\ud83c\udf3f';
+  const footer  = document.getElementById('brandFooterText')?.value || '\u00a9 2024 Curfee Organic Market';
+  const pe = document.getElementById('previewEmoji'); if(pe) pe.textContent = emoji;
+  const pn = document.getElementById('previewName'); if(pn) pn.textContent = name;
+  const pt = document.getElementById('previewTagline'); if(pt) pt.textContent = tagline;
+  const pb1 = document.getElementById('previewBtn1'); if(pb1) pb1.style.background = primary;
+  const pb2 = document.getElementById('previewBtn2'); if(pb2) { pb2.style.borderColor = primary; pb2.style.color = primary; }
+  const pb3 = document.getElementById('previewBtn3'); if(pb3) pb3.style.background = accent;
+  const pbg = document.getElementById('previewBadge'); if(pbg) pbg.style.background = primary;
+  const pf = document.getElementById('previewFooter'); if(pf) { pf.style.background = primary; pf.textContent = footer; }
+}
+
+function saveBranding() {
+  const data = {
+    companyName:    document.getElementById('brandName').value.trim(),
+    companyFull:    document.getElementById('brandFullName').value.trim(),
+    tagline:        document.getElementById('brandTagline').value.trim(),
+    logoEmoji:      document.getElementById('brandLogoEmoji').value.trim(),
+    footerText:     document.getElementById('brandFooterText').value.trim(),
+    primaryColor:   document.getElementById('brandPrimaryColor').value,
+    primaryLight:   document.getElementById('brandPrimaryLight').value,
+    primaryPale:    document.getElementById('brandPrimaryPale').value,
+    accentColor:    document.getElementById('brandAccentColor').value,
+  };
+  const existing = DB.get('branding', {});
+  const merged = Object.assign({}, existing, data);
+  DB.set('branding', merged);
+  localStorage.setItem('ce_branding', JSON.stringify(merged));
+  if (typeof applyBranding === 'function') applyBranding();
+  updateBrandPreview();
+  showToast('Branding saved! Changes will appear on all pages.', 'success');
+}
+
+function resetBranding() {
+  if (!confirm('Reset all branding to defaults? This cannot be undone.')) return;
+  localStorage.removeItem('ce_branding');
+  DB.set('branding', null);
+  loadBrandingForm();
+  if (typeof applyBranding === 'function') applyBranding();
+  showToast('Branding reset to defaults.', 'info');
+}

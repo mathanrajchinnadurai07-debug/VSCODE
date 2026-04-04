@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Shopping Cart — Curfee Organic Market</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Shopping Cart — <span data-brand='full-name'>Curfee Organic Market</span></title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src='js/branding.js'></script>
+</head>
 <body>
   <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> <span class="app-dynamic-helpline">+91 78457 44038</span></div><div><a href="index.html">Continue Shopping</a></div></div></div>
-  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon">🌿</div>Curfee<span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option></select><input type="text" id="searchInput" placeholder="Search..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
+  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon"><span data-brand='logo-emoji'>🌿</span></div><span data-brand='name'>Curfee</span><span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option></select><input type="text" id="searchInput" placeholder="Search..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
   <div class="container section">
     <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:24px;"><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
     <div id="cartContent" style="display:grid;grid-template-columns:1fr 340px;gap:30px;"><div id="cartItems"></div>
@@ -11,7 +12,7 @@
     </div>
     <div id="emptyCart" style="display:none;text-align:center;padding:60px 0;"><div style="font-size:5rem;margin-bottom:16px;opacity:0.3;">🛒</div><h2 style="margin-bottom:8px;">Your cart is empty</h2><p style="color:var(--text-light);margin-bottom:24px;">Looks like you haven't added anything yet.</p><a href="products.html" class="btn btn-primary">Start Shopping</a></div>
   </div>
-  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 Curfee Organic Market.</p></div></div></footer>
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 <span data-brand='full-name'>Curfee Organic Market</span>.</p></div></div></footer>
   <div class="toast-container" id="toastContainer"></div><div id="wishlistCount" style="display:none"></div>
   <script src="js/app.js"></script><script src="js/cart.js"></script>
 </body></html>

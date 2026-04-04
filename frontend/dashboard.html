@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>My Account — Curfee Organic Market</title>
+  <title data-brand-title="My Account � {name}">My Account — <span data-brand='full-name'>Curfee Organic Market</span></title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/flipkart-style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src='js/branding.js'></script>
 </head>
 <body class="fk-account-page">
 
   <!-- Top Bar -->
   <div class="fk-topbar">
     <div class="fk-topbar-inner">
-      <a href="index.html" class="fk-logo">🌿 Curfee <span>Explore Organic</span></a>
+      <a href="index.html" class="fk-logo"><span data-brand='logo-emoji'>🌿</span> Curfee <span><span data-brand='tagline'>Explore Organic</span></span></a>
       <div class="fk-search-bar">
         <i class="fas fa-search"></i>
         <input type="text" placeholder="Search for products..." id="searchInput">
@@ -230,7 +231,7 @@
       user.phone = document.getElementById('profilePhone').value;
       localStorage.setItem('curfee_user', JSON.stringify(user));
       document.getElementById('userName').textContent = user.name;
-      showToast('Profile updated! 🌿','success');
+      showToast('Profile updated! <span data-brand="logo-emoji">🌿</span>', 'success');
     });
 
     // Search
