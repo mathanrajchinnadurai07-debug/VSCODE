@@ -27,8 +27,8 @@
       <h2 id="userName">Guest User</h2>
       <div class="fk-membership">
         <span class="fk-membership-badge">ORGANIC</span>
-        <span>Explore <strong style="color:#2d6a4f;">Green Member</strong></span>
-        <i class="fas fa-chevron-right"></i>
+        <a href="green-member.html" style="text-decoration:none;color:inherit;"><span>Explore <strong style="color:#2d6a4f;">Green Member</strong></span>
+        <i class="fas fa-chevron-right"></i></a>
       </div>
     </div>
     <div class="fk-coins"><i class="fas fa-coins"></i> <span id="userCoins">0</span></div>
@@ -121,27 +121,6 @@
     </a>
   </div>
 
-  <!-- Payment Options -->
-  <div class="fk-section">
-    <h3 class="fk-section-title">💳 Payment Methods</h3>
-    <a href="#" class="fk-list-item" onclick="showToast('UPI setup coming soon','info')">
-      <div class="fk-list-icon">📱</div>
-      <div class="fk-list-content">
-        <strong>UPI — Pay Instantly</strong>
-        <span>GPay, PhonePe, Paytm | 3% cashback</span>
-      </div>
-      <i class="fas fa-chevron-right fk-list-arrow"></i>
-    </a>
-    <a href="#" class="fk-list-item" onclick="showToast('Card setup coming soon','info')">
-      <div class="fk-list-icon">💳</div>
-      <div class="fk-list-content">
-        <strong>Saved Cards</strong>
-        <span>Credit & Debit cards for quick checkout</span>
-      </div>
-      <i class="fas fa-chevron-right fk-list-arrow"></i>
-    </a>
-  </div>
-
   <!-- Settings -->
   <div class="fk-settings-list">
     <a href="#" class="fk-settings-item" onclick="showSection('profile')"><i class="fas fa-user-cog"></i><span>Edit Profile</span><i class="fas fa-chevron-right fk-arrow"></i></a>
@@ -181,6 +160,7 @@
         if (document.getElementById('profilePhone')) document.getElementById('profilePhone').value = user.phone || '';
       }
       document.getElementById('userCoins').textContent = Math.floor(Math.random()*50);
+      updateGreenMember();
       loadOrders();
       loadWishlist();
       // Auto-show section from URL hash
@@ -190,11 +170,30 @@
 
     function showSection(name) {
       event?.preventDefault();
-      ['orders','wishlist','coupons','profile'].forEach(s => {
+      ['orders','wishlist','coupons','profile','greenMember'].forEach(s => {
         const el = document.getElementById('section-'+s);
         if (el) el.style.display = s===name ? 'block' : 'none';
       });
       window.scrollTo({top:200,behavior:'smooth'});
+    }
+
+    function updateGreenMember() {
+      const orders = JSON.parse(localStorage.getItem('curfee_orders')||'[]');
+      const count = orders.length;
+      const bar = document.getElementById('greenProgressBar');
+      const away = document.getElementById('ordersAwayText');
+      const completed = document.getElementById('completedOrders');
+      if (completed) completed.textContent = count + ' orders';
+      const pct = Math.min(100, Math.round((count / 20) * 100));
+      if (bar) bar.style.width = pct + '%';
+      if (count < 10 && away) {
+        away.textContent = (10 - count) + ' orders';
+      } else if (count < 20 && away) {
+        away.innerHTML = '<strong style="color:#c9a227;">Green Tree</strong> benefits are <strong style="color:#2d6a4f;">' + (20 - count) + ' orders</strong> away';
+        away.closest('div').innerHTML = away.innerHTML;
+      } else if (away) {
+        away.closest('div').innerHTML = '🌳 You are a <strong style="color:#9e7c0c;">Green Tree</strong> member!';
+      }
     }
 
     function loadOrders() {
