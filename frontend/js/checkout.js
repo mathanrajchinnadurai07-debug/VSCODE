@@ -3,9 +3,12 @@ document.addEventListener('DOMContentLoaded', () => { loadCheckoutSummary(); ini
 
 function loadCheckoutSummary() {
   const cart = getLocalCart(); if (!cart.length) { window.location.href = 'cart.html'; return; }
-  document.getElementById('checkoutItems').innerHTML = cart.map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.85rem;border-bottom:1px solid var(--border);"><span>${i.name} × ${i.quantity}<br><small style="color:var(--text-light);">${i.weight}</small></span><strong>₹${i.price*i.quantity}</strong></div>`).join('');
+  const checkoutItemsEl = document.getElementById('checkoutItems');
+  if (checkoutItemsEl) checkoutItemsEl.innerHTML = cart.map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.85rem;border-bottom:1px solid var(--border);"><span>${i.name} × ${i.quantity}<br><small style="color:var(--text-light);">${i.weight}</small></span><strong>₹${i.price*i.quantity}</strong></div>`).join('');
   const sub = cart.reduce((s,i) => s + i.price*i.quantity, 0); const del = sub >= 500 ? 0 : 40;
-  document.getElementById('chkSubtotal').textContent='₹'+sub; document.getElementById('chkDelivery').textContent=del?'₹'+del:'FREE'; document.getElementById('chkTotal').textContent='₹'+(sub+del);
+  if(document.getElementById('chkSubtotal')) document.getElementById('chkSubtotal').textContent='₹'+sub; 
+  if(document.getElementById('chkDelivery')) document.getElementById('chkDelivery').textContent=del?'₹'+del:'FREE'; 
+  if(document.getElementById('chkTotal')) document.getElementById('chkTotal').textContent='₹'+(sub+del);
 }
 
 let currentStep = 1;

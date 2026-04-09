@@ -108,11 +108,16 @@
 .fk-order-items { font-size:0.8rem; color:#666; line-height:1.8; }
 .fk-order-total { font-size:0.9rem; font-weight:700; color:#212121; margin-top:8px; }
 
-@media (max-width:400px) {
+@media (max-width:600px) {
   .fk-cat-grid { gap:10px 4px; }
   .fk-cat-img-wrap { width:64px; height:64px; }
   .fk-cat-img-wrap img { width:48px; height:48px; }
   .fk-cat-label { font-size:0.68rem; }
+  .fk-topbar-inner { flex-direction: column; align-items: stretch; gap: 10px; }
+  .fk-topbar .fk-logo { justify-content: flex-start; }
+  .fk-user-card { padding: 16px 12px; padding-bottom: 8px; }
+  .fk-user-info h2 { font-size: 1.1rem; }
+  .fk-quick-btn { padding: 12px 10px; font-size: 0.8rem; gap: 8px; justify-content: center; }
 }
 
 /* BigBasket Mobile Categories Revamp */

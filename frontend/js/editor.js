@@ -455,6 +455,9 @@ function renderSellerTable() {
       <td><strong>${s.products}</strong></td>
       <td style="font-size:0.72rem;font-family:monospace;">${s.rzpId || '<span style="color:#94a3b8;">Not set</span>'}</td>
       <td><span class="status-badge ${s.status}">${s.status}</span></td>
+      <td class="action-cell">
+        <button onclick="openEditSellerModal(${i})" title="Edit" style="background:none;border:none;color:var(--text);cursor:pointer;"><i class="fas fa-edit"></i></button>
+      </td>
     </tr>`).join('');
 
   db.innerHTML = partners.map((p, i) => `
@@ -469,11 +472,72 @@ function renderSellerTable() {
       <td style="font-size:0.82rem;">${p.zone}</td>
       <td><strong>${p.deliveries}</strong></td>
       <td><span class="status-badge ${p.status}">${p.status}</span></td>
+      <td class="action-cell">
+        <button onclick="openEditDeliveryModal(${i})" title="Edit" style="background:none;border:none;color:var(--text);cursor:pointer;"><i class="fas fa-edit"></i></button>
+      </td>
     </tr>`).join('');
 }
 
 function openAddSellerModal() { document.getElementById('addSellerModal').classList.add('active'); }
 function openAddDeliveryModal() { document.getElementById('addDeliveryModal').classList.add('active'); }
+
+function openEditSellerModal(i) {
+  const s = getSellers()[i];
+  document.getElementById('editSellerIndex').value = i;
+  document.getElementById('editSellerName').value = s.name || '';
+  document.getElementById('editSellerContact').value = s.contact || '';
+  document.getElementById('editSellerPhone').value = s.phone || '';
+  document.getElementById('editSellerEmail').value = s.email || '';
+  document.getElementById('editSellerLoc').value = s.location || '';
+  document.getElementById('editSellerCat').value = s.categories || '';
+  document.getElementById('editSellerRzp').value = s.rzpId || '';
+  document.getElementById('editSellerModal').classList.add('active');
+}
+
+function saveEditSeller(e) {
+  e.preventDefault();
+  const sellers = getSellers();
+  const i = document.getElementById('editSellerIndex').value;
+  sellers[i] = Object.assign({}, sellers[i], {
+    name: document.getElementById('editSellerName').value,
+    contact: document.getElementById('editSellerContact').value,
+    phone: document.getElementById('editSellerPhone').value,
+    email: document.getElementById('editSellerEmail').value,
+    location: document.getElementById('editSellerLoc').value,
+    categories: document.getElementById('editSellerCat').value,
+    rzpId: document.getElementById('editSellerRzp').value
+  });
+  DB.set('sellers', sellers);
+  closeModal('editSellerModal');
+  showToast('Seller modified successfully', 'success');
+  renderSellerTable();
+}
+
+function openEditDeliveryModal(i) {
+  const p = getDeliveryPartners()[i];
+  document.getElementById('editDpIndex').value = i;
+  document.getElementById('editDpName').value = p.name || '';
+  document.getElementById('editDpPhone').value = p.phone || '';
+  document.getElementById('editDpZone').value = p.zone || '';
+  document.getElementById('editDpRzpId').value = p.rzpId || '';
+  document.getElementById('editDeliveryModal').classList.add('active');
+}
+
+function saveEditDeliveryPartner(e) {
+  e.preventDefault();
+  const partners = getDeliveryPartners();
+  const i = document.getElementById('editDpIndex').value;
+  partners[i] = Object.assign({}, partners[i], {
+    name: document.getElementById('editDpName').value,
+    phone: document.getElementById('editDpPhone').value,
+    zone: document.getElementById('editDpZone').value,
+    rzpId: document.getElementById('editDpRzpId').value
+  });
+  DB.set('delivery_partners', partners);
+  closeModal('editDeliveryModal');
+  showToast('Delivery partner modified successfully', 'success');
+  renderSellerTable();
+}
 
 function addSeller(e) {
   e.preventDefault();
