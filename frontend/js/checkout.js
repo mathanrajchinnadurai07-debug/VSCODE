@@ -1,141 +1,132 @@
-/* Checkout Page Logic — with Real Razorpay Payment */
-document.addEventListener('DOMContentLoaded', () => { loadCheckoutSummary(); initAddressForm(); });
+/* Curfee Checkout Logic - Flipkart Style */
 
-function loadCheckoutSummary() {
-  const cart = getLocalCart(); if (!cart.length) { window.location.href = 'cart.html'; return; }
-  const checkoutItemsEl = document.getElementById('checkoutItems');
-  if (checkoutItemsEl) checkoutItemsEl.innerHTML = cart.map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.85rem;border-bottom:1px solid var(--border);"><span>${i.name} × ${i.quantity}<br><small style="color:var(--text-light);">${i.weight}</small></span><strong>₹${i.price*i.quantity}</strong></div>`).join('');
-  const sub = cart.reduce((s,i) => s + i.price*i.quantity, 0); const del = sub >= 500 ? 0 : 40;
-  if(document.getElementById('chkSubtotal')) document.getElementById('chkSubtotal').textContent='₹'+sub; 
-  if(document.getElementById('chkDelivery')) document.getElementById('chkDelivery').textContent=del?'₹'+del:'FREE'; 
-  if(document.getElementById('chkTotal')) document.getElementById('chkTotal').textContent='₹'+(sub+del);
+document.addEventListener('DOMContentLoaded', () => {
+  const cart = getLocalCart();
+  if (!cart || cart.length === 0) {
+    window.location.href = 'cart.html';
+    return;
+  }
+  
+  loadAddress();
+  renderOrderSummary(cart);
+  updateTotals(cart);
+});
+
+function loadAddress() {
+  const user = getUser() || { name: 'Madhanraj', phone: '9965797178' };
+  document.getElementById('dispName').innerHTML = user.name + ' <span style="background:#f1f3f6;padding:2px 6px;font-size:0.65rem;border-radius:4px;color:#666;margin-left:4px;">HOME</span>';
+  document.getElementById('dispAddress').textContent = '4/53, Koondakkampatti, Thanneer street, Natham high school, Natham(po), Thottiyam(Tk), Trichy(dt), Thottiyam 621203';
+  document.getElementById('dispPhone').textContent = user.phone;
 }
 
-let currentStep = 1;
-function goToStep(step) { currentStep = step; document.querySelectorAll('.checkout-panel').forEach(p => p.classList.add('hidden')); document.getElementById('step'+step)?.classList.remove('hidden'); document.querySelectorAll('.checkout-step').forEach((s,i) => { s.classList.remove('active','completed'); if (i+1<step) s.classList.add('completed'); if (i+1===step) s.classList.add('active'); }); window.scrollTo({top:0,behavior:'smooth'}); }
+function renderOrderSummary(cart) {
+  const container = document.getElementById('checkoutItemsContainer');
+  let html = '';
+  
+  cart.forEach((item, index) => {
+    html += `
+      <div class="co-product" ${index === 0 ? 'style="margin-top:0; border-top:none; padding-top:0;"' : ''}>
+        <img src="${item.image || 'assets/images/products/green-tea.png'}" class="co-product-img" onerror="this.src='';this.parentElement.innerHTML='🌿'">
+        <div class="co-product-details">
+          <div class="co-product-title">${item.name}</div>
+          <div class="co-product-meta">${item.weight || ''}</div>
+          <div style="font-size:0.8rem;color:#878787;margin-bottom:8px;">Qty: ${item.quantity}</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-weight:700;font-size:1.1rem;color:#212121;">₹${item.price}</span>
+            ${item.originalPrice > item.price ? `<span style="text-decoration:line-through;color:#878787;font-size:0.8rem;">₹${item.originalPrice}</span> <span style="color:#388e3c;font-size:0.8rem;font-weight:600;">↓${Math.round(((item.originalPrice-item.price)/item.originalPrice)*100)}%</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
 
-function initAddressForm() { document.getElementById('addressForm')?.addEventListener('submit', e => { e.preventDefault(); goToStep(2); }); }
+let finalTotal = 0;
 
-async function placeOrder() {
-  const cart = getLocalCart(); if (!cart.length) return;
-  const btn = document.getElementById('placeOrderBtn'); btn.disabled = true; btn.textContent = 'Processing...';
-  const sub = cart.reduce((s,i) => s + i.price*i.quantity, 0); const del = sub >= 500 ? 0 : 40;
-  const totalAmount = sub + del;
-  const payment = document.querySelector('input[name="payment"]:checked')?.value||'cod';
+function updateTotals(cart) {
+  let subtotal = 0;
+  let originalTotal = 0;
+  
+  cart.forEach(item => {
+    subtotal += item.price * item.quantity;
+    originalTotal += (item.originalPrice || item.price) * item.quantity;
+  });
+  
+  const delivery = subtotal >= 500 ? 0 : 40;
+  finalTotal = subtotal + delivery;
+  const savings = originalTotal - subtotal;
+  
+  document.getElementById('sumFinal').textContent = '₹' + finalTotal;
+  document.getElementById('payFinalAmount').textContent = '₹' + finalTotal;
+  
+  if (savings > 0) {
+    document.getElementById('sumStrike').textContent = '₹' + originalTotal;
+    document.getElementById('savingsBanner').innerHTML = `<i class="fas fa-tags"></i> You'll save ₹${savings} on this order!`;
+    document.getElementById('savingsBanner').style.display = 'flex';
+  } else {
+    document.getElementById('sumStrike').style.display = 'none';
+    document.getElementById('savingsBanner').style.display = 'none';
+  }
+  
+  // Update all Pay buttons
+  document.querySelectorAll('.btnAmt').forEach(el => el.textContent = '₹' + finalTotal);
+}
 
-  const orderData = {
-    items: cart.map(i => ({name:i.name,image:i.image,price:i.price,quantity:i.quantity,weight:i.weight})),
-    shippingAddress: {
-      fullName: document.getElementById('addrName')?.value,
-      phone: document.getElementById('addrPhone')?.value,
-      addressLine1: document.getElementById('addrLine1')?.value,
-      addressLine2: document.getElementById('addrLine2')?.value,
-      city: document.getElementById('addrCity')?.value,
-      state: document.getElementById('addrState')?.value,
-      pincode: document.getElementById('addrPincode')?.value
-    },
-    paymentMethod: payment, subtotal: sub, deliveryCharge: del, discount: 0, total: totalAmount
+function showPayments() {
+  document.getElementById('viewSummary').style.display = 'none';
+  document.getElementById('viewPayments').style.display = 'block';
+  // Open UPI by default
+  togglePay('UPI');
+}
+
+function showSummary() {
+  document.getElementById('viewPayments').style.display = 'none';
+  document.getElementById('viewSummary').style.display = 'block';
+}
+
+function togglePay(method) {
+  // Clear all actives
+  document.querySelectorAll('.pay-accordion').forEach(el => {
+    el.classList.remove('active');
+    const rad = el.querySelector('input[type="radio"]');
+    if (rad) rad.checked = false;
+  });
+  
+  // Set active
+  const target = document.getElementById('acc' + method);
+  if (target) {
+    target.classList.add('active');
+    const rad = target.querySelector('input[type="radio"]');
+    if (rad) rad.checked = true;
+  }
+}
+
+function placeOrder() {
+  // Find selected method
+  const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
+  
+  const cart = getLocalCart();
+  const orderNumber = 'COM-' + Math.floor(Math.random() * 10000000);
+  
+  const order = {
+    orderNumber,
+    date: new Date().toISOString(),
+    items: cart,
+    total: finalTotal,
+    status: 'placed',
+    paymentMethod: method
   };
-
-  // ===== RAZORPAY PAYMENT =====
-  if (payment === 'razorpay') {
-    try {
-      // Create Razorpay order on backend
-      const rzpOrder = await api('/payment/razorpay/create-order', { method: 'POST', body: JSON.stringify({ amount: totalAmount }) });
-
-      // Get Razorpay key from backend config
-      let rzpKey = 'rzp_test_demo'; // fallback
-      try { const config = await api('/payment/config'); if (config.razorpayKeyId && config.razorpayKeyId !== 'demo_key') rzpKey = config.razorpayKeyId; } catch {}
-
-      // Open Razorpay Checkout
-      const options = {
-        key: rzpKey,
-        amount: totalAmount * 100, // in paise
-        currency: 'INR',
-        name: 'Curfee Organic Market',
-        description: `Order: ${cart.length} items`,
-        image: 'assets/images/logo.png',
-        order_id: rzpOrder.id,
-        handler: async function(response) {
-          // Payment successful
-          try {
-            await api('/payment/razorpay/verify', { method: 'POST', body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            })});
-          } catch {}
-          orderData.paymentId = response.razorpay_payment_id;
-          orderData.paymentStatus = 'paid';
-          completeOrder(orderData);
-        },
-        prefill: {
-          name: document.getElementById('addrName')?.value || '',
-          email: getUser()?.email || '',
-          contact: document.getElementById('addrPhone')?.value || ''
-        },
-        notes: { address: document.getElementById('addrLine1')?.value || '' },
-        theme: { color: '#2d6a4f' },
-        modal: { ondismiss: function() { btn.disabled = false; btn.textContent = '🔒 Place Order'; showToast('Payment cancelled', 'warning'); } }
-      };
-
-      if (typeof Razorpay !== 'undefined') {
-        const rzp = new Razorpay(options);
-        rzp.open();
-      } else {
-        // Razorpay SDK not loaded — demo mode
-        showToast('Razorpay payment processed (demo)!', 'success');
-        orderData.paymentId = 'demo_rzp_' + Date.now();
-        orderData.paymentStatus = 'paid';
-        completeOrder(orderData);
-      }
-      return;
-    } catch (err) {
-      // If backend fails, process as demo
-      showToast('Processing payment (demo mode)...', 'info');
-      orderData.paymentId = 'demo_rzp_' + Date.now();
-      orderData.paymentStatus = 'paid';
-      completeOrder(orderData);
-      return;
-    }
-  }
-
-  // ===== UPI PAYMENT =====
-  if (payment === 'upi') {
-    const upiId = document.getElementById('upiId')?.value;
-    if (upiId) {
-      // Generate UPI deep link
-      const upiLink = `upi://pay?pa=${upiId}&pn=Curfee+Organic&am=${totalAmount}&cu=INR&tn=CurfeeOrder`;
-      showToast('UPI payment initiated! Check your UPI app.', 'success');
-      // Try to open UPI app
-      window.open(upiLink, '_blank');
-    }
-    orderData.paymentId = 'upi_' + Date.now();
-    orderData.paymentStatus = 'pending';
-    setTimeout(() => completeOrder(orderData), 2000);
-    return;
-  }
-
-  // ===== COD / OTHER =====
-  orderData.paymentStatus = payment === 'cod' ? 'cod' : 'pending';
-  completeOrder(orderData);
-}
-
-async function completeOrder(orderData) {
-  try {
-    const order = await api('/orders', { method: 'POST', body: JSON.stringify(orderData) });
-    document.getElementById('orderNumber').textContent = order.orderNumber || ('COM-' + Date.now());
-    localStorage.removeItem('curfee_cart'); updateCartCount();
-    document.getElementById('successModal').classList.add('active');
-    return;
-  } catch {}
-
-  // Fallback — save to localStorage
-  const orderNum = 'COM-' + Date.now() + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
-  document.getElementById('orderNumber').textContent = orderNum;
+  
   const orders = JSON.parse(localStorage.getItem('curfee_orders') || '[]');
-  orders.unshift({ ...orderData, orderNumber: orderNum, status: 'placed', createdAt: new Date().toISOString() });
+  orders.unshift(order);
   localStorage.setItem('curfee_orders', JSON.stringify(orders));
-  localStorage.removeItem('curfee_cart'); updateCartCount();
-  document.getElementById('successModal').classList.add('active');
+  
+  // Clear cart
+  localStorage.removeItem('curfee_cart');
+  
+  // Show success modal
+  document.getElementById('orderNumber').textContent = orderNumber;
+  document.getElementById('successModal').style.display = 'flex';
 }

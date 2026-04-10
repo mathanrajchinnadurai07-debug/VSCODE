@@ -1,19 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Checkout — <span data-brand='full-name'>Curfee Organic Market</span></title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src='js/branding.js'></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Checkout — <span data-brand='full-name'>Curfee Organic Market</span></title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/checkout-mobile.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src='js/branding.js'></script>
 </head>
-<body>
-  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon"><span data-brand='logo-emoji'>🌿</span></div><span data-brand='name'>Curfee</span><span>Organic</span></a><div style="font-size:1.1rem;font-weight:600;">Secure Checkout <i class="fas fa-lock" style="color:var(--success);"></i></div><div class="nav-actions"><a href="cart.html" class="nav-btn"><i class="fas fa-arrow-left"></i><span>Back to Cart</span></a></div></div></nav>
-  <div class="container section">
-    <div class="checkout-steps"><div class="checkout-step active">Shipping Address</div><div class="checkout-step">Delivery Slot</div><div class="checkout-step">Payment</div></div>
-    <div class="checkout-layout" style="display: block; max-width: 800px; margin: 0 auto;">
-      <div id="checkoutSteps">
-        <div class="checkout-panel" id="step1"><h2 style="font-size:1.2rem;margin-bottom:20px;">📍 Shipping Address</h2><form id="addressForm"><div class="form-row"><div class="form-group"><label>Full Name *</label><input type="text" id="addrName" required value="Demo User"></div><div class="form-group"><label>Phone *</label><input type="tel" id="addrPhone" required value="9876543210"></div></div><div class="form-group"><label>Address Line 1 *</label><input type="text" id="addrLine1" required value="123 Organic Lane"></div><div class="form-group"><label>Address Line 2</label><input type="text" id="addrLine2" value="Green Colony"></div><div class="form-row"><div class="form-group"><label>City *</label><input type="text" id="addrCity" required value="Mumbai"></div><div class="form-group"><label>State *</label><input type="text" id="addrState" required value="Maharashtra"></div></div><div class="form-group" style="max-width:200px;"><label>Pincode *</label><input type="text" id="addrPincode" required value="400001"></div><button type="submit" class="btn btn-primary">Continue to Delivery <i class="fas fa-arrow-right"></i></button></form></div>
-        <div class="checkout-panel hidden" id="step2"><h2 style="font-size:1.2rem;margin-bottom:20px;">🚚 Choose Delivery Slot</h2><div id="deliverySlots" style="display:grid;gap:12px;"><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="slot" value="today-evening" checked style="accent-color:var(--primary);"> <div><strong>Today, 6 PM - 9 PM</strong><br><span style="font-size:0.8rem;color:var(--text-light);">Express — ₹40</span></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="slot" value="tomorrow-morning" style="accent-color:var(--primary);"> <div><strong>Tomorrow, 8 AM - 12 PM</strong><br><span style="font-size:0.8rem;color:var(--text-light);">Standard — FREE</span></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="slot" value="tomorrow-evening" style="accent-color:var(--primary);"> <div><strong>Tomorrow, 2 PM - 6 PM</strong><br><span style="font-size:0.8rem;color:var(--text-light);">Standard — FREE</span></div></label></div><div style="display:flex;gap:12px;margin-top:20px;"><button class="btn btn-outline" onclick="goToStep(1)"><i class="fas fa-arrow-left"></i> Back</button><button class="btn btn-primary" onclick="goToStep(3)">Continue to Payment <i class="fas fa-arrow-right"></i></button></div></div>
-        <div class="checkout-panel hidden" id="step3"><h2 style="font-size:1.2rem;margin-bottom:20px;">💳 Payment Method</h2><div style="display:grid;gap:12px;"><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="payment" value="upi" checked style="accent-color:var(--primary);"> <div><strong>UPI</strong><br><span style="font-size:0.8rem;color:var(--text-light);">GPay, PhonePe, Paytm</span></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="payment" value="credit_card" style="accent-color:var(--primary);"> <div><strong>Credit Card</strong></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="payment" value="debit_card" style="accent-color:var(--primary);"> <div><strong>Debit Card</strong></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="payment" value="razorpay" style="accent-color:var(--primary);"> <div><strong>Razorpay</strong></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="payment" value="stripe" style="accent-color:var(--primary);"> <div><strong>Stripe</strong></div></label><label style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg);border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;"><input type="radio" name="payment" value="cod" style="accent-color:var(--primary);"> <div><strong>Cash on Delivery</strong></div></label></div><div style="display:flex;gap:12px;margin-top:20px;"><button class="btn btn-outline" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i> Back</button><button class="btn btn-accent btn-lg" onclick="placeOrder()" id="placeOrderBtn">🔒 Place Order</button></div></div>
+<body class="checkout-body">
+
+  <!-- STEP 1 & 2: ADDRESS & SUMMARY -->
+  <div id="viewSummary" style="display: block;">
+    <div class="pay-top-header" style="border:none;">
+      <i class="fas fa-arrow-left" onclick="window.history.back()"></i>
+      <h1 style="font-size:1.1rem;">Order Summary</h1>
+    </div>
+
+    <!-- Timeline Banner -->
+    <div class="checkout-timeline">
+      <div class="timeline-line"></div>
+      <div class="timeline-step completed">
+        <div class="timeline-circle"><i class="fas fa-check"></i></div>
+        <div class="timeline-label">Address</div>
+      </div>
+      <div class="timeline-step active">
+        <div class="timeline-circle">2</div>
+        <div class="timeline-label">Order Summary</div>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-circle">3</div>
+        <div class="timeline-label">Payment</div>
+      </div>
+    </div>
+
+    <!-- Delivery Address Block -->
+    <div class="co-section">
+      <div class="co-header">
+        <span>Deliver to:</span>
+        <button class="co-header-btn">Change</button>
+      </div>
+      <div style="font-size:0.95rem;font-weight:700;margin-bottom:8px;" id="dispName">User</div>
+      <div style="font-size:0.85rem;color:#444;line-height:1.4;" id="dispAddress">
+        Loading address...
+      </div>
+      <div style="font-size:0.85rem;color:#444;margin-top:8px;font-weight:600;" id="dispPhone"></div>
+    </div>
+
+    <!-- Order Items Block -->
+    <div class="co-section" id="checkoutItemsContainer">
+      <!-- Items generated by JS -->
+    </div>
+
+    <!-- Savings Banner -->
+    <div class="co-banner-green" id="savingsBanner">
+      <i class="fas fa-tags"></i> You'll save ₹0 on this order!
+    </div>
+
+    <!-- Sticky Footer 1 -->
+    <div class="co-sticky-footer">
+      <div class="co-price-info">
+        <div class="co-price-strike" id="sumStrike">₹0</div>
+        <div class="co-price-final" id="sumFinal">₹0</div>
+        <i class="fas fa-info-circle" style="font-size:0.75rem;color:#aaa;"></i>
+      </div>
+      <button class="co-btn-continue" onclick="showPayments()">Continue</button>
     </div>
   </div>
-  <div class="modal-overlay" id="successModal"><div class="modal" style="text-align:center;padding:40px;"><div style="font-size:4rem;margin-bottom:12px;">🎉</div><h2 style="margin-bottom:8px;">Order Placed Successfully!</h2><p style="color:var(--text-light);margin-bottom:8px;">Your order number: <strong id="orderNumber">COM-XXXXXXX</strong></p><p style="color:var(--text-light);margin-bottom:24px;">You'll receive a confirmation shortly.</p><div style="display:flex;gap:12px;justify-content:center;"><a href="dashboard.html" class="btn btn-primary">View Orders</a><a href="index.html" class="btn btn-outline">Continue Shopping</a></div></div></div>
-  <div class="toast-container" id="toastContainer"></div><div id="wishlistCount" style="display:none"></div><div id="cartCount" style="display:none"></div>
-  <script src="js/app.js"></script><script src="js/checkout.js"></script>
-</body></html>
+
+
+  <!-- STEP 3: PAYMENTS -->
+  <div id="viewPayments" style="display: none;">
+    
+    <!-- Top Header -->
+    <div class="pay-top-header">
+      <i class="fas fa-arrow-left" onclick="showSummary()"></i>
+      <div>
+        <div style="font-size:0.75rem;color:#666;">Step 3 of 3</div>
+        <h1 style="margin:0;">Payments</h1>
+      </div>
+      <div class="pay-secure"><i class="fas fa-lock"></i> 100% Secure</div>
+    </div>
+
+    <!-- Total Amount Dropdown -->
+    <div class="co-section" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px;">
+      <span style="color:var(--primary);font-weight:600;">Total Amount <i class="fas fa-chevron-down"></i></span>
+      <span style="font-size:1.1rem;font-weight:700;" id="payFinalAmount">₹0</span>
+    </div>
+
+    <div class="co-banner-green" style="margin:8px 0;">
+      <div>
+        <div style="font-weight:700;">5% Cashback</div>
+        <div style="font-size:0.75rem;font-weight:400;">Claim now with payment offers</div>
+      </div>
+    </div>
+
+    <!-- Accordions -->
+    <div class="pay-accordion" id="accUPI">
+      <div class="pay-header" onclick="togglePay('UPI')">
+        <i class="fas fa-qrcode"></i> UPI <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+      </div>
+      <div class="pay-content">
+        <div class="pay-radio-row">
+          <input type="radio" name="payment_method" value="upi_app" checked>
+          <span>super.money (GPay, PhonePe active)</span>
+        </div>
+        <button class="pay-inner-btn" onclick="placeOrder()">Pay <span class="btnAmt">₹0</span></button>
+      </div>
+    </div>
+
+    <div class="pay-accordion" id="accCard">
+      <div class="pay-header" onclick="togglePay('Card')">
+        <i class="fas fa-credit-card"></i> Credit / Debit / ATM Card <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+      </div>
+      <div class="pay-content">
+        <div style="font-size:0.8rem;color:#666;margin-bottom:12px;">Add and secure cards as per RBI guidelines</div>
+        <div class="pay-radio-row">
+          <input type="radio" name="payment_method" value="card">
+          <span>Add new card</span>
+        </div>
+        <button class="pay-inner-btn" onclick="placeOrder()">Pay <span class="btnAmt">₹0</span></button>
+      </div>
+    </div>
+
+    <div class="pay-accordion" id="accCOD">
+      <div class="pay-header" onclick="togglePay('COD')">
+        <i class="fas fa-money-bill-wave"></i> Cash on Delivery <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+      </div>
+      <div class="pay-content">
+        <div class="pay-radio-row">
+          <input type="radio" name="payment_method" value="cod">
+          <span>Pay at your doorstep</span>
+        </div>
+        <button class="pay-inner-btn" onclick="placeOrder()">Confirm Order</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="successModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+    <div class="modal" style="background:#fff;border-radius:12px;padding:40px;text-align:center;">
+      <div style="font-size:4rem;margin-bottom:12px;color:var(--primary);">✓</div>
+      <h2 style="margin-bottom:8px;">Order Placed!</h2>
+      <p style="color:#666;margin-bottom:24px;">Your order number: <strong id="orderNumber">...</strong></p>
+      <a href="dashboard.html" class="co-btn-continue" style="display:inline-block;text-decoration:none;">View Orders</a>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/app.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

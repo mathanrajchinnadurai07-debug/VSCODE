@@ -1,0 +1,182 @@
+/* ============================================================
+   Curfee Organic Market — Search View Formats
+   ============================================================ */
+
+body.search-mode {
+  background: white;
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Header Section */
+.search-view-header {
+  background-color: #dbe4f6; /* light blue tint */
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.search-back-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.search-input-wrap {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.search-input-wrap i.fa-search {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin-right: 12px;
+}
+
+.search-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1.05rem;
+  color: #0f1111;
+  background: transparent;
+}
+.search-input-wrap input::placeholder {
+  color: #94a3b8;
+}
+
+.search-input-wrap .search-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #0f1111;
+  font-size: 1.2rem;
+}
+
+/* Sections */
+.search-section {
+  padding: 24px 16px 16px;
+  border-bottom: 8px solid #f1f3f6;
+  background: #fff;
+}
+.search-section:last-child {
+  border-bottom: none;
+}
+
+.search-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f1111;
+  margin-bottom: 16px;
+}
+
+/* Recent Searches Carousel */
+.recent-searches {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.recent-searches::-webkit-scrollbar {
+  display: none;
+}
+.recent-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 72px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.recent-img-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.recent-img-wrap img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+.recent-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #64748b;
+  background: #f8fafc;
+}
+.recent-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Trending Searches Grid */
+.trending-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.trending-item {
+  background: #f8fafc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  overflow: hidden;
+  height: 60px;
+}
+.trending-img {
+  width: 48px;
+  height: 60px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px 0 0 8px;
+}
+.trending-img img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+}
+.trending-text {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  color: #334155;
+  font-weight: 500;
+  line-height: 1.3;
+}
