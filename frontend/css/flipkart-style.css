@@ -1,13 +1,13 @@
 /* ============================================================
    Flipkart-Style Category Grid & Account Page CSS
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ===== CATEGORY PAGE ===== */
-.fk-cat-page { font-family:'Inter',sans-serif; background:#f1f3f6; min-height:100vh; padding-bottom:80px; }
+.fk-cat-page { font-family:'Inter',sans-serif; background:#F9F5F0; min-height:100vh; padding-bottom:80px; }
 
 /* Top bar */
-.fk-topbar { background:linear-gradient(135deg,#2d6a4f,#40916c); padding:12px 16px; position:sticky; top:0; z-index:100; }
+.fk-topbar { background:linear-gradient(135deg,#1B4332,#2D6A4F); padding:12px 16px; position:sticky; top:0; z-index:100; }
 .fk-topbar-inner { display:flex; align-items:center; gap:12px; }
 .fk-topbar .fk-logo { color:#fff; font-weight:800; font-size:1.2rem; text-decoration:none; display:flex; align-items:center; gap:6px; }
 .fk-topbar .fk-logo span { font-weight:500; font-size:0.7rem; color:rgba(255,255,255,0.8); display:block; margin-top:-2px; }
@@ -21,14 +21,14 @@
 .fk-cat-section-title { font-size:1.1rem; font-weight:700; color:#212121; margin-bottom:16px; padding-left:4px; }
 .fk-cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px 8px; }
 .fk-cat-item { text-align:center; text-decoration:none; color:#333; }
-.fk-cat-img-wrap { width:72px; height:72px; margin:0 auto 8px; border-radius:50%; border:3px solid #e8d5f5; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; transition:all 0.2s ease; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.fk-cat-item:hover .fk-cat-img-wrap { border-color:#9b59b6; transform:scale(1.08); box-shadow:0 4px 16px rgba(155,89,182,0.2); }
+.fk-cat-img-wrap { width:72px; height:72px; margin:0 auto 8px; border-radius:50%; border:3px solid #E8E0D8; background:#FFFCF7; display:flex; align-items:center; justify-content:center; overflow:hidden; transition:all 0.2s ease; box-shadow:0 2px 8px rgba(43,45,66,0.06); }
+.fk-cat-item:hover .fk-cat-img-wrap { border-color:#2D6A4F; transform:scale(1.08); box-shadow:0 4px 16px rgba(45,106,79,0.2); }
 .fk-cat-img-wrap img { width:56px; height:56px; object-fit:cover; border-radius:50%; }
 .fk-cat-img-wrap .fk-emoji { font-size:2rem; }
 .fk-cat-label { font-size:0.72rem; font-weight:500; color:#555; line-height:1.3; display:block; }
 
 /* Divider */
-.fk-divider { height:8px; background:#e8e8e8; margin:4px 0; }
+.fk-divider { height:8px; background:#F4F0EB; margin:4px 0; }
 
 /* Buy more bar */
 .fk-promo-bar { position:fixed; bottom:60px; left:0; right:0; z-index:90; background:linear-gradient(135deg,#fff9e6,#fcf0c8); padding:10px 16px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f0e0a0; box-shadow:0 -2px 8px rgba(0,0,0,0.05); }
@@ -36,15 +36,15 @@
 .fk-promo-bar i { color:#666; }
 
 /* Bottom nav */
-.fk-bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:100; background:#fff; display:flex; border-top:1px solid #e0e0e0; box-shadow:0 -2px 12px rgba(0,0,0,0.08); }
+.fk-bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:100; background:#fff; display:flex; border-top:1px solid #E8E0D8; box-shadow:0 -2px 12px rgba(43,45,66,0.06); }
 .fk-bnav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 0; text-decoration:none; color:#888; font-size:0.65rem; font-weight:500; gap:3px; transition:color 0.2s; position:relative; }
 .fk-bnav-item i { font-size:1.1rem; }
-.fk-bnav-item.active { color:#2d6a4f; }
-.fk-bnav-item.active::after { content:''; position:absolute; top:0; left:20%; right:20%; height:2.5px; background:#2d6a4f; border-radius:0 0 4px 4px; }
+.fk-bnav-item.active { color:#2D6A4F; }
+.fk-bnav-item.active::after { content:''; position:absolute; top:0; left:20%; right:20%; height:2.5px; background:#2D6A4F; border-radius:0 0 4px 4px; }
 .fk-bnav-badge { position:absolute; top:2px; right:calc(50% - 18px); background:#ff5722; color:#fff; font-size:0.6rem; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; }
 
 /* ===== ACCOUNT PAGE ===== */
-.fk-account-page { font-family:'Inter',sans-serif; background:#f1f3f6; min-height:100vh; padding-bottom:80px; }
+.fk-account-page { font-family:'Inter',sans-serif; background:#F9F5F0; min-height:100vh; padding-bottom:80px; }
 
 /* User card */
 .fk-user-card { background:#fff; margin:0; padding:20px 16px; display:flex; align-items:center; justify-content:space-between; }

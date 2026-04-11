@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', renderCart);
 function renderCart() {
   const cart = getLocalCart(), content = document.getElementById('cartContent'), empty = document.getElementById('emptyCart');
-  if (!cart.length) { content.style.display = 'none'; empty.style.display = 'block'; return; }
+  if (!cart.length) { content.style.display = 'none'; empty.style.display = 'flex'; return; }
   content.style.display = 'grid'; empty.style.display = 'none';
   document.getElementById('cartItems').innerHTML = `<div style="display:flex;flex-direction:column;gap:16px;">${cart.map(item => `
     <div style="display:flex;align-items:flex-start;gap:16px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;position:relative;">

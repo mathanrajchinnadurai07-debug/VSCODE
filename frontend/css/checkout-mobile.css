@@ -3,8 +3,8 @@
    ============================================================ */
 
 body.checkout-body { 
-  background: #f1f3f6; 
-  padding-bottom: 80px; /* Space for sticky footer */
+  background: #F9F5F0; 
+  padding-bottom: 80px;
 }
 
 /* Timeline Progress Top */
@@ -49,7 +49,7 @@ body.checkout-body {
   font-weight: 700;
 }
 .timeline-step.active .timeline-circle {
-  background: var(--primary); /* #2d6a4f */
+  background: #2D6A4F;
 }
 .timeline-step.completed .timeline-circle {
   background: #fff;
@@ -70,8 +70,8 @@ body.checkout-body {
   background: #fff;
   margin-top: 8px;
   padding: 16px;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
+  border-top: 1px solid #E8E0D8;
+  border-bottom: 1px solid #E8E0D8;
 }
 .co-header {
   font-size: 1rem;
@@ -99,7 +99,7 @@ body.checkout-body {
   left: 0;
   right: 0;
   background: #fff;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 -2px 10px rgba(43,45,66,0.06);
   display: flex;
   padding: 12px 16px;
   align-items: center;
@@ -121,20 +121,22 @@ body.checkout-body {
   color: #212121;
 }
 .co-btn-continue {
-  background: var(--accent); /* #f77f00 acting as Flipkart Yellow */
+  background: #E76F51;
   color: #fff;
   border: none;
   padding: 12px 36px;
   font-size: 1rem;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s;
 }
+.co-btn-continue:hover { background: #D95F41; }
 
 /* Green Banners */
 .co-banner-green {
-  background: #e8f5e9;
-  color: var(--primary);
+  background: #E8F4EC;
+  color: #2D6A4F;
   padding: 12px 16px;
   display: flex;
   align-items: center;
@@ -212,15 +214,17 @@ body.checkout-body {
 }
 .pay-inner-btn {
   width: 100%;
-  background: var(--accent);
+  background: #E76F51;
   color: #fff;
   border: none;
   padding: 12px;
   font-weight: 600;
   font-size: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   margin-top: 12px;
+  transition: all 0.3s;
 }
+.pay-inner-btn:hover { background: #D95F41; }
 
 /* Payment Top Header */
 .pay-top-header {

@@ -81,4 +81,42 @@
   window.applyBranding = applyBranding;
   window.getBranding = getBranding;
   window.BRANDING_DEFAULTS = DEFAULTS;
+
+  // --- Inject WhatsApp Floating Button on All Pages ---
+  function injectWhatsAppButton() {
+    if (document.getElementById('whatsapp-float-btn')) return;
+
+    const a = document.createElement('a');
+    a.id = 'whatsapp-float-btn';
+    a.className = 'wa-float-btn';
+    a.href = 'https://wa.me/919996667778?text=Hi%20Curfee!%20I%20need%20help%20with%20my%20order';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.innerHTML = '<i class="fab fa-whatsapp"></i>';
+
+    const tooltip = document.createElement('span');
+    tooltip.className = 'wa-tooltip';
+    tooltip.textContent = 'Need help? Chat now';
+    a.appendChild(tooltip);
+
+    document.body.appendChild(a);
+
+    // Initial tooltip display logic for mobile
+    if (window.innerWidth < 1024) {
+      setTimeout(() => {
+        tooltip.classList.add('show');
+        setTimeout(() => {
+          tooltip.classList.remove('show');
+        }, 3000);
+      }, 1000);
+    }
+  }
+
+  // Inject WA button upon DOMContentLoaded along with applyBranding
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectWhatsAppButton);
+  } else {
+    injectWhatsAppButton();
+  }
+
 })();

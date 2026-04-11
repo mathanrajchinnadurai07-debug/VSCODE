@@ -23,36 +23,13 @@
     <div id="cartContent" class="cart-layout"><div id="cartItems"></div>
       <div class="cart-summary" id="cartSummary"><h3>Order Summary</h3><div class="summary-row"><span>Subtotal</span><span id="subtotal">₹0</span></div><div class="summary-row"><span>Delivery</span><span id="delivery">₹0</span></div><div class="summary-row"><span>Discount</span><span id="discount" style="color:var(--success);">-₹0</span></div><div class="summary-row summary-total"><span>Total</span><span id="total">₹0</span></div><div style="margin-top:16px;"><input type="text" placeholder="Coupon code" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;"><button class="btn btn-outline btn-sm btn-block" onclick="showToast('Coupon feature coming soon!','info')">Apply Coupon</button></div><a href="checkout.html" class="btn btn-primary btn-lg btn-block" style="margin-top:16px;" id="checkoutBtn">Proceed to Checkout <i class="fas fa-arrow-right"></i></a></div>
     </div>
-    <div id="emptyCart" style="display:none;text-align:center;padding:40px 16px;">
-      <div style="margin-bottom:12px; display:flex; justify-content:center;">
-        <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 50 120 Q 30 30 130 40 Q 210 50 210 140 Q 200 230 120 210 Q 40 200 50 120 Z" fill="#4a7c6e" />
-          <path d="M 120 60 Q 135 50 145 60 Q 135 70 120 60" fill="none" stroke="#1b3f2c" stroke-width="3" />
-          <path d="M 145 60 Q 155 45 165 45 Q 165 60 145 60" fill="none" stroke="#1b3f2c" stroke-width="3" />
-          <path d="M 165 60 A 30 30 0 0 1 170 110" fill="none" stroke="#87af98" stroke-width="3" stroke-dasharray="4 6" stroke-linecap="round"/>
-          <path d="M 90 70 A 30 30 0 0 1 120 70" fill="none" stroke="#87af98" stroke-width="3" stroke-dasharray="4 6" stroke-linecap="round"/>
-          <line x1="45" y1="180" x2="80" y2="180" stroke="#122c1e" stroke-width="3" stroke-linecap="round"/>
-          <line x1="160" y1="180" x2="195" y2="180" stroke="#122c1e" stroke-width="3" stroke-linecap="round"/>
-          <line x1="50" y1="90" x2="70" y2="90" stroke="#122c1e" stroke-width="6" stroke-linecap="round" />
-          <polyline points="70 90, 85 155, 160 155, 175 90, 70 90" fill="#fdfdfd" stroke="#122c1e" stroke-width="4" stroke-linejoin="round" />
-          <line x1="100" y1="105" x2="105" y2="140" stroke="#4a7c6e" stroke-width="7" stroke-linecap="round"/>
-          <line x1="125" y1="105" x2="125" y2="140" stroke="#4a7c6e" stroke-width="7" stroke-linecap="round"/>
-          <line x1="150" y1="105" x2="145" y2="140" stroke="#4a7c6e" stroke-width="7" stroke-linecap="round"/>
-          <line x1="65" y1="168" x2="180" y2="168" stroke="#122c1e" stroke-width="7" stroke-linecap="round"/>
-          <circle cx="85" cy="180" r="7" fill="#122c1e" />
-          <circle cx="115" cy="180" r="7" fill="#122c1e" />
-          <circle cx="145" cy="180" r="7" fill="#122c1e" />
-          <circle cx="170" cy="180" r="7" fill="#122c1e" />
-          <circle cx="70" cy="140" r="4" fill="none" stroke="#122c1e" stroke-width="2"/>
-          <line x1="75" y1="80" x2="82" y2="72" stroke="#122c1e" stroke-width="3" stroke-linecap="round"/>
-          <line x1="88" y1="85" x2="95" y2="80" stroke="#122c1e" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="175" cy="125" r="28" fill="#f8faf9" stroke="#122c1e" stroke-width="4"/>
-          <path d="M160 110 L190 140 M190 110 L160 140" stroke="#5cb377" stroke-width="8" stroke-linecap="round"/>
-        </svg>
+    <div id="emptyCart" style="display:none;text-align:center;padding:30px 16px;min-height:60vh;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="width: 160px; height: 160px; background: #E8F4EC; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+        <i class="fas fa-shopping-basket" style="font-size: 4.5rem; color: #52B788;"></i>
       </div>
-      <h2 style="font-size:1.8rem;margin-bottom:12px;font-weight:800;color:#18181b;">Your cart is empty</h2>
-      <p style="color:#52525b;max-width:350px;margin:0 auto 24px;font-size:1.05rem;line-height:1.5;">Looks like you haven't added anything yet.<br>Explore categories for fresh organic produce.</p>
-      <a href="categories.html" class="btn btn-primary" style="padding:14px 28px;border-radius:10px;font-weight:600;font-size:1.05rem;background:#356b50;border-color:#356b50;display:inline-block;">Explore Categories</a>
+      <h2 style="font-size:1.5rem;margin-bottom:12px;font-weight:700;color:var(--text);">Your cart is empty!</h2>
+      <p style="color:var(--text-light);max-width:280px;margin:0 auto 28px;font-size:0.95rem;line-height:1.5;">Looks like you haven't added anything yet.<br>Explore fresh organic produce!</p>
+      <a href="categories.html" class="btn" style="padding:14px 36px;border-radius:10px;font-weight:700;font-size:1rem;background:var(--accent);color:#fff;border:none;box-shadow:0 4px 16px rgba(231,111,81,0.25);">Browse Products</a>
     </div>
   </div>
   <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 <span data-brand='full-name'>Curfee Organic Market</span>.</p></div></div></footer>

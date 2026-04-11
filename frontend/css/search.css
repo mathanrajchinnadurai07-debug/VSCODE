@@ -3,14 +3,14 @@
    ============================================================ */
 
 body.search-mode {
-  background: white;
+  background: #F9F5F0;
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
 }
 
 /* Header Section */
 .search-view-header {
-  background-color: #dbe4f6; /* light blue tint */
+  background-color: #E8F0E4;
   padding: 12px 16px;
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@ body.search-mode {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(43,45,66,0.05);
 }
 
 .search-back-btn {
@@ -35,12 +35,12 @@ body.search-mode {
 
 .search-input-wrap {
   flex: 1;
-  background: #ffffff;
+  background: #FFFCF7;
   border-radius: 24px;
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(43,45,66,0.06);
 }
 
 .search-input-wrap i.fa-search {
@@ -72,8 +72,8 @@ body.search-mode {
 /* Sections */
 .search-section {
   padding: 24px 16px 16px;
-  border-bottom: 8px solid #f1f3f6;
-  background: #fff;
+  border-bottom: 8px solid #F4F0EB;
+  background: #FFFCF7;
 }
 .search-section:last-child {
   border-bottom: none;
