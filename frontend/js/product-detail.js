@@ -2,11 +2,65 @@
 let currentProduct = null;
 document.addEventListener('DOMContentLoaded', () => { loadProductDetail(); initTabs(); });
 
+// Helper to read admin overrides from localStorage
+function getAdminOverrides() {
+  try { return JSON.parse(localStorage.getItem('ce_detail_overrides')) || {}; } catch { return {}; }
+}
+function getAdminStockOverrides() {
+  try { return JSON.parse(localStorage.getItem('ce_stock_overrides')) || {}; } catch { return {}; }
+}
+function getAdminPriceOverrides() {
+  try { return JSON.parse(localStorage.getItem('ce_price_overrides')) || {}; } catch { return {}; }
+}
+
+function applyAdminOverrides(product) {
+  const dets = getAdminOverrides()[product._id] || {};
+  const stocks = getAdminStockOverrides();
+  const prices = getAdminPriceOverrides();
+
+  // Apply name, category, rating, description
+  if (dets.name) product.name = dets.name;
+  if (dets.category) product.category = dets.category;
+  if (dets.rating !== undefined) product.rating = dets.rating;
+  if (dets.description) product.description = dets.description;
+  if (dets.images) product.images = dets.images;
+  if (dets.videoUrl !== undefined) product.videoUrl = dets.videoUrl;
+
+  // Nutritional info
+  if (dets.nutritionalInfo && (dets.nutritionalInfo.calories || dets.nutritionalInfo.protein)) {
+    product.nutritionalInfo = dets.nutritionalInfo;
+  }
+
+  // Farm source
+  if (dets.farmSource && (dets.farmSource.farmName || dets.farmSource.location)) {
+    product.farmSource = dets.farmSource;
+  }
+
+  // Delivery & returns
+  if (dets.deliveryInfo) product.deliveryInfo = dets.deliveryInfo;
+  if (dets.returnPolicy) product.returnPolicy = dets.returnPolicy;
+
+  // Stock override
+  if (stocks[product._id] !== undefined) product.stock = stocks[product._id];
+
+  // Price overrides
+  if (prices[product._id + '_price'] !== undefined) product.price = prices[product._id + '_price'];
+  if (prices[product._id + '_disc'] !== undefined) product.discountPrice = prices[product._id + '_disc'];
+
+  // Also update weight prices if overridden
+  if (product.weights && product.weights.length > 0 && prices[product._id + '_price'] !== undefined) {
+    product.weights[0].price = prices[product._id + '_price'];
+    product.weights[0].discountPrice = prices[product._id + '_disc'] !== undefined ? prices[product._id + '_disc'] : product.weights[0].discountPrice;
+  }
+
+  return product;
+}
+
 async function loadProductDetail() {
   const slug = new URLSearchParams(window.location.search).get('slug') || new URLSearchParams(window.location.search).get('id');
   if (!slug) { window.location.href = 'products.html'; return; }
-  try { const product = await api(`/products/slug/${slug}`); if (product) { renderDetail(product); return; } } catch {}
-  const fb = getFallbackProduct(slug); if (fb) renderDetail(fb); else document.getElementById('detailContent').innerHTML = '<p style="text-align:center;padding:60px;">Product not found.</p>';
+  try { let product = await api(`/products/slug/${slug}`); if (product) { renderDetail(applyAdminOverrides(product)); return; } } catch {}
+  let fb = getFallbackProduct(slug); if (fb) renderDetail(applyAdminOverrides(fb)); else document.getElementById('detailContent').innerHTML = '<p style="text-align:center;padding:60px;">Product not found.</p>';
 }
 
 function renderDetail(product) {

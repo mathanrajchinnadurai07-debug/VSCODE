@@ -60,7 +60,28 @@ function starsHTML(rating) { let h=''; for (let i=1;i<=5;i++) { h += i <= Math.f
 
 function getCategoryEmoji(category) { return {vegetables:'🥬',fruits:'🍎',biscuits:'🍪',snacks:'🥜',mushroom:'🍄',chicken:'🍗',mutton:'🍖',grocery:'🏪',herbal:'🌿',dryfruits:'🥣',flour:'🌾',beverages:'☕',spreads:'🍯',pickles:'🥒',superfoods:'🧬',readytocook:'🍲'}[category] || '🛒'; }
 
+function applyCardOverrides(p) {
+  try {
+    const dets = JSON.parse(localStorage.getItem('ce_detail_overrides') || '{}')[p._id] || {};
+    const stocks = JSON.parse(localStorage.getItem('ce_stock_overrides') || '{}');
+    const prices = JSON.parse(localStorage.getItem('ce_price_overrides') || '{}');
+    if (dets.name) p.name = dets.name;
+    if (dets.category) p.category = dets.category;
+    if (dets.rating !== undefined) p.rating = dets.rating;
+    if (dets.images) p.images = dets.images;
+    if (stocks[p._id] !== undefined) p.stock = stocks[p._id];
+    if (prices[p._id + '_price'] !== undefined) p.price = prices[p._id + '_price'];
+    if (prices[p._id + '_disc'] !== undefined) p.discountPrice = prices[p._id + '_disc'];
+    if (p.weights && p.weights.length > 0) {
+      if (prices[p._id + '_price'] !== undefined) p.weights[0].price = prices[p._id + '_price'];
+      if (prices[p._id + '_disc'] !== undefined) p.weights[0].discountPrice = prices[p._id + '_disc'];
+    }
+  } catch {}
+  return p;
+}
+
 function productCardHTML(product) {
+  product = applyCardOverrides(product);
   const firstW = product.weights?.[0]; const showPrice = firstW ? (firstW.discountPrice || firstW.price) : (product.discountPrice || product.price); const showOriginal = firstW ? firstW.price : product.price;
   const discount = showOriginal > 0 ? Math.round(((showOriginal - showPrice) / showOriginal) * 100) : 0;
   const inW = isInWishlist(product._id || product.slug); const outOfStock = product.stock <= 0;

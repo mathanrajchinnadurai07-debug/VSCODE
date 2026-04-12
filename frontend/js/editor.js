@@ -31,7 +31,8 @@ function goSection(name) {
   const titles = {
     dashboard: 'Dashboard', payout: 'Payout Splits', products: 'Products & Stock',
     addproduct: 'Add Product', customers: 'Customers', sellers: 'Sellers & Delivery',
-    orders: 'Order Management', branding: 'Branding', settings: 'Store Settings', payment: 'Payment Config'
+    orders: 'Order Management', branding: 'Branding', settings: 'Store Settings', payment: 'Payment Config',
+    homepage: 'Homepage Manager', catmanager: 'Categories Manager'
   };
   document.getElementById('pageTitle').textContent = titles[name] || name;
   document.getElementById('pageBreadcrumb').textContent = `Curfee Store Editor → ${titles[name] || name}`;
@@ -43,6 +44,8 @@ function goSection(name) {
   if (name === 'branding') loadBrandingForm();
   if (name === 'settings') loadSettings();
   if (name === 'payment') loadPaymentConfig();
+  if (name === 'homepage') loadHomepageManager();
+  if (name === 'catmanager') loadCategoryManager();
   if (window.innerWidth < 900) document.getElementById('editorSidebar').classList.remove('open');
 }
 
@@ -117,22 +120,103 @@ function loadDashboard() {
 
   // Low stock
   const ls = document.getElementById('dashLowStock');
-  const lowItems = getAllProducts().filter(p => getProductStock(p) < 30).slice(0, 6);
-  if (!lowItems.length) {
-    ls.innerHTML = '<div style="padding:0 24px;color:#10b981;font-size:0.85rem;">✅ All products well-stocked!</div>';
+  const allLow = getAllProducts().filter(p => getProductStock(p) < 30);
+  allLow.sort((a, b) => getProductStock(a) - getProductStock(b));
+  const countEl = document.getElementById('lowStockCount');
+  if (countEl) countEl.textContent = allLow.length ? allLow.length + ' items' : '';
+  if (!allLow.length) {
+    ls.innerHTML = '<div style="padding:20px 24px;color:#10b981;font-size:0.85rem;text-align:center;"><i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>All products well-stocked!</div>';
   } else {
+    const lowItems = allLow.slice(0, 8);
     ls.innerHTML = lowItems.map(p => {
       const stk = getProductStock(p);
+      const dets = getDetailOverrides()[p._id] || {};
+      const displayName = dets.name || p.name;
       const cls = stk === 0 ? 'out' : stk < 10 ? 'low' : 'medium';
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 24px;border-bottom:1px solid #f1f5f9;">
-        <span style="font-size:0.84rem;font-weight:500;">${p.name}</span>
-        <span class="stock-badge ${cls}">${stk === 0 ? 'Out of Stock' : stk + ' left'}</span>
+      const bgColor = stk === 0 ? '#fef2f2' : stk < 10 ? '#fffbeb' : '#f0fdf4';
+      const img = (dets.images?.[0] || p.images?.[0] || '').split('/').pop() || 'tomato.png';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f1f5f9;background:${bgColor};">
+        <img src="assets/images/products/${img}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid #e2e8f0;" onerror="this.src='assets/images/products/tomato.png'">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</div>
+          <div style="font-size:0.7rem;color:#94a3b8;">${p.category}</div>
+        </div>
+        <input class="inline-input" type="number" value="${stk}" onchange="updateStock('${p._id}',this.value);initDashboard();" style="width:55px;font-size:0.8rem;padding:4px 6px;text-align:center;">
+        <span class="stock-badge ${cls}" style="font-size:0.7rem;min-width:70px;text-align:center;">${stk === 0 ? '✗ Out' : stk < 10 ? '⚠ ' + stk + ' left' : stk + ' left'}</span>
       </div>`;
-    }).join('');
+    }).join('') + (allLow.length > 8 ? `<div style="padding:10px 16px;text-align:center;font-size:0.8rem;color:#64748b;">+ ${allLow.length - 8} more items — <a href="#" onclick="showAllLowStock();return false;" style="color:var(--primary);font-weight:600;">View All</a></div>` : '');
   }
 
   // Payout mini
   renderPayoutDisplay('dashPayoutBar', 'dashPayoutGrid', 0);
+}
+
+function showAllLowStock() {
+  const allLow = getAllProducts().filter(p => getProductStock(p) < 30);
+  allLow.sort((a, b) => getProductStock(a) - getProductStock(b));
+  const outCount = allLow.filter(p => getProductStock(p) === 0).length;
+  const critCount = allLow.filter(p => getProductStock(p) > 0 && getProductStock(p) < 10).length;
+  const warnCount = allLow.filter(p => getProductStock(p) >= 10).length;
+
+  const html = `<div style="padding:24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <h2 style="margin:0;font-size:1.1rem;"><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> All Low Stock Items (${allLow.length})</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="padding:4px 12px;border-radius:16px;font-size:0.72rem;font-weight:600;background:#fef2f2;color:#dc2626;">${outCount} Out of Stock</span>
+        <span style="padding:4px 12px;border-radius:16px;font-size:0.72rem;font-weight:600;background:#fffbeb;color:#d97706;">${critCount} Critical (&lt;10)</span>
+        <span style="padding:4px 12px;border-radius:16px;font-size:0.72rem;font-weight:600;background:#f0fdf4;color:#16a34a;">${warnCount} Warning (&lt;30)</span>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <input type="text" id="lowStockSearch" class="form-input" placeholder="🔍 Search products..." oninput="filterLowStockModal()" style="max-width:300px;">
+    </div>
+    <div style="max-height:60vh;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);">
+      <table class="data-table" style="width:100%;font-size:0.82rem;">
+        <thead><tr>
+          <th style="position:sticky;top:0;background:#f8fafc;z-index:1;">Product</th>
+          <th style="position:sticky;top:0;background:#f8fafc;z-index:1;">Category</th>
+          <th style="position:sticky;top:0;background:#f8fafc;z-index:1;">Current Stock</th>
+          <th style="position:sticky;top:0;background:#f8fafc;z-index:1;">Update</th>
+          <th style="position:sticky;top:0;background:#f8fafc;z-index:1;">Status</th>
+        </tr></thead>
+        <tbody id="lowStockModalBody">${allLow.map(p => {
+          const stk = getProductStock(p);
+          const dets = getDetailOverrides()[p._id] || {};
+          const displayName = dets.name || p.name;
+          const img = (dets.images?.[0] || p.images?.[0] || '').split('/').pop() || 'tomato.png';
+          const bgColor = stk === 0 ? '#fef2f2' : stk < 10 ? '#fffbeb' : '#fff';
+          const cls = stk === 0 ? 'out' : stk < 10 ? 'low' : 'medium';
+          const statusText = stk === 0 ? '✗ Out of Stock' : stk < 10 ? '⚠ Critical' : '● Low';
+          return `<tr data-name="${displayName.toLowerCase()}" style="background:${bgColor};">
+            <td><div style="display:flex;align-items:center;gap:8px;">
+              <img src="assets/images/products/${img}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;" onerror="this.src='assets/images/products/tomato.png'">
+              <span style="font-weight:600;">${displayName}</span>
+            </div></td>
+            <td>${p.category}</td>
+            <td style="font-weight:700;color:${stk === 0 ? '#dc2626' : stk < 10 ? '#d97706' : '#16a34a'};font-size:0.95rem;">${stk}</td>
+            <td><input class="inline-input" type="number" value="${stk}" onchange="updateStock('${p._id}', this.value);showAllLowStock();" style="width:65px;text-align:center;"></td>
+            <td><span class="stock-badge ${cls}" style="font-size:0.72rem;">${statusText}</span></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+      <button class="btn btn-outline" onclick="closeModal('lowStockModal')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('lowStockModal');goSection('products')"><i class="fas fa-box"></i> Go to Products</button>
+    </div>
+  </div>`;
+
+  let modal = document.getElementById('lowStockModal');
+  if (!modal) { modal = document.createElement('div'); modal.id = 'lowStockModal'; modal.className = 'modal-overlay'; document.body.appendChild(modal); }
+  modal.innerHTML = `<div class="modal-box" style="max-width:800px;width:95%;">${html}</div>`;
+  modal.classList.add('active');
+}
+
+function filterLowStockModal() {
+  const q = (document.getElementById('lowStockSearch')?.value || '').toLowerCase();
+  document.querySelectorAll('#lowStockModalBody tr').forEach(row => {
+    row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+  });
 }
 
 function renderPayoutDisplay(barId, gridId, sampleAmount) {
@@ -230,18 +314,21 @@ function renderFilteredProducts(prods) {
       herbal:'#065f46',dryfruits:'#a16207',flour:'#6b7280',beverages:'#0369a1',
       spreads:'#7c2d12',pickles:'#4d7c0f',superfoods:'#0f766e',readytocook:'#7e22ce'
     };
-    const cc = catColors[p.category] || '#475569';
+    const dets = getDetailOverrides()[p._id] || {};
+    const displayName = dets.name || p.name;
+    const displayCat = dets.category || p.category;
+    const cc = catColors[displayCat] || '#475569';
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:10px;">
-          <img src="assets/images/products/${p.images?.[0]?.split('/').pop() || 'tomato.png'}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #e2e8f0;" onerror="this.src='assets/images/products/tomato.png'">
+          <img src="assets/images/products/${(dets.images?.[0] || p.images?.[0] || 'tomato.png').split('/').pop()}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #e2e8f0;" onerror="this.src='assets/images/products/tomato.png'">
           <div>
-            <div style="font-weight:600;font-size:0.85rem;">${p.name}</div>
+            <div style="font-weight:600;font-size:0.85rem;">${displayName}</div>
             <div style="font-size:0.72rem;color:#94a3b8;">${p.slug || p._id}</div>
           </div>
         </div>
       </td>
-      <td><span style="background:${cc}22;color:${cc};padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:600;">${p.category}</span></td>
+      <td><span style="background:${cc}22;color:${cc};padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:600;">${displayCat}</span></td>
       <td><input class="inline-input" type="number" value="${getProductPrice(p)}" onchange="updatePrice('${p._id}','price',this.value)" style="width:80px;"></td>
       <td><input class="inline-input" type="number" value="${getProductDiscPrice(p)}" onchange="updatePrice('${p._id}','disc',this.value)" style="width:80px;"></td>
       <td>
@@ -291,15 +378,35 @@ function openEditProduct(id) {
   if (!p) return;
   const dets = getDetailOverrides()[id] || {};
   document.getElementById('editProdId').value = id;
-  document.getElementById('editProdName').value = p.name;
-  document.getElementById('editProdCat').value = p.category;
+  document.getElementById('editProdName').value = dets.name || p.name;
+  document.getElementById('editProdCat').value = dets.category || p.category;
   document.getElementById('editProdPrice').value = getProductPrice(p);
   document.getElementById('editProdDiscPrice').value = getProductDiscPrice(p);
   document.getElementById('editProdStock').value = getProductStock(p);
-  document.getElementById('editProdRating').value = p.rating || 4.3;
+  document.getElementById('editProdRating').value = dets.rating !== undefined ? dets.rating : (p.rating || 4.3);
   document.getElementById('editProdDesc').value = dets.description !== undefined ? dets.description : (p.description || '');
-  document.getElementById('editProdImage').value = dets.images ? dets.images.join(', ') : (p.images ? p.images.map(i => i.split('/').pop()).join(', ') : '');
+  document.getElementById('editProdImage').value = dets.images ? dets.images.map(i => i.split('/').pop()).join(', ') : (p.images ? p.images.map(i => i.split('/').pop()).join(', ') : '');
   document.getElementById('editProdVideo').value = dets.videoUrl !== undefined ? dets.videoUrl : (p.videoUrl || '');
+
+  // Nutrition fields
+  const ni = dets.nutritionalInfo || p.nutritionalInfo || {};
+  const nutF = (fld) => document.getElementById(fld);
+  if (nutF('editNutCalories')) nutF('editNutCalories').value = ni.calories || '';
+  if (nutF('editNutProtein')) nutF('editNutProtein').value = ni.protein || '';
+  if (nutF('editNutCarbs')) nutF('editNutCarbs').value = ni.carbs || '';
+  if (nutF('editNutFat')) nutF('editNutFat').value = ni.fat || '';
+  if (nutF('editNutFiber')) nutF('editNutFiber').value = ni.fiber || '';
+
+  // Farm source fields
+  const fs = dets.farmSource || p.farmSource || {};
+  if (nutF('editFarmName')) nutF('editFarmName').value = fs.farmName || '';
+  if (nutF('editFarmLocation')) nutF('editFarmLocation').value = fs.location || '';
+  if (nutF('editFarmDesc')) nutF('editFarmDesc').value = fs.description || '';
+
+  // Delivery & returns fields
+  if (nutF('editDeliveryInfo')) nutF('editDeliveryInfo').value = dets.deliveryInfo !== undefined ? dets.deliveryInfo : (p.deliveryInfo || '');
+  if (nutF('editReturnPolicy')) nutF('editReturnPolicy').value = dets.returnPolicy !== undefined ? dets.returnPolicy : (p.returnPolicy || '');
+
   document.getElementById('editProductModal').classList.add('active');
 }
 
@@ -313,10 +420,28 @@ function saveEditProduct(e) {
   const overrides = getDetailOverrides();
   const imgsStr = document.getElementById('editProdImage').value;
   const imgs = imgsStr ? imgsStr.split(',').map(s=>s.trim()).filter(Boolean).map(s => s.startsWith('http') ? s : 'assets/images/products/' + s) : [];
+  
   overrides[id] = {
+    name: document.getElementById('editProdName').value.trim(),
+    category: document.getElementById('editProdCat').value,
+    rating: parseFloat(document.getElementById('editProdRating').value) || 4.3,
     description: document.getElementById('editProdDesc').value.trim(),
     videoUrl: document.getElementById('editProdVideo').value.trim(),
-    images: imgs.length > 0 ? imgs : undefined
+    images: imgs.length > 0 ? imgs : undefined,
+    nutritionalInfo: {
+      calories: document.getElementById('editNutCalories')?.value.trim() || '',
+      protein: document.getElementById('editNutProtein')?.value.trim() || '',
+      carbs: document.getElementById('editNutCarbs')?.value.trim() || '',
+      fat: document.getElementById('editNutFat')?.value.trim() || '',
+      fiber: document.getElementById('editNutFiber')?.value.trim() || '',
+    },
+    farmSource: {
+      farmName: document.getElementById('editFarmName')?.value.trim() || '',
+      location: document.getElementById('editFarmLocation')?.value.trim() || '',
+      description: document.getElementById('editFarmDesc')?.value.trim() || '',
+    },
+    deliveryInfo: document.getElementById('editDeliveryInfo')?.value.trim() || '',
+    returnPolicy: document.getElementById('editReturnPolicy')?.value.trim() || '',
   };
   DB.set('detail_overrides', overrides);
 
@@ -808,4 +933,300 @@ function resetBranding() {
   loadBrandingForm();
   if (typeof applyBranding === 'function') applyBranding();
   showToast('Branding reset to defaults.', 'info');
+}
+
+// ============================================================
+//  HOMEPAGE MANAGER — Banners, Sponsored, Deals
+// ============================================================
+
+const DEFAULT_BANNERS = [
+  { tag:'🍪 ORGANIC BISCUITS', title:'Fresh Baked Cookies', desc:'Millet, ragi, jaggery cookies — zero refined sugar', cta:'Shop Now →', link:'products.html?category=biscuits', gradient:'linear-gradient(135deg,#b5651d,#d4a574)', emoji:'🍪' },
+  { tag:'🍄 MUSHROOM POWER', title:'Mushroom Products', desc:'Dried, powders, snacks & immunity blends', cta:'Explore →', link:'products.html?category=mushroom', gradient:'linear-gradient(135deg,#6d4c41,#8d6e63)', emoji:'🍄' },
+  { tag:'🍗 FARM FRESH', title:'Organic Chicken & Mutton', desc:'Antibiotic-free, vacuum sealed & delivered fresh', cta:'Order Now →', link:'products.html?category=chicken', gradient:'linear-gradient(135deg,#c62828,#e53935)', emoji:'🍗' },
+  { tag:'🥬 FARM FRESH', title:'Organic Vegetables', desc:'Tomato, carrot, spinach, broccoli — pesticide free', cta:'Shop Fresh →', link:'products.html?category=vegetables', gradient:'linear-gradient(135deg,#43a047,#66bb6a)', emoji:'🥬' },
+  { tag:'🍎 SEASONAL FRUITS', title:'Organic Fruits', desc:'Mango, apple, strawberry, banana — naturally grown', cta:'Order Now →', link:'products.html?category=fruits', gradient:'linear-gradient(135deg,#ff6f00,#ffa726)', emoji:'🍎' },
+  { tag:'🔥 MEGA DEALS', title:'Up to 40% OFF', desc:'On 200+ organic products — limited time!', cta:'Grab Now →', link:'products.html?bestseller=true', gradient:'linear-gradient(135deg,#1b4332,#2d6a4f)', emoji:'🎉' },
+];
+
+const DEFAULT_DEALS = [
+  { title:'Biscuits & Cookies', offer:'15 varieties', emojis:'🍪🥜🧁', link:'products.html?category=biscuits', gradient:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
+  { title:'Mushroom Products', offer:'Up to 35% OFF', emojis:'🍄🧪🍵', link:'products.html?category=mushroom', gradient:'linear-gradient(135deg,#efebe9,#d7ccc8)' },
+  { title:'Organic Chicken', offer:'Farm Fresh', emojis:'🍗🥩🌡️', link:'products.html?category=chicken', gradient:'linear-gradient(135deg,#ffebee,#ffcdd2)' },
+  { title:'Dry Fruits & Nuts', offer:'15 premium items', emojis:'🥜🌰🍇', link:'products.html?category=dryfruits', gradient:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
+  { title:'Organic Mutton', offer:'Premium Goat', emojis:'🍖🥩🔥', link:'products.html?category=mutton', gradient:'linear-gradient(135deg,#fbe9e7,#ffccbc)' },
+  { title:'Superfoods', offer:'Chia, moringa, spirulina', emojis:'🧬🌱✨', link:'products.html?category=superfoods', gradient:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
+  { title:'Tea & Coffee', offer:'12 organic blends', emojis:'☕🍵🌿', link:'products.html?category=beverages', gradient:'linear-gradient(135deg,#efebe9,#d7ccc8)' },
+  { title:'Honey & Spreads', offer:'Raw honey, nut butters', emojis:'🍯🥜🫙', link:'products.html?category=spreads', gradient:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
+];
+
+function getBanners() { return DB.get('homepage_banners', null) || DEFAULT_BANNERS; }
+function getDeals() { return DB.get('homepage_deals', null) || DEFAULT_DEALS; }
+function getSponsored() { return DB.get('homepage_sponsored', { title:'Organic Biscuits & Cookies — 15 Varieties', sub:'Kraft paper packaging | Zero preservatives', btn:'Shop Now', link:'products.html?category=biscuits' }); }
+
+function loadHomepageManager() {
+  renderBannerList();
+  renderDealList();
+  const sp = getSponsored();
+  document.getElementById('sponsoredTitle').value = sp.title || '';
+  document.getElementById('sponsoredSub').value = sp.sub || '';
+  document.getElementById('sponsoredBtn').value = sp.btn || 'Shop Now';
+  document.getElementById('sponsoredLink').value = sp.link || '';
+}
+
+function renderBannerList() {
+  const banners = getBanners();
+  const list = document.getElementById('bannerList');
+  list.innerHTML = banners.map((b, i) => `
+    <div style="display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;">
+      <div style="width:80px;height:60px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;flex-shrink:0;" class="deal-preview-bg">${b.emoji}
+        <style>.deal-preview-bg{background:${b.gradient};}</style>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:2px;">${b.title}</div>
+        <div style="font-size:0.75rem;color:var(--text-light);">${b.desc}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-outline btn-sm" onclick="editBanner(${i})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none;" onclick="deleteBanner(${i})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addBanner() {
+  const banners = getBanners();
+  banners.push({ tag:'🆕 NEW', title:'New Banner', desc:'Description here', cta:'Shop Now →', link:'products.html', gradient:'linear-gradient(135deg,#2D6A4F,#52B788)', emoji:'🌿' });
+  DB.set('homepage_banners', banners);
+  renderBannerList();
+  editBanner(banners.length - 1);
+  showToast('Banner added! Click edit to customize.', 'success');
+}
+
+function editBanner(idx) {
+  const banners = getBanners();
+  const b = banners[idx];
+  const html = `<div style="padding:20px;">
+    <h3 style="margin-bottom:16px;">Edit Banner #${idx + 1}</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Tag Label</label><input type="text" id="eb_tag" class="form-input" value="${b.tag}"></div>
+      <div class="form-group"><label>Title</label><input type="text" id="eb_title" class="form-input" value="${b.title}"></div>
+      <div class="form-group"><label>Description</label><input type="text" id="eb_desc" class="form-input" value="${b.desc}"></div>
+      <div class="form-group"><label>CTA Text</label><input type="text" id="eb_cta" class="form-input" value="${b.cta}"></div>
+      <div class="form-group"><label>Link</label><input type="text" id="eb_link" class="form-input" value="${b.link}"></div>
+      <div class="form-group"><label>Emoji</label><input type="text" id="eb_emoji" class="form-input" value="${b.emoji}"></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Gradient CSS</label><input type="text" id="eb_gradient" class="form-input" value="${b.gradient}"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-primary" onclick="saveBannerEdit(${idx})"><i class="fas fa-save"></i> Save</button>
+      <button class="btn btn-outline" onclick="closeModal('bannerEditModal')">Cancel</button>
+    </div>
+  </div>`;
+  // Create a temporary modal
+  let modal = document.getElementById('bannerEditModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'bannerEditModal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `<div class="modal-box">${html}</div>`;
+  modal.classList.add('active');
+}
+
+function saveBannerEdit(idx) {
+  const banners = getBanners();
+  banners[idx] = {
+    tag: document.getElementById('eb_tag').value,
+    title: document.getElementById('eb_title').value,
+    desc: document.getElementById('eb_desc').value,
+    cta: document.getElementById('eb_cta').value,
+    link: document.getElementById('eb_link').value,
+    emoji: document.getElementById('eb_emoji').value,
+    gradient: document.getElementById('eb_gradient').value,
+  };
+  DB.set('homepage_banners', banners);
+  closeModal('bannerEditModal');
+  renderBannerList();
+  showToast('Banner updated!', 'success');
+}
+
+function deleteBanner(idx) {
+  if (!confirm('Delete this banner?')) return;
+  const banners = getBanners();
+  banners.splice(idx, 1);
+  DB.set('homepage_banners', banners);
+  renderBannerList();
+  showToast('Banner deleted.', 'info');
+}
+
+function saveSponsored() {
+  DB.set('homepage_sponsored', {
+    title: document.getElementById('sponsoredTitle').value,
+    sub: document.getElementById('sponsoredSub').value,
+    btn: document.getElementById('sponsoredBtn').value,
+    link: document.getElementById('sponsoredLink').value,
+  });
+  showToast('Sponsored banner saved!', 'success');
+}
+
+// Deal Cards
+function renderDealList() {
+  const deals = getDeals();
+  const list = document.getElementById('dealList');
+  list.innerHTML = deals.map((d, i) => `
+    <div style="padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;">
+      <div style="font-size:1.5rem;margin-bottom:6px;">${d.emojis}</div>
+      <div style="font-weight:700;font-size:0.88rem;">${d.title}</div>
+      <div style="font-size:0.75rem;color:var(--text-light);margin-bottom:8px;">${d.offer}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="editDeal(${i})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none;" onclick="deleteDeal(${i})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addDealCard() {
+  const deals = getDeals();
+  deals.push({ title:'New Deal', offer:'Special Offer', emojis:'🆕✨🎉', link:'products.html', gradient:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' });
+  DB.set('homepage_deals', deals);
+  renderDealList();
+  showToast('Deal card added!', 'success');
+}
+
+function editDeal(idx) {
+  const deals = getDeals();
+  const d = deals[idx];
+  const html = `<div style="padding:20px;">
+    <h3 style="margin-bottom:16px;">Edit Deal Card #${idx + 1}</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Title</label><input type="text" id="ed_title" class="form-input" value="${d.title}"></div>
+      <div class="form-group"><label>Offer Text</label><input type="text" id="ed_offer" class="form-input" value="${d.offer}"></div>
+      <div class="form-group"><label>Emojis</label><input type="text" id="ed_emojis" class="form-input" value="${d.emojis}"></div>
+      <div class="form-group"><label>Link</label><input type="text" id="ed_link" class="form-input" value="${d.link}"></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Gradient CSS</label><input type="text" id="ed_gradient" class="form-input" value="${d.gradient}"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-primary" onclick="saveDealEdit(${idx})"><i class="fas fa-save"></i> Save</button>
+      <button class="btn btn-outline" onclick="closeModal('dealEditModal')">Cancel</button>
+    </div>
+  </div>`;
+  let modal = document.getElementById('dealEditModal');
+  if (!modal) { modal = document.createElement('div'); modal.id = 'dealEditModal'; modal.className = 'modal-overlay'; document.body.appendChild(modal); }
+  modal.innerHTML = `<div class="modal-box">${html}</div>`;
+  modal.classList.add('active');
+}
+
+function saveDealEdit(idx) {
+  const deals = getDeals();
+  deals[idx] = {
+    title: document.getElementById('ed_title').value,
+    offer: document.getElementById('ed_offer').value,
+    emojis: document.getElementById('ed_emojis').value,
+    link: document.getElementById('ed_link').value,
+    gradient: document.getElementById('ed_gradient').value,
+  };
+  DB.set('homepage_deals', deals);
+  closeModal('dealEditModal');
+  renderDealList();
+  showToast('Deal card updated!', 'success');
+}
+
+function deleteDeal(idx) {
+  if (!confirm('Delete this deal card?')) return;
+  const deals = getDeals();
+  deals.splice(idx, 1);
+  DB.set('homepage_deals', deals);
+  renderDealList();
+  showToast('Deal card deleted.', 'info');
+}
+
+// ============================================================
+//  CATEGORIES MANAGER
+// ============================================================
+
+const DEFAULT_CATEGORIES = [
+  { emoji:'🏠', name:'For You', link:'products.html' },
+  { emoji:'🍪', name:'Biscuits', link:'products.html?category=biscuits' },
+  { emoji:'🥜', name:'Snacks', link:'products.html?category=snacks' },
+  { emoji:'🍄', name:'Mushroom', link:'products.html?category=mushroom' },
+  { emoji:'🍗', name:'Chicken', link:'products.html?category=chicken' },
+  { emoji:'🍖', name:'Mutton', link:'products.html?category=mutton' },
+  { emoji:'🏪', name:'Grocery', link:'products.html?category=grocery' },
+  { emoji:'🥣', name:'Dry Fruits', link:'products.html?category=dryfruits' },
+  { emoji:'🌾', name:'Flour', link:'products.html?category=flour' },
+  { emoji:'☕', name:'Beverages', link:'products.html?category=beverages' },
+  { emoji:'🍯', name:'Spreads', link:'products.html?category=spreads' },
+  { emoji:'🥒', name:'Pickles', link:'products.html?category=pickles' },
+  { emoji:'🧬', name:'Superfoods', link:'products.html?category=superfoods' },
+  { emoji:'🍲', name:'Ready Cook', link:'products.html?category=readytocook' },
+  { emoji:'🥬', name:'Vegetables', link:'products.html?category=vegetables' },
+  { emoji:'🍎', name:'Fruits', link:'products.html?category=fruits' },
+];
+
+function getCategories() { return DB.get('categories', null) || DEFAULT_CATEGORIES; }
+
+function loadCategoryManager() { renderCategoryList(); }
+
+function renderCategoryList() {
+  const cats = getCategories();
+  const list = document.getElementById('categoryList');
+  list.innerHTML = cats.map((c, i) => `
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;">
+      <span style="font-size:1.5rem;cursor:grab;" title="Drag to reorder">${c.emoji}</span>
+      <input type="text" class="form-input cat-emoji" value="${c.emoji}" style="width:50px;text-align:center;font-size:1.2rem;" data-idx="${i}">
+      <input type="text" class="form-input cat-name" value="${c.name}" style="flex:1;" data-idx="${i}">
+      <input type="text" class="form-input cat-link" value="${c.link}" style="flex:2;font-size:0.8rem;" data-idx="${i}">
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        ${i > 0 ? `<button class="btn btn-outline btn-sm" onclick="moveCat(${i},-1)" title="Move up"><i class="fas fa-arrow-up"></i></button>` : ''}
+        ${i < cats.length-1 ? `<button class="btn btn-outline btn-sm" onclick="moveCat(${i},1)" title="Move down"><i class="fas fa-arrow-down"></i></button>` : ''}
+        <button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none;" onclick="deleteCat(${i})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addCategory() {
+  const cats = getCategories();
+  cats.push({ emoji:'🆕', name:'New Category', link:'products.html?category=new' });
+  DB.set('categories', cats);
+  renderCategoryList();
+  showToast('Category added! Edit its details below.', 'success');
+}
+
+function saveCategories() {
+  const emojis = document.querySelectorAll('.cat-emoji');
+  const names = document.querySelectorAll('.cat-name');
+  const links = document.querySelectorAll('.cat-link');
+  const cats = [];
+  emojis.forEach((el, i) => {
+    cats.push({ emoji: el.value, name: names[i].value, link: links[i].value });
+  });
+  DB.set('categories', cats);
+  showToast('Categories saved! Changes will appear on the homepage.', 'success');
+}
+
+function deleteCat(idx) {
+  if (!confirm('Delete this category?')) return;
+  const cats = getCategories();
+  cats.splice(idx, 1);
+  DB.set('categories', cats);
+  renderCategoryList();
+  showToast('Category removed.', 'info');
+}
+
+function moveCat(idx, dir) {
+  const cats = getCategories();
+  const target = idx + dir;
+  if (target < 0 || target >= cats.length) return;
+  [cats[idx], cats[target]] = [cats[target], cats[idx]];
+  DB.set('categories', cats);
+  renderCategoryList();
+}
+
+function resetCategories() {
+  if (!confirm('Reset categories to defaults? This cannot be undone.')) return;
+  DB.set('categories', null);
+  renderCategoryList();
+  showToast('Categories reset to defaults.', 'info');
 }

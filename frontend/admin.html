@@ -335,6 +335,80 @@
 <script src='js/branding.js'></script>
 </head>
 <body>
+<!-- ADMIN PASSWORD GATE -->
+<div id="adminGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1B4332,#2D6A4F);display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:40px 32px;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="width:72px;height:72px;border-radius:50%;background:#E8F4EC;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+      <i class="fas fa-lock" style="font-size:2rem;color:#2D6A4F;"></i>
+    </div>
+    <h2 style="font-family:'Poppins',sans-serif;font-size:1.4rem;font-weight:700;color:#1B4332;margin-bottom:6px;">Admin Access</h2>
+    <p style="font-size:0.85rem;color:#8D99AE;margin-bottom:24px;">Enter admin password to continue</p>
+    <div id="adminPwdBox" style="position:relative;margin-bottom:16px;">
+      <input type="password" id="adminPwdInput" placeholder="Enter password" autocomplete="current-password"
+        style="width:100%;padding:14px 44px 14px 16px;border:2px solid #E8E0D8;border-radius:10px;font-size:1rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.3s;"
+        onfocus="this.style.borderColor='#2D6A4F'" onblur="this.style.borderColor='#E8E0D8'">
+      <button onclick="togglePwdVisibility()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#8D99AE;font-size:1.1rem;" id="pwdToggleBtn">
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+    <div id="adminPwdError" style="color:#E63946;font-size:0.82rem;margin-bottom:12px;display:none;">
+      <i class="fas fa-exclamation-circle"></i> Incorrect password. Try again.
+    </div>
+    <button onclick="checkAdminPassword()"
+      style="width:100%;padding:14px;background:#2D6A4F;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:background 0.3s;">
+      <i class="fas fa-sign-in-alt"></i> Unlock Admin
+    </button>
+    <p style="font-size:0.72rem;color:#C4B5A4;margin-top:16px;"><i class="fas fa-shield-alt"></i> Protected area. Authorized personnel only.</p>
+  </div>
+</div>
+<script>
+var ADMIN_PASSWORD = 'curfee@admin';
+(function() {
+  if (sessionStorage.getItem('curfee_admin_auth') === 'true') {
+    document.getElementById('adminGate').style.display = 'none';
+  }
+})();
+function checkAdminPassword() {
+  var inp = document.getElementById('adminPwdInput');
+  var err = document.getElementById('adminPwdError');
+  if (inp.value === ADMIN_PASSWORD) {
+    sessionStorage.setItem('curfee_admin_auth', 'true');
+    var g = document.getElementById('adminGate');
+    g.style.transition = 'opacity 0.4s ease';
+    g.style.opacity = '0';
+    setTimeout(function() { g.style.display = 'none'; }, 400);
+  } else {
+    err.style.display = 'block';
+    inp.style.borderColor = '#E63946';
+    inp.value = '';
+    inp.focus();
+    var b = document.getElementById('adminPwdBox');
+    b.style.animation = 'shake 0.4s ease';
+    setTimeout(function() { b.style.animation = ''; }, 500);
+  }
+}
+function togglePwdVisibility() {
+  var i = document.getElementById('adminPwdInput');
+  var ic = document.getElementById('pwdToggleBtn').querySelector('i');
+  if (i.type === 'password') { i.type = 'text'; ic.className = 'fas fa-eye-slash'; }
+  else { i.type = 'password'; ic.className = 'fas fa-eye'; }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('adminPwdInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkAdminPassword();
+  });
+});
+</script>
+<style>
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+</style>
+
 
 <div class="editor-wrap">
 
@@ -358,6 +432,11 @@
       <button class="nav-item" data-section="customers"><i class="fas fa-users"></i> Customers</button>
       <button class="nav-item" data-section="sellers"><i class="fas fa-store"></i> Sellers</button>
       <button class="nav-item" data-section="orders"><i class="fas fa-shopping-bag"></i> Orders <span class="nav-badge" id="pendingBadge">0</span></button>
+
+      
+      <div class="nav-section-label">Content</div>
+      <button class="nav-item" data-section="homepage"><i class="fas fa-home"></i> Homepage</button>
+      <button class="nav-item" data-section="catmanager"><i class="fas fa-th-large"></i> Categories</button>
 
       <div class="nav-section-label">Settings</div>
       <button class="nav-item" data-section="branding"><i class="fas fa-palette"></i> Branding</button>
@@ -433,9 +512,12 @@
           </div>
 
           <div class="panel">
-            <div class="panel-header"><h2><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Low Stock Alert</h2></div>
-            <div class="panel-body" style="padding:0;">
-              <div id="dashLowStock" style="padding:16px 0;"></div>
+            <div class="panel-header">
+              <h2><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Low Stock Alert <span id="lowStockCount" style="font-size:0.75rem;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;margin-left:8px;"></span></h2>
+              <button class="btn btn-outline btn-sm" onclick="showAllLowStock()">View All</button>
+            </div>
+            <div class="panel-body" style="padding:0;max-height:400px;overflow-y:auto;">
+              <div id="dashLowStock" style="padding:0;"></div>
             </div>
           </div>
         </div>
@@ -1022,6 +1104,44 @@
         </div>
       </div>
 
+    
+      <!-- ===== HOMEPAGE MANAGER ===== -->
+      <div class="editor-section" id="section-homepage">
+        <div class="panel">
+          <div class="panel-header"><h2><i class="fas fa-image"></i> Hero Banners</h2><button class="btn btn-primary btn-sm" onclick="addBanner()"><i class="fas fa-plus"></i> Add Banner</button></div>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:16px;">These are the sliding banners on your homepage. Drag to reorder.</p>
+          <div id="bannerList" style="display:flex;flex-direction:column;gap:12px;"></div>
+        </div>
+
+        <div class="panel" style="margin-top:24px;">
+          <div class="panel-header"><h2><i class="fas fa-bullhorn"></i> Sponsored Banner</h2></div>
+          <div class="form-grid">
+            <div class="form-group"><label>Title</label><input type="text" id="sponsoredTitle" class="form-input" placeholder="Organic Biscuits & Cookies"></div>
+            <div class="form-group"><label>Subtitle</label><input type="text" id="sponsoredSub" class="form-input" placeholder="Kraft paper packaging"></div>
+            <div class="form-group"><label>Button Text</label><input type="text" id="sponsoredBtn" class="form-input" value="Shop Now"></div>
+            <div class="form-group"><label>Link</label><input type="text" id="sponsoredLink" class="form-input" value="products.html?category=biscuits"></div>
+          </div>
+          <button class="btn btn-primary" style="margin-top:12px;" onclick="saveSponsored()"><i class="fas fa-save"></i> Save Sponsored Banner</button>
+        </div>
+
+        <div class="panel" style="margin-top:24px;">
+          <div class="panel-header"><h2><i class="fas fa-grip-horizontal"></i> Deal Cards</h2><button class="btn btn-primary btn-sm" onclick="addDealCard()"><i class="fas fa-plus"></i> Add Deal</button></div>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:16px;">2x2 promotional deal cards shown on the homepage.</p>
+          <div id="dealList" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ===== CATEGORIES MANAGER ===== -->
+      <div class="editor-section" id="section-catmanager">
+        <div class="panel">
+          <div class="panel-header"><h2><i class="fas fa-th-large"></i> Category Tabs</h2><button class="btn btn-primary btn-sm" onclick="addCategory()"><i class="fas fa-plus"></i> Add Category</button></div>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:16px;">These appear as the scrollable tabs on the homepage. Edit emoji, name, and link.</p>
+          <div id="categoryList" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="saveCategories()"><i class="fas fa-save"></i> Save All Categories</button>
+        <button class="btn btn-outline" style="margin-top:16px;margin-left:8px;" onclick="resetCategories()"><i class="fas fa-undo"></i> Reset to Defaults</button>
+      </div>
+
     </div><!-- /editor-body -->
   </main><!-- /editor-main -->
 </div><!-- /editor-wrap -->
@@ -1056,11 +1176,35 @@
         <div class="form-group"><label>Stock</label><input type="number" id="editProdStock" class="form-input" required min="0"></div>
         <div class="form-group"><label>Rating</label><input type="number" id="editProdRating" class="form-input" step="0.1" min="0" max="5"></div>
       </div>
-      <div class="form-group mt-16"><label>Description</label><textarea id="editProdDesc" class="form-textarea"></textarea></div>
+      <div class="form-group mt-16"><label>Description</label><textarea id="editProdDesc" class="form-textarea" rows="3"></textarea></div>
       <div class="form-group mt-16"><label>Image Filenames (comma separated)</label><input type="text" id="editProdImage" class="form-input" placeholder="e.g. tomato.png, curfee_logo_product.jpg"></div>
       <div class="form-group mt-16"><label>Video URL</label><input type="text" id="editProdVideo" class="form-input" placeholder="e.g. assets/videos/product.mp4"></div>
-      <div style="display:flex;gap:10px;margin-top:20px;">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+      
+      <hr style="margin:24px 0;border:none;border-top:1px solid var(--border);">
+      <h3 style="margin-bottom:12px;font-size:0.95rem;"><i class="fas fa-apple-alt" style="color:var(--success);"></i> Nutritional Info (per 100g)</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Calories</label><input type="text" id="editNutCalories" class="form-input" placeholder="e.g. 52 kcal"></div>
+        <div class="form-group"><label>Protein</label><input type="text" id="editNutProtein" class="form-input" placeholder="e.g. 0.3g"></div>
+        <div class="form-group"><label>Carbohydrates</label><input type="text" id="editNutCarbs" class="form-input" placeholder="e.g. 14g"></div>
+        <div class="form-group"><label>Fat</label><input type="text" id="editNutFat" class="form-input" placeholder="e.g. 0.2g"></div>
+        <div class="form-group"><label>Dietary Fibre</label><input type="text" id="editNutFiber" class="form-input" placeholder="e.g. 2.4g"></div>
+      </div>
+      
+      <hr style="margin:24px 0;border:none;border-top:1px solid var(--border);">
+      <h3 style="margin-bottom:12px;font-size:0.95rem;"><i class="fas fa-tractor" style="color:var(--primary);"></i> Farm Source</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Farm Name</label><input type="text" id="editFarmName" class="form-input" placeholder="e.g. Green Valley Organics"></div>
+        <div class="form-group"><label>Location</label><input type="text" id="editFarmLocation" class="form-input" placeholder="e.g. Ooty, Tamil Nadu"></div>
+      </div>
+      <div class="form-group mt-16"><label>Farm Description</label><textarea id="editFarmDesc" class="form-textarea" rows="2" placeholder="Brief description of the farm..."></textarea></div>
+      
+      <hr style="margin:24px 0;border:none;border-top:1px solid var(--border);">
+      <h3 style="margin-bottom:12px;font-size:0.95rem;"><i class="fas fa-truck" style="color:var(--info);"></i> Delivery & Returns</h3>
+      <div class="form-group"><label>Delivery Info</label><textarea id="editDeliveryInfo" class="form-textarea" rows="2" placeholder="Delivery time, free delivery conditions..."></textarea></div>
+      <div class="form-group mt-16"><label>Return Policy</label><textarea id="editReturnPolicy" class="form-textarea" rows="2" placeholder="Return window, conditions..."></textarea></div>
+      
+      <div style="display:flex;gap:10px;margin-top:24px;">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save All Changes</button>
         <button type="button" class="btn btn-outline" onclick="closeModal('editProductModal')">Cancel</button>
       </div>
     </form>
