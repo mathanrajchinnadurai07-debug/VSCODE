@@ -29,7 +29,15 @@ function cancelOrder(orderNumber) {
   }
 }
 
-function loadAddresses() { const u = getUser(); document.getElementById('addressList').innerHTML = `<div style="border:1px solid var(--primary);border-radius:var(--radius-sm);padding:16px;"><span class="badge badge-organic" style="margin-bottom:8px;">Default</span><br><strong>${u?.name||'Demo User'}</strong><br><span style="font-size:0.85rem;color:var(--text-light);">123 Organic Lane, Green Colony<br>Mumbai, Maharashtra — 400001<br>📞 7845744038</span></div>`; }
+function loadAddresses() {
+  const u = getUser();
+  const saved = JSON.parse(localStorage.getItem('curfee_addresses') || '[]');
+  if (saved.length) {
+    document.getElementById('addressList').innerHTML = saved.map((a, i) => `<div style="border:1px solid ${i===0?'var(--primary)':'var(--border)'};border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;">${i===0?'<span class="badge badge-organic" style="margin-bottom:8px;">Default</span><br>':''}<strong>${a.name || u?.name || ''}</strong><br><span style="font-size:0.85rem;color:var(--text-light);">${a.address}<br>📞 ${a.phone || u?.phone || ''}</span></div>`).join('');
+  } else {
+    document.getElementById('addressList').innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-light);"><div style="font-size:2.5rem;margin-bottom:10px;">📍</div><p>No saved addresses yet.</p><button class="btn btn-primary" style="margin-top:12px;" onclick="showToast('Address management coming soon!','info')"><i class="fas fa-plus"></i> Add Address</button></div>`;
+  }
+}
 
 function loadWishlist() {
   const wishlistIds = getWishlist();

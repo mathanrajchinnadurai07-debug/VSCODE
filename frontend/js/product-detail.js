@@ -153,7 +153,7 @@ async function submitReview(e) {
     await api(`/products/${currentProduct.slug}/reviews`, { method:'POST', body:JSON.stringify({ rating:selectedRating, comment, userName:name }) });
     showToast('Review submitted! Thank you 🌿', 'success');
   } catch {
-    // Save review locally in demo mode
+    // Save review locally as fallback when backend is unavailable
     const localReviews = JSON.parse(localStorage.getItem('curfee_reviews')||'[]');
     localReviews.push({ productSlug:currentProduct.slug, userName:name, rating:selectedRating, comment, isVerifiedPurchase:false, createdAt:new Date().toISOString() });
     localStorage.setItem('curfee_reviews', JSON.stringify(localReviews));

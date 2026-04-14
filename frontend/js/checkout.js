@@ -13,10 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadAddress() {
-  const user = getUser() || { name: 'Madhanraj', phone: '9965797178' };
-  document.getElementById('dispName').innerHTML = user.name + ' <span style="background:#f1f3f6;padding:2px 6px;font-size:0.65rem;border-radius:4px;color:#666;margin-left:4px;">HOME</span>';
-  document.getElementById('dispAddress').textContent = '4/53, Koondakkampatti, Thanneer street, Natham high school, Natham(po), Thottiyam(Tk), Trichy(dt), Thottiyam 621203';
-  document.getElementById('dispPhone').textContent = user.phone;
+  const user = getUser() || {};
+  const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
+  document.getElementById('dispName').innerHTML = (user.name || 'Guest') + ' <span style="background:#f1f3f6;padding:2px 6px;font-size:0.65rem;border-radius:4px;color:#666;margin-left:4px;">HOME</span>';
+  document.getElementById('dispAddress').textContent = savedAddr.address || 'Please add your delivery address';
+  document.getElementById('dispPhone').textContent = user.phone || savedAddr.phone || '';
 }
 
 function renderOrderSummary(cart) {
