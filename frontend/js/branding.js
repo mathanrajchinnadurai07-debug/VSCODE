@@ -18,7 +18,7 @@
     headerBg:       '#ffffff',
     footerText:     '© 2024 Curfee Organic Market. Made with 🌿 in India',
     helplineNumber: '+91 78457 44038',
-    supportEmail:   'support@curfee.com',
+    supportEmail:   'curfee01@gmail.com',
     whatsappNumber: '+91 78457 44038',
   };
 
@@ -89,7 +89,7 @@
     const a = document.createElement('a');
     a.id = 'whatsapp-float-btn';
     a.className = 'wa-float-btn';
-    a.href = 'https://wa.me/919996667778?text=Hi%20Curfee!%20I%20need%20help%20with%20my%20order';
+    a.href = 'https://wa.me/917845744038?text=Hi%20Curfee!%20I%20need%20help%20with%20my%20order';
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.innerHTML = '<i class="fab fa-whatsapp"></i>';

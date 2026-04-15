@@ -17,7 +17,28 @@ function loadAddress() {
   const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
   document.getElementById('dispName').innerHTML = (user.name || 'Guest') + ' <span style="background:#f1f3f6;padding:2px 6px;font-size:0.65rem;border-radius:4px;color:#666;margin-left:4px;">HOME</span>';
   document.getElementById('dispAddress').textContent = savedAddr.address || 'Please add your delivery address';
-  document.getElementById('dispPhone').textContent = user.phone || savedAddr.phone || '';
+  document.getElementById('dispPhone').textContent = savedAddr.phone || user.phone || '';
+}
+
+function changeAddress() {
+  const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
+  const user = getUser() || {};
+  document.getElementById('editAddrText').value = savedAddr.address || '';
+  document.getElementById('editAddrPhone').value = savedAddr.phone || user.phone || '';
+  document.getElementById('addressModal').style.display = 'flex';
+}
+
+function saveAddress() {
+  const addr = document.getElementById('editAddrText').value.trim();
+  const phoneVal = document.getElementById('editAddrPhone').value.trim();
+  if(!addr) {
+    if(typeof showToast === 'function') showToast("Please enter an address", "error");
+    else alert("Please enter an address");
+    return;
+  }
+  localStorage.setItem('curfee_address', JSON.stringify({address: addr, phone: phoneVal}));
+  document.getElementById('addressModal').style.display = 'none';
+  loadAddress();
 }
 
 function renderOrderSummary(cart) {

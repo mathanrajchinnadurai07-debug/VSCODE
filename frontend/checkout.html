@@ -39,7 +39,7 @@
     <div class="co-section">
       <div class="co-header">
         <span>Deliver to:</span>
-        <button class="co-header-btn">Change</button>
+        <button class="co-header-btn" onclick="changeAddress()">Change</button>
       </div>
       <div style="font-size:0.95rem;font-weight:700;margin-bottom:8px;" id="dispName">User</div>
       <div style="font-size:0.85rem;color:#444;line-height:1.4;" id="dispAddress">
@@ -150,6 +150,19 @@
   </div>
 
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Address Edit Modal -->
+  <div id="addressModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:90%; max-width:400px; padding:20px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; margin-bottom:16px; font-family:'Inter',sans-serif; color:#212121; font-size:1.2rem;">Delivery Address</h3>
+      <textarea id="editAddrText" rows="3" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid #d1d5db; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; margin-bottom:12px; resize:none;" placeholder="Full Address (e.g., House No, Street, Landmark)..."></textarea>
+      <input id="editAddrPhone" type="tel" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid #d1d5db; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; margin-bottom:20px;" placeholder="10-digit Phone Number...">
+      <div style="display:flex; justify-content:flex-end; gap:12px;">
+        <button onclick="document.getElementById('addressModal').style.display='none'" style="padding:10px 16px; border:none; background:#f1f3f6; color:#444; border-radius:6px; font-weight:600; font-size:0.9rem;">Cancel</button>
+        <button onclick="saveAddress()" style="padding:10px 16px; border:none; background:#2D6A4F; color:#fff; border-radius:6px; font-weight:600; font-size:0.9rem;">Save Address</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/app.js"></script>
   <script src="js/checkout.js"></script>

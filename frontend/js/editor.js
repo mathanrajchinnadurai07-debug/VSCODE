@@ -757,7 +757,7 @@ function updateOrderStatus(orderNum, status) {
 function loadSettings() {
   const s = DB.get('store_settings', {});
   document.getElementById('helplineNumber').value = s.helpline || '+91 78457 44038';
-  document.getElementById('supportEmail').value = s.email || 'support@curfee.com';
+  document.getElementById('supportEmail').value = s.email || 'curfee01@gmail.com';
   document.getElementById('whatsappNumber').value = s.whatsapp || '+91 78457 44038';
   document.getElementById('storeName').value = s.storeName || 'Curfee Organic Market';
   document.getElementById('storeTagline').value = s.tagline || 'Fresh Organic. Delivered Fast.';
