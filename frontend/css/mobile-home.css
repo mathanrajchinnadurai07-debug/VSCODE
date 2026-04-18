@@ -22,12 +22,7 @@
 .m-logo {
   display: flex; align-items: center; gap: 8px; text-decoration: none;
 }
-.m-logo-icon {
-  width: 34px; height: 34px; border-radius: 10px;
-  background: rgba(255,255,255,0.15); backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem;
-}
+.m-logo-icon { display: none !important; }
 .m-logo-text {
   font-size: 1.2rem; font-weight: 800; color: #fff;
   letter-spacing: -0.3px;
