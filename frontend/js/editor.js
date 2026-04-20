@@ -64,6 +64,7 @@ function getAllProducts() {
 function getStockOverrides() { return DB.get('stock_overrides', {}); }
 function getPriceOverrides() { return DB.get('price_overrides', {}); }
 function getDetailOverrides() { return DB.get('detail_overrides', {}); }
+function getWeightOverrides() { return DB.get('weight_overrides', {}); }
 
 function getProductStock(p) {
   const overrides = getStockOverrides();
@@ -363,6 +364,7 @@ function updateStock(id, val) {
   const overrides = getStockOverrides();
   overrides[id] = Math.max(0, parseInt(val) || 0);
   DB.set('stock_overrides', overrides);
+  if (typeof syncOverridesToFirestore === 'function') syncOverridesToFirestore('stock_overrides', overrides);
   showToast('Stock updated!', 'success');
 }
 
@@ -370,6 +372,7 @@ function updatePrice(id, type, val) {
   const overrides = getPriceOverrides();
   overrides[id + '_' + type] = parseFloat(val) || 0;
   DB.set('price_overrides', overrides);
+  if (typeof syncOverridesToFirestore === 'function') syncOverridesToFirestore('price_overrides', overrides);
   showToast('Price updated!', 'success');
 }
 
@@ -407,6 +410,18 @@ function openEditProduct(id) {
   if (nutF('editDeliveryInfo')) nutF('editDeliveryInfo').value = dets.deliveryInfo !== undefined ? dets.deliveryInfo : (p.deliveryInfo || '');
   if (nutF('editReturnPolicy')) nutF('editReturnPolicy').value = dets.returnPolicy !== undefined ? dets.returnPolicy : (p.returnPolicy || '');
 
+  // Weight/price variants
+  const weightOverrides = getWeightOverrides();
+  const weights = weightOverrides[id] || p.weights || [];
+  const container = document.getElementById('weightRowsContainer');
+  container.innerHTML = '';
+  if (weights.length > 0) {
+    weights.forEach((w, i) => renderWeightRow(w, i));
+  } else {
+    // Default starter rows
+    [{ label: '100g', price: '', discountPrice: '' }, { label: '250g', price: '', discountPrice: '' }].forEach((w, i) => renderWeightRow(w, i));
+  }
+
   document.getElementById('editProductModal').classList.add('active');
 }
 
@@ -417,6 +432,19 @@ function saveEditProduct(e) {
   updatePrice(id, 'price', document.getElementById('editProdPrice').value);
   updatePrice(id, 'disc', document.getElementById('editProdDiscPrice').value);
   
+  // Save weight variants
+  const wRows = document.querySelectorAll('#weightRowsContainer .weight-row');
+  const newWeights = [];
+  wRows.forEach(row => {
+    const lbl = row.querySelector('.w-label').value.trim();
+    const pr = parseFloat(row.querySelector('.w-price').value) || 0;
+    const dp = parseFloat(row.querySelector('.w-disc').value) || pr;
+    if (lbl) newWeights.push({ label: lbl, price: pr, discountPrice: dp });
+  });
+  const weightOverrides = getWeightOverrides();
+  weightOverrides[id] = newWeights;
+  DB.set('weight_overrides', weightOverrides);
+
   const overrides = getDetailOverrides();
   const imgsStr = document.getElementById('editProdImage').value;
   const imgs = imgsStr ? imgsStr.split(',').map(s=>s.trim()).filter(Boolean).map(s => s.startsWith('http') ? s : 'assets/images/products/' + s) : [];
@@ -445,9 +473,36 @@ function saveEditProduct(e) {
   };
   DB.set('detail_overrides', overrides);
 
+  // Sync all overrides to Firestore so the live website updates for all users
+  if (typeof syncOverridesToFirestore === 'function') {
+    syncOverridesToFirestore('detail_overrides', overrides);
+    syncOverridesToFirestore('weight_overrides', getWeightOverrides());
+  }
+
   closeModal('editProductModal');
-  showToast('Product updated successfully!', 'success');
+  showToast('Product updated successfully! Changes synced to website 🌿', 'success');
   renderProductTable();
+}
+
+function renderWeightRow(w, i) {
+  const container = document.getElementById('weightRowsContainer');
+  const row = document.createElement('div');
+  row.className = 'weight-row';
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0;';
+  row.innerHTML = `
+    <div><label style="font-size:0.72rem;color:#64748b;font-weight:600;display:block;margin-bottom:3px;">Label</label>
+      <input type="text" class="w-label form-input" value="${w.label||''}" placeholder="e.g. 100g" style="padding:6px 8px;font-size:0.85rem;"></div>
+    <div><label style="font-size:0.72rem;color:#64748b;font-weight:600;display:block;margin-bottom:3px;">MRP (₹)</label>
+      <input type="number" class="w-price form-input" value="${w.price||''}" placeholder="0" style="padding:6px 8px;font-size:0.85rem;"></div>
+    <div><label style="font-size:0.72rem;color:#64748b;font-weight:600;display:block;margin-bottom:3px;">Sale Price (₹)</label>
+      <input type="number" class="w-disc form-input" value="${w.discountPrice||''}" placeholder="0" style="padding:6px 8px;font-size:0.85rem;"></div>
+    <button type="button" onclick="this.parentElement.remove()" style="padding:6px 10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;cursor:pointer;margin-top:16px;" title="Remove"><i class="fas fa-trash"></i></button>
+  `;
+  container.appendChild(row);
+}
+
+function addWeightRow() {
+  renderWeightRow({ label: '', price: '', discountPrice: '' }, document.querySelectorAll('#weightRowsContainer .weight-row').length);
 }
 
 function deleteProduct(id) {

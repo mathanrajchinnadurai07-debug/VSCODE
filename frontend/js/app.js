@@ -16,7 +16,16 @@ async function api(endpoint, options = {}) {
 function getUser() { const u = localStorage.getItem('curfee_user'); return u ? JSON.parse(u) : null; }
 function getToken() { return localStorage.getItem('curfee_token'); }
 function setAuth(userData) { localStorage.setItem('curfee_token', userData.token); localStorage.setItem('curfee_user', JSON.stringify(userData)); updateAuthUI(); }
-function logout() { localStorage.removeItem('curfee_token'); localStorage.removeItem('curfee_user'); localStorage.removeItem('curfee_cart'); window.location.href = 'index.html'; }
+function logout() {
+  localStorage.removeItem('curfee_token');
+  localStorage.removeItem('curfee_user');
+  localStorage.removeItem('curfee_cart');
+  // Sign out from Firebase Auth
+  if (typeof firebaseAuth !== 'undefined') {
+    firebaseAuth.signOut().catch(() => {});
+  }
+  window.location.href = 'index.html';
+}
 function isLoggedIn() { return !!getToken(); }
 function isAdmin() { const u = getUser(); return u && u.role === 'admin'; }
 function requireAuth() { if (!isLoggedIn()) { window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname); return false; } return true; }
@@ -65,6 +74,7 @@ function applyCardOverrides(p) {
     const dets = JSON.parse(localStorage.getItem('ce_detail_overrides') || '{}')[p._id] || {};
     const stocks = JSON.parse(localStorage.getItem('ce_stock_overrides') || '{}');
     const prices = JSON.parse(localStorage.getItem('ce_price_overrides') || '{}');
+    const weightOverrides = JSON.parse(localStorage.getItem('ce_weight_overrides') || '{}');
     if (dets.name) p.name = dets.name;
     if (dets.category) p.category = dets.category;
     if (dets.rating !== undefined) p.rating = dets.rating;
@@ -72,7 +82,10 @@ function applyCardOverrides(p) {
     if (stocks[p._id] !== undefined) p.stock = stocks[p._id];
     if (prices[p._id + '_price'] !== undefined) p.price = prices[p._id + '_price'];
     if (prices[p._id + '_disc'] !== undefined) p.discountPrice = prices[p._id + '_disc'];
-    if (p.weights && p.weights.length > 0) {
+    // Apply weight overrides (admin-edited weight/price variants)
+    if (weightOverrides[p._id] && weightOverrides[p._id].length > 0) {
+      p.weights = weightOverrides[p._id];
+    } else if (p.weights && p.weights.length > 0) {
       if (prices[p._id + '_price'] !== undefined) p.weights[0].price = prices[p._id + '_price'];
       if (prices[p._id + '_disc'] !== undefined) p.weights[0].discountPrice = prices[p._id + '_disc'];
     }
@@ -97,8 +110,26 @@ async function handleAddToCart(event, slug) {
   event.preventDefault(); event.stopPropagation();
   const card = event.target.closest('.product-card'); let weight = '250g';
   if (card) { const aw = card.querySelector('.weight-option.active'); if (aw) weight = aw.dataset.weight; }
+
+  // First try local product data (with overrides applied) — no API call needed
   let product = productsCache[slug];
-  if (!product) { try { const d = await api(`/products/slug/${slug}`); product = d; productsCache[slug] = product; } catch { product = { _id:slug, slug, name: card?.querySelector('.product-name a')?.textContent||slug, price:0, discountPrice:0, images:[], stock:100 }; } }
+  if (!product) {
+    const part1 = (typeof ALL_PRODUCTS !== 'undefined') ? ALL_PRODUCTS : [];
+    const part2 = (typeof ALL_PRODUCTS_PART2 !== 'undefined') ? ALL_PRODUCTS_PART2 : [];
+    const local = part1.concat(part2).find(p => p.slug === slug);
+    if (local) { product = applyCardOverrides(Object.assign({}, local)); productsCache[slug] = product; }
+  }
+
+  // Fallback: try API (for when backend is live)
+  if (!product) {
+    try { const d = await api(`/products/slug/${slug}`); product = d; productsCache[slug] = product; } catch {}
+  }
+
+  // Last resort fallback from card HTML
+  if (!product) {
+    product = { _id: slug, slug, name: card?.querySelector('.product-name a')?.textContent || slug, price: 0, discountPrice: 0, images: [], stock: 100 };
+  }
+
   addToLocalCart(product, weight);
 }
 

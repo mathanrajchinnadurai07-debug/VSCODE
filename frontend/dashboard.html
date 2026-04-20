@@ -56,6 +56,49 @@
     <div id="ordersList"></div>
   </div>
 
+  <!-- Cancel Order Modal -->
+  <div id="cancelModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:#fff;width:90%;max-width:400px;padding:24px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+      <h3 style="margin:0 0 4px;font-size:1.1rem;color:#212121;">Cancel Order</h3>
+      <p style="margin:0 0 16px;font-size:0.82rem;color:#888;" id="cancelOrderId"></p>
+      <p style="font-size:0.9rem;font-weight:600;margin-bottom:10px;color:#333;">Why do you want to cancel?</p>
+      <div id="cancelReasons" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;cursor:pointer;"><input type="radio" name="cancelReason" value="Changed my mind" checked> Changed my mind</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;cursor:pointer;"><input type="radio" name="cancelReason" value="Found better price elsewhere"> Found better price elsewhere</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;cursor:pointer;"><input type="radio" name="cancelReason" value="Ordered by mistake"> Ordered by mistake</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;cursor:pointer;"><input type="radio" name="cancelReason" value="Delivery taking too long"> Delivery taking too long</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;cursor:pointer;"><input type="radio" name="cancelReason" value="Other"> Other</label>
+      </div>
+      <textarea id="cancelOtherReason" placeholder="Tell us more (optional)..." rows="2" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:0.88rem;resize:none;margin-bottom:16px;"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:12px;">
+        <button onclick="document.getElementById('cancelModal').style.display='none'" style="padding:10px 18px;border:none;background:#f1f3f6;color:#444;border-radius:8px;font-weight:600;font-size:0.88rem;cursor:pointer;">Keep Order</button>
+        <button onclick="confirmCancelOrder()" style="padding:10px 18px;border:none;background:#e53935;color:#fff;border-radius:8px;font-weight:600;font-size:0.88rem;cursor:pointer;">Cancel Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Refer & Earn Section -->
+  <div id="section-refer" class="fk-section" style="display:none;">
+    <h3 class="fk-section-title"><i class="fas fa-gift" style="color:#ff9800;"></i> Refer & Earn</h3>
+    <div style="text-align:center;padding:24px 16px;">
+      <div style="font-size:4rem;margin-bottom:12px;">🎁</div>
+      <h2 style="margin:0 0 8px;font-size:1.4rem;color:#2d6a4f;">Earn ₹100 for every friend!</h2>
+      <p style="color:#666;font-size:0.88rem;margin-bottom:20px;line-height:1.5;">Share your referral code with friends. When they place their first order, you both get ₹100 in GreenCoins!</p>
+      <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);padding:20px;border-radius:14px;border:2px dashed #2d6a4f;margin-bottom:20px;">
+        <div style="font-size:0.75rem;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Your Referral Code</div>
+        <div style="font-size:1.5rem;font-weight:800;color:#2d6a4f;letter-spacing:2px;" id="referCode">CURFEE100</div>
+      </div>
+      <button onclick="copyReferCode()" style="width:100%;padding:14px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-copy"></i> Copy Referral Code</button>
+      <button onclick="shareRefer()" style="width:100%;padding:14px;background:#25d366;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:0.95rem;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fab fa-whatsapp"></i> Share on WhatsApp</button>
+      <div style="margin-top:24px;text-align:left;">
+        <h4 style="margin:0 0 12px;font-size:0.95rem;">How it works</h4>
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;"><div style="width:28px;height:28px;min-width:28px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2d6a4f;font-size:0.8rem;">1</div><div><strong style="font-size:0.85rem;">Share your code</strong><br><span style="font-size:0.78rem;color:#888;">Send your referral code to friends & family</span></div></div>
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;"><div style="width:28px;height:28px;min-width:28px;background:#fff3e0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#ff9800;font-size:0.8rem;">2</div><div><strong style="font-size:0.85rem;">Friend places an order</strong><br><span style="font-size:0.78rem;color:#888;">They apply your code at checkout</span></div></div>
+        <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:28px;height:28px;min-width:28px;background:#fce4ec;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#e53935;font-size:0.8rem;">3</div><div><strong style="font-size:0.85rem;">Both earn ₹100</strong><br><span style="font-size:0.78rem;color:#888;">GreenCoins credited to both accounts</span></div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Wishlist Section -->
   <div id="section-wishlist" class="fk-section" style="display:none;">
     <h3 class="fk-section-title"><i class="fas fa-heart" style="color:#e53935;"></i> My Wishlist</h3>
@@ -101,7 +144,7 @@
       </div>
       <i class="fas fa-chevron-right fk-list-arrow"></i>
     </a>
-    <a href="#" class="fk-list-item" onclick="showToast('Coming soon!','info')">
+    <a href="#" class="fk-list-item" onclick="showSection('refer')">
       <div class="fk-list-icon">🏷️</div>
       <div class="fk-list-content">
         <strong>Refer & Earn ₹100</strong>
@@ -109,7 +152,7 @@
       </div>
       <i class="fas fa-chevron-right fk-list-arrow"></i>
     </a>
-    <a href="#" class="fk-list-item" onclick="showToast('Coming soon!','info')">
+    <a href="green-member.html" class="fk-list-item">
       <div class="fk-list-icon">🌱</div>
       <div class="fk-list-content">
         <strong>Green Member Benefits</strong>
@@ -144,6 +187,11 @@
 
   <div class="toast-container" id="toastContainer"></div>
   <div id="wishlistCount" style="display:none"></div>
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-init.js"></script>
   <script src="js/app.js"></script>
   <script src="js/products-data.js"></script>
   <script src="js/products-data2.js"></script>
@@ -168,7 +216,7 @@
 
     function showSection(name) {
       event?.preventDefault();
-      ['orders','wishlist','coupons','profile','greenMember'].forEach(s => {
+      ['orders','wishlist','coupons','profile','greenMember','refer'].forEach(s => {
         const el = document.getElementById('section-'+s);
         if (el) el.style.display = s===name ? 'block' : 'none';
       });
@@ -198,16 +246,23 @@
       const orders = JSON.parse(localStorage.getItem('curfee_orders')||'[]');
       const el = document.getElementById('ordersList');
       if (!orders.length) { el.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:3rem;margin-bottom:12px;">📦</div><p style="color:#888;margin-bottom:16px;">No orders yet</p><a href="products.html" style="color:#2d6a4f;font-weight:600;">Start Shopping →</a></div>'; return; }
-      el.innerHTML = orders.slice(0,10).map(o => `
-        <div class="fk-order-card">
+      el.innerHTML = orders.slice(0,10).map((o,idx) => {
+        const isCancelled = o.status === 'cancelled';
+        const isDelivered = o.status === 'delivered';
+        const canCancel = !isCancelled && !isDelivered;
+        return `
+        <div class="fk-order-card" style="${isCancelled?'opacity:0.6;':''}">
           <div class="fk-order-head">
             <span class="fk-order-num">${o.orderNumber}</span>
-            <span class="fk-order-status ${o.status==='delivered'?'delivered':'placed'}">${o.status||'Placed'}</span>
+            <span class="fk-order-status ${isCancelled?'cancelled':isDelivered?'delivered':'placed'}" style="${isCancelled?'background:#ffebee;color:#e53935;':''}">${isCancelled?'Cancelled':o.status||'Placed'}</span>
           </div>
           <div class="fk-order-items">${(o.items||[]).map(i=>i.name+' × '+i.quantity).join(', ')}</div>
-          <div class="fk-order-total">₹${o.total} · ${new Date(o.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
-        </div>
-      `).join('');
+          <div class="fk-order-total" style="display:flex;align-items:center;justify-content:space-between;">₹${o.total} · ${new Date(o.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+            ${canCancel?`<button onclick="openCancelModal(${idx})" style="background:none;border:1px solid #e53935;color:#e53935;padding:6px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;">Cancel</button>`:''}
+            ${isCancelled && o.cancelReason?`<span style="font-size:0.72rem;color:#e53935;">Reason: ${o.cancelReason}</span>`:''}
+          </div>
+        </div>`;
+      }).join('');
     }
 
     function loadWishlist() {
@@ -230,6 +285,66 @@
       document.getElementById('userName').textContent = user.name;
       showToast('Profile updated! <span data-brand="logo-emoji">🌿</span>', 'success');
     });
+
+    // --- Order Cancellation ---
+    let cancelIdx = -1;
+    function openCancelModal(idx) {
+      cancelIdx = idx;
+      const orders = JSON.parse(localStorage.getItem('curfee_orders')||'[]');
+      document.getElementById('cancelOrderId').textContent = 'Order: ' + (orders[idx]?.orderNumber || '');
+      document.getElementById('cancelOtherReason').value = '';
+      document.querySelectorAll('input[name="cancelReason"]')[0].checked = true;
+      document.getElementById('cancelModal').style.display = 'flex';
+    }
+    function confirmCancelOrder() {
+      if (cancelIdx < 0) return;
+      const orders = JSON.parse(localStorage.getItem('curfee_orders')||'[]');
+      const selected = document.querySelector('input[name="cancelReason"]:checked');
+      let reason = selected ? selected.value : 'Changed my mind';
+      if (reason === 'Other') {
+        const other = document.getElementById('cancelOtherReason').value.trim();
+        reason = other || 'Other';
+      }
+      orders[cancelIdx].status = 'cancelled';
+      orders[cancelIdx].cancelReason = reason;
+      localStorage.setItem('curfee_orders', JSON.stringify(orders));
+      document.getElementById('cancelModal').style.display = 'none';
+      showToast('Order cancelled successfully', 'success');
+      loadOrders();
+    }
+
+    // --- Refer & Earn ---
+    function getReferCode() {
+      let code = localStorage.getItem('curfee_refer_code');
+      if (!code) {
+        const user = getUser() || {};
+        const name = (user.name || 'USER').toUpperCase().replace(/[^A-Z]/g,'').slice(0,4);
+        code = 'CURFEE' + name + Math.floor(100 + Math.random()*900);
+        localStorage.setItem('curfee_refer_code', code);
+      }
+      return code;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const rc = document.getElementById('referCode');
+      if (rc) rc.textContent = getReferCode();
+    });
+    function copyReferCode() {
+      const code = getReferCode();
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Referral code copied! 🎉', 'success');
+      }).catch(() => {
+        // Fallback
+        const t = document.createElement('textarea');
+        t.value = code; document.body.appendChild(t); t.select();
+        document.execCommand('copy'); document.body.removeChild(t);
+        showToast('Referral code copied! 🎉', 'success');
+      });
+    }
+    function shareRefer() {
+      const code = getReferCode();
+      const msg = encodeURIComponent('🌿 Shop organic with Curfee! Use my referral code ' + code + ' and get ₹100 off your first order! 🛒\n\nhttps://curfee-organic-market-demo.surge.sh');
+      window.open('https://wa.me/?text=' + msg, '_blank');
+    }
 
     // Search
     document.getElementById('searchInput')?.addEventListener('keypress', e => {

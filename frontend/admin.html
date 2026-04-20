@@ -1179,7 +1179,15 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="form-group mt-16"><label>Description</label><textarea id="editProdDesc" class="form-textarea" rows="3"></textarea></div>
       <div class="form-group mt-16"><label>Image Filenames (comma separated)</label><input type="text" id="editProdImage" class="form-input" placeholder="e.g. tomato.png, curfee_logo_product.jpg"></div>
       <div class="form-group mt-16"><label>Video URL</label><input type="text" id="editProdVideo" class="form-input" placeholder="e.g. assets/videos/product.mp4"></div>
-      
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h3 style="margin:0;font-size:0.95rem;"><i class="fas fa-weight-hanging" style="color:var(--primary);"></i> Weight / Price Variants</h3>
+        <button type="button" onclick="addWeightRow()" style="padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-size:0.8rem;cursor:pointer;"><i class="fas fa-plus"></i> Add Size</button>
+      </div>
+      <div id="weightRowsContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+      <p style="font-size:0.75rem;color:#94a3b8;margin:0;">Add each weight option (e.g. 100g, 250g, 500g, 1kg) with original price and discounted price. These will show on the product cards and detail pages.</p>
+
       <hr style="margin:24px 0;border:none;border-top:1px solid var(--border);">
       <h3 style="margin-bottom:12px;font-size:0.95rem;"><i class="fas fa-apple-alt" style="color:var(--success);"></i> Nutritional Info (per 100g)</h3>
       <div class="form-grid">
@@ -1313,6 +1321,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="js/products-data.js"></script>
 <script src="js/products-data2.js"></script>
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-init.js"></script>
 <script src="js/editor.js"></script>
 </body>
 </html>

@@ -218,18 +218,21 @@
   margin-top: -6px; margin-bottom: 10px;
 }
 
-/* ===== HORIZONTAL PRODUCT SCROLL ===== */
+/* ===== MOBILE PRODUCT GRID (2 columns) ===== */
 .m-product-scroll {
-  display: flex; gap: 10px; overflow-x: auto;
-  padding: 0 14px 8px; scrollbar-width: none;
-  -ms-overflow-style: none; scroll-snap-type: x mandatory;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 8px;
 }
-.m-product-scroll::-webkit-scrollbar { display: none; }
 .m-product-scroll .product-card {
-  min-width: 160px; max-width: 160px; flex-shrink: 0;
-  scroll-snap-align: start; border-radius: 12px;
+  min-width: unset;
+  max-width: 100%;
+  flex-shrink: unset;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
+  width: 100%;
 }
 .m-product-scroll .product-card:hover {
   transform: translateY(-2px);
@@ -406,8 +409,7 @@
   .m-hero-card { min-height: 220px; padding: 40px 32px; }
   .m-hero-text h2 { font-size: 2rem; }
   .m-hero-img { font-size: 6rem; }
-  .m-product-scroll .product-card { min-width: 200px; max-width: 200px; }
-  .m-product-scroll .product-image { height: 160px; }
+  .m-product-scroll .product-image { height: 150px; }
   .m-deal-grid { grid-template-columns: repeat(4, 1fr); padding: 10px 24px; }
   .m-section-header { padding: 0 24px 10px; }
   .m-product-scroll { padding: 0 24px 8px; }
@@ -421,7 +423,7 @@
 }
 
 @media (min-width: 1024px) {
-  .m-product-scroll .product-card { min-width: 220px; max-width: 220px; }
+  .m-product-scroll { grid-template-columns: repeat(4, 1fr); }
   .m-hero-card { min-height: 260px; }
   .m-hero-text h2 { font-size: 2.4rem; }
 }

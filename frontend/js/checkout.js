@@ -125,25 +125,38 @@ function togglePay(method) {
   }
 }
 
-function placeOrder() {
+async function placeOrder() {
   // Find selected method
   const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
   
   const cart = getLocalCart();
+  const user = getUser() || {};
+  const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
   const orderNumber = 'COM-' + Math.floor(Math.random() * 10000000);
   
   const order = {
     orderNumber,
-    date: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
     items: cart,
     total: finalTotal,
     status: 'placed',
-    paymentMethod: method
+    paymentMethod: method,
+    shippingAddress: {
+      fullName: user.name || 'Guest',
+      address: savedAddr.address || '',
+      phone: savedAddr.phone || user.phone || ''
+    }
   };
   
+  // Save to localStorage (always works offline)
   const orders = JSON.parse(localStorage.getItem('curfee_orders') || '[]');
   orders.unshift(order);
   localStorage.setItem('curfee_orders', JSON.stringify(orders));
+  
+  // Save to Firestore (if Firebase is available)
+  if (typeof saveOrderToFirestore === 'function') {
+    saveOrderToFirestore(order).catch(() => {});
+  }
   
   // Clear cart
   localStorage.removeItem('curfee_cart');

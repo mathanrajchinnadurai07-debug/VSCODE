@@ -31,7 +31,9 @@ function loadFallbackAll() {
 }
 
 function applyLocalFilters() {
-  let filtered = [...allProducts]; const params = new URLSearchParams(window.location.search);
+  // Apply admin overrides to all products first so filters use correct prices
+  let filtered = allProducts.map(p => applyCardOverrides(Object.assign({}, p)));
+  const params = new URLSearchParams(window.location.search);
   const cats = [...document.querySelectorAll('input[name="category"]:checked')].map(c => c.value);
   if (cats.length) filtered = filtered.filter(p => cats.includes(p.category));
   else if (params.get('category')) filtered = filtered.filter(p => p.category === params.get('category'));

@@ -12,11 +12,15 @@ function getAdminStockOverrides() {
 function getAdminPriceOverrides() {
   try { return JSON.parse(localStorage.getItem('ce_price_overrides')) || {}; } catch { return {}; }
 }
+function getAdminWeightOverrides() {
+  try { return JSON.parse(localStorage.getItem('ce_weight_overrides')) || {}; } catch { return {}; }
+}
 
 function applyAdminOverrides(product) {
   const dets = getAdminOverrides()[product._id] || {};
   const stocks = getAdminStockOverrides();
   const prices = getAdminPriceOverrides();
+  const weightOvr = getAdminWeightOverrides();
 
   // Apply name, category, rating, description
   if (dets.name) product.name = dets.name;
@@ -47,10 +51,12 @@ function applyAdminOverrides(product) {
   if (prices[product._id + '_price'] !== undefined) product.price = prices[product._id + '_price'];
   if (prices[product._id + '_disc'] !== undefined) product.discountPrice = prices[product._id + '_disc'];
 
-  // Also update weight prices if overridden
-  if (product.weights && product.weights.length > 0 && prices[product._id + '_price'] !== undefined) {
-    product.weights[0].price = prices[product._id + '_price'];
-    product.weights[0].discountPrice = prices[product._id + '_disc'] !== undefined ? prices[product._id + '_disc'] : product.weights[0].discountPrice;
+  // Weight/price variant overrides (admin-edited)
+  if (weightOvr[product._id] && weightOvr[product._id].length > 0) {
+    product.weights = weightOvr[product._id];
+  } else if (product.weights && product.weights.length > 0) {
+    if (prices[product._id + '_price'] !== undefined) product.weights[0].price = prices[product._id + '_price'];
+    if (prices[product._id + '_disc'] !== undefined) product.weights[0].discountPrice = prices[product._id + '_disc'];
   }
 
   return product;
