@@ -15,15 +15,15 @@ async function api(endpoint, options = {}) {
 
 function getUser() { const u = localStorage.getItem('curfee_user'); return u ? JSON.parse(u) : null; }
 function getToken() { return localStorage.getItem('curfee_token'); }
-function setAuth(userData) { localStorage.setItem('curfee_token', userData.token); localStorage.setItem('curfee_user', JSON.stringify(userData)); updateAuthUI(); }
+function setAuth(userData) {
+  if (userData.token) localStorage.setItem('curfee_token', userData.token);
+  localStorage.setItem('curfee_user', JSON.stringify(userData));
+  updateAuthUI();
+}
 function logout() {
   localStorage.removeItem('curfee_token');
   localStorage.removeItem('curfee_user');
   localStorage.removeItem('curfee_cart');
-  // Sign out from Firebase Auth
-  if (typeof firebaseAuth !== 'undefined') {
-    firebaseAuth.signOut().catch(() => {});
-  }
   window.location.href = 'index.html';
 }
 function isLoggedIn() { return !!getToken(); }

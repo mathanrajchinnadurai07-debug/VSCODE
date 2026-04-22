@@ -1,47 +1,99 @@
+/* ============================================================
+   Curfee — Cart Routes (MySQL)
+   POST /add, GET /, PUT /:id, DELETE /:id, DELETE /clear
+   ============================================================ */
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const { pool } = require('../config/db');
 const { auth } = require('../middleware/auth');
 
-// Get cart
+// ── GET cart (with product details) ──
 router.get('/', auth, async (req, res) => {
-  const user = await User.findById(req.user._id).populate('cart.product');
-  res.json(user.cart);
+  try {
+    const [items] = await pool.query(`
+      SELECT c.id, c.quantity, c.weight, c.product_id,
+             p.name, p.slug, p.price, p.discount_price as discountPrice, p.images, p.stock
+      FROM cart c
+      JOIN products p ON c.product_id = p.id
+      WHERE c.user_id = ?
+      ORDER BY c.created_at DESC
+    `, [req.user.id]);
+
+    items.forEach(item => {
+      try { item.images = JSON.parse(item.images); } catch { item.images = []; }
+      item._id = item.id;
+    });
+
+    res.json(items);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// Add to cart
+// ── POST add to cart ──
 router.post('/add', auth, async (req, res) => {
-  const { productId, quantity = 1, weight = '500g' } = req.body;
-  const user = await User.findById(req.user._id);
-  const existing = user.cart.find(i => i.product.toString() === productId && i.weight === weight);
-  if (existing) { existing.quantity += quantity; } else { user.cart.push({ product: productId, quantity, weight }); }
-  await user.save();
-  res.json(user.cart);
+  try {
+    const { productId, quantity = 1, weight = '500g' } = req.body;
+
+    // Check if item already in cart
+    const [existing] = await pool.query(
+      'SELECT id, quantity FROM cart WHERE user_id = ? AND product_id = ? AND weight = ?',
+      [req.user.id, productId, weight]
+    );
+
+    if (existing.length) {
+      // Update quantity
+      await pool.query('UPDATE cart SET quantity = quantity + ? WHERE id = ?', [quantity, existing[0].id]);
+    } else {
+      // Insert new item
+      await pool.query('INSERT INTO cart (user_id, product_id, quantity, weight) VALUES (?, ?, ?, ?)',
+        [req.user.id, productId, quantity, weight]);
+    }
+
+    // Return updated cart
+    const [items] = await pool.query(`
+      SELECT c.id, c.quantity, c.weight, c.product_id,
+             p.name, p.slug, p.price, p.discount_price as discountPrice, p.images
+      FROM cart c JOIN products p ON c.product_id = p.id
+      WHERE c.user_id = ?
+    `, [req.user.id]);
+
+    items.forEach(item => { try { item.images = JSON.parse(item.images); } catch { item.images = []; } });
+    res.json(items);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// Update quantity
-router.put('/update', auth, async (req, res) => {
-  const { productId, quantity, weight } = req.body;
-  const user = await User.findById(req.user._id);
-  const item = user.cart.find(i => i.product.toString() === productId && i.weight === weight);
-  if (item) { item.quantity = Math.max(1, quantity); await user.save(); }
-  res.json(user.cart);
+// ── PUT update cart item quantity ──
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    await pool.query('UPDATE cart SET quantity = ? WHERE id = ? AND user_id = ?',
+      [Math.max(1, quantity), req.params.id, req.user.id]);
+
+    const [items] = await pool.query(`
+      SELECT c.id, c.quantity, c.weight, c.product_id,
+             p.name, p.slug, p.price, p.discount_price as discountPrice, p.images
+      FROM cart c JOIN products p ON c.product_id = p.id
+      WHERE c.user_id = ?
+    `, [req.user.id]);
+
+    items.forEach(item => { try { item.images = JSON.parse(item.images); } catch { item.images = []; } });
+    res.json(items);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// Remove
-router.delete('/remove/:productId/:weight', auth, async (req, res) => {
-  const user = await User.findById(req.user._id);
-  user.cart = user.cart.filter(i => !(i.product.toString() === req.params.productId && i.weight === req.params.weight));
-  await user.save();
-  res.json(user.cart);
+// ── DELETE cart item ──
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM cart WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+    res.json({ message: 'Item removed from cart' });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// Clear
-router.delete('/clear', auth, async (req, res) => {
-  const user = await User.findById(req.user._id);
-  user.cart = [];
-  await user.save();
-  res.json({ message: 'Cart cleared' });
+// ── DELETE clear entire cart ──
+router.delete('/clear/all', auth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM cart WHERE user_id = ?', [req.user.id]);
+    res.json({ message: 'Cart cleared' });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
 module.exports = router;

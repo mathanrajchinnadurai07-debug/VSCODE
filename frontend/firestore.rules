@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users — only the authenticated owner can read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Orders — only the owner can read/write their orders
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null &&
+                    request.auth.uid == resource.data.userId;
+      allow write: if false; // Only admin can update (via backend later)
+    }
+
+    // Admin overrides — anyone can READ (so product prices show on website)
+    // Only admin users can WRITE
+    match /admin_overrides/{docId} {
+      allow read: if true;   // Public read so all visitors see updated prices
+      allow write: if request.auth != null &&
+                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}

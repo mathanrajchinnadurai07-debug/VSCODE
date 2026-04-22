@@ -126,38 +126,43 @@ function togglePay(method) {
 }
 
 async function placeOrder() {
-  // Find selected method
   const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
   
   const cart = getLocalCart();
   const user = getUser() || {};
   const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
-  const orderNumber = 'COM-' + Math.floor(Math.random() * 10000000);
-  
-  const order = {
-    orderNumber,
-    createdAt: new Date().toISOString(),
+
+  const orderData = {
     items: cart,
     total: finalTotal,
-    status: 'placed',
+    subtotal: finalTotal,
+    deliveryCharge: finalTotal >= 500 ? 0 : 40,
     paymentMethod: method,
     shippingAddress: {
       fullName: user.name || 'Guest',
-      address: savedAddr.address || '',
+      addressLine1: savedAddr.address || '',
       phone: savedAddr.phone || user.phone || ''
     }
   };
-  
-  // Save to localStorage (always works offline)
-  const orders = JSON.parse(localStorage.getItem('curfee_orders') || '[]');
-  orders.unshift(order);
-  localStorage.setItem('curfee_orders', JSON.stringify(orders));
-  
-  // Save to Firestore (if Firebase is available)
-  if (typeof saveOrderToFirestore === 'function') {
-    saveOrderToFirestore(order).catch(() => {});
+
+  let orderNumber = 'COM-' + Math.floor(Math.random() * 10000000);
+
+  // Try saving to MySQL API
+  if (isLoggedIn()) {
+    try {
+      const result = await api('/orders', { method: 'POST', body: JSON.stringify(orderData) });
+      orderNumber = result.orderNumber || orderNumber;
+    } catch (err) {
+      console.warn('API order failed, using local fallback:', err.message);
+    }
   }
-  
+
+  // Save to localStorage as backup
+  const localOrder = { orderNumber, createdAt: new Date().toISOString(), items: cart, total: finalTotal, status: 'placed', paymentMethod: method };
+  const orders = JSON.parse(localStorage.getItem('curfee_orders') || '[]');
+  orders.unshift(localOrder);
+  localStorage.setItem('curfee_orders', JSON.stringify(orders));
+
   // Clear cart
   localStorage.removeItem('curfee_cart');
   
