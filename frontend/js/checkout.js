@@ -1,172 +1,225 @@
-/* Curfee Checkout Logic - Flipkart Style */
+/* ==========================================================
+   Curfee — Checkout Page (Firestore + Razorpay)
+   ========================================================== */
 
-document.addEventListener('DOMContentLoaded', () => {
-  const cart = getLocalCart();
-  if (!cart || cart.length === 0) {
-    window.location.href = 'cart.html';
+let cartItems = [];
+let grandTotal = 0;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Must be logged in
+  if (!auth.currentUser && !localStorage.getItem('curfee_user')) {
+    window.location.href = 'login.html?redirect=checkout.html';
     return;
   }
-  
-  loadAddress();
-  renderOrderSummary(cart);
-  updateTotals(cart);
+
+  // Wait for auth to be ready
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      window.location.href = 'login.html?redirect=checkout.html';
+      return;
+    }
+
+    // Load cart items from Firestore
+    cartItems = await fsGetCart();
+    if (!cartItems.length) {
+      document.getElementById('checkoutContent').innerHTML = '<div style="text-align:center;padding:60px;"><h3>Your cart is empty</h3><a href="products.html" class="btn btn-primary" style="margin-top:16px;">Shop Now</a></div>';
+      return;
+    }
+
+    renderCheckoutItems();
+    prefillAddress(user);
+  });
 });
 
-function loadAddress() {
-  const user = getUser() || {};
-  const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
-  document.getElementById('dispName').innerHTML = (user.name || 'Guest') + ' <span style="background:#f1f3f6;padding:2px 6px;font-size:0.65rem;border-radius:4px;color:#666;margin-left:4px;">HOME</span>';
-  document.getElementById('dispAddress').textContent = savedAddr.address || 'Please add your delivery address';
-  document.getElementById('dispPhone').textContent = savedAddr.phone || user.phone || '';
-}
+function renderCheckoutItems() {
+  const container = document.getElementById('checkoutItems') || document.getElementById('orderItems');
+  if (!container) return;
 
-function changeAddress() {
-  const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
-  const user = getUser() || {};
-  document.getElementById('editAddrText').value = savedAddr.address || '';
-  document.getElementById('editAddrPhone').value = savedAddr.phone || user.phone || '';
-  document.getElementById('addressModal').style.display = 'flex';
-}
+  const subtotal = cartItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+  const delivery = subtotal >= 499 ? 0 : 49;
+  grandTotal = subtotal + delivery;
 
-function saveAddress() {
-  const addr = document.getElementById('editAddrText').value.trim();
-  const phoneVal = document.getElementById('editAddrPhone').value.trim();
-  if(!addr) {
-    if(typeof showToast === 'function') showToast("Please enter an address", "error");
-    else alert("Please enter an address");
-    return;
-  }
-  localStorage.setItem('curfee_address', JSON.stringify({address: addr, phone: phoneVal}));
-  document.getElementById('addressModal').style.display = 'none';
-  loadAddress();
-}
-
-function renderOrderSummary(cart) {
-  const container = document.getElementById('checkoutItemsContainer');
-  let html = '';
-  
-  cart.forEach((item, index) => {
-    html += `
-      <div class="co-product" ${index === 0 ? 'style="margin-top:0; border-top:none; padding-top:0;"' : ''}>
-        <img src="${item.image || 'assets/images/products/green-tea.png'}" class="co-product-img" onerror="this.src='';this.parentElement.innerHTML='🌿'">
-        <div class="co-product-details">
-          <div class="co-product-title">${item.name}</div>
-          <div class="co-product-meta">${item.weight || ''}</div>
-          <div style="font-size:0.8rem;color:#878787;margin-bottom:8px;">Qty: ${item.quantity}</div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-weight:700;font-size:1.1rem;color:#212121;">₹${item.price}</span>
-            ${item.originalPrice > item.price ? `<span style="text-decoration:line-through;color:#878787;font-size:0.8rem;">₹${item.originalPrice}</span> <span style="color:#388e3c;font-size:0.8rem;font-weight:600;">↓${Math.round(((item.originalPrice-item.price)/item.originalPrice)*100)}%</span>` : ''}
-          </div>
-        </div>
+  container.innerHTML = cartItems.map(item => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0;">
+      <div style="width:50px;height:50px;min-width:50px;border-radius:8px;background:#f5f5f5;overflow:hidden;">
+        ${item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem;">🌿</div>'}
       </div>
-    `;
-  });
-  
-  container.innerHTML = html;
+      <div style="flex:1;">
+        <div style="font-weight:600;">${item.name}</div>
+        <div style="color:#999;font-size:0.8rem;">${item.unit || ''} × ${item.quantity}</div>
+      </div>
+      <div style="font-weight:700;color:var(--primary);">₹${item.price * item.quantity}</div>
+    </div>
+  `).join('');
+
+  // Update totals
+  const subtotalEl = document.getElementById('subtotal') || document.getElementById('checkoutSubtotal');
+  const deliveryEl = document.getElementById('delivery') || document.getElementById('checkoutDelivery');
+  const totalEl = document.getElementById('total') || document.getElementById('checkoutTotal');
+  const payBtn = document.getElementById('payBtn') || document.getElementById('placeOrderBtn');
+  if (subtotalEl) subtotalEl.textContent = '₹' + subtotal;
+  if (deliveryEl) deliveryEl.textContent = delivery === 0 ? 'FREE' : '₹' + delivery;
+  if (totalEl) totalEl.textContent = '₹' + grandTotal;
+  if (payBtn) payBtn.textContent = 'Pay Now ₹' + grandTotal;
 }
 
-let finalTotal = 0;
-
-function updateTotals(cart) {
-  let subtotal = 0;
-  let originalTotal = 0;
-  
-  cart.forEach(item => {
-    subtotal += item.price * item.quantity;
-    originalTotal += (item.originalPrice || item.price) * item.quantity;
-  });
-  
-  const delivery = subtotal >= 500 ? 0 : 40;
-  finalTotal = subtotal + delivery;
-  const savings = originalTotal - subtotal;
-  
-  document.getElementById('sumFinal').textContent = '₹' + finalTotal;
-  document.getElementById('payFinalAmount').textContent = '₹' + finalTotal;
-  
-  if (savings > 0) {
-    document.getElementById('sumStrike').textContent = '₹' + originalTotal;
-    document.getElementById('savingsBanner').innerHTML = `<i class="fas fa-tags"></i> You'll save ₹${savings} on this order!`;
-    document.getElementById('savingsBanner').style.display = 'flex';
-  } else {
-    document.getElementById('sumStrike').style.display = 'none';
-    document.getElementById('savingsBanner').style.display = 'none';
-  }
-  
-  // Update all Pay buttons
-  document.querySelectorAll('.btnAmt').forEach(el => el.textContent = '₹' + finalTotal);
+async function prefillAddress(user) {
+  try {
+    const profile = await fsGetUserProfile();
+    if (profile && profile.address) {
+      const a = profile.address;
+      const nameEl = document.getElementById('addrName') || document.getElementById('fullName');
+      const phoneEl = document.getElementById('addrPhone') || document.getElementById('phone');
+      const streetEl = document.getElementById('addrStreet') || document.getElementById('address');
+      const cityEl = document.getElementById('addrCity') || document.getElementById('city');
+      const pincodeEl = document.getElementById('addrPincode') || document.getElementById('pincode');
+      const stateEl = document.getElementById('addrState') || document.getElementById('state');
+      if (nameEl && profile.name) nameEl.value = profile.name;
+      if (phoneEl && profile.phone) phoneEl.value = profile.phone;
+      if (streetEl && a.street) streetEl.value = a.street;
+      if (cityEl && a.city) cityEl.value = a.city;
+      if (pincodeEl && a.pincode) pincodeEl.value = a.pincode;
+      if (stateEl && a.state) stateEl.value = a.state;
+    }
+  } catch (e) {}
 }
 
-function showPayments() {
-  document.getElementById('viewSummary').style.display = 'none';
-  document.getElementById('viewPayments').style.display = 'block';
-  // Open UPI by default
-  togglePay('UPI');
-}
-
-function showSummary() {
-  document.getElementById('viewPayments').style.display = 'none';
-  document.getElementById('viewSummary').style.display = 'block';
-}
-
-function togglePay(method) {
-  // Clear all actives
-  document.querySelectorAll('.pay-accordion').forEach(el => {
-    el.classList.remove('active');
-    const rad = el.querySelector('input[type="radio"]');
-    if (rad) rad.checked = false;
-  });
-  
-  // Set active
-  const target = document.getElementById('acc' + method);
-  if (target) {
-    target.classList.add('active');
-    const rad = target.querySelector('input[type="radio"]');
-    if (rad) rad.checked = true;
-  }
-}
-
+// ── Place Order (COD or Razorpay) ──
 async function placeOrder() {
   const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
-  
-  const cart = getLocalCart();
-  const user = getUser() || {};
-  const savedAddr = JSON.parse(localStorage.getItem('curfee_address') || '{}');
 
-  const orderData = {
-    items: cart,
-    total: finalTotal,
-    subtotal: finalTotal,
-    deliveryCharge: finalTotal >= 500 ? 0 : 40,
-    paymentMethod: method,
-    shippingAddress: {
-      fullName: user.name || 'Guest',
-      addressLine1: savedAddr.address || '',
-      phone: savedAddr.phone || user.phone || ''
-    }
+  // Collect address
+  const address = {
+    name: (document.getElementById('addrName') || document.getElementById('fullName'))?.value || '',
+    phone: (document.getElementById('addrPhone') || document.getElementById('phone'))?.value || '',
+    street: (document.getElementById('addrStreet') || document.getElementById('address'))?.value || '',
+    city: (document.getElementById('addrCity') || document.getElementById('city'))?.value || '',
+    pincode: (document.getElementById('addrPincode') || document.getElementById('pincode'))?.value || '',
+    state: (document.getElementById('addrState') || document.getElementById('state'))?.value || ''
   };
 
-  let orderNumber = 'COM-' + Math.floor(Math.random() * 10000000);
-
-  // Try saving to MySQL API
-  if (isLoggedIn()) {
-    try {
-      const result = await api('/orders', { method: 'POST', body: JSON.stringify(orderData) });
-      orderNumber = result.orderNumber || orderNumber;
-    } catch (err) {
-      console.warn('API order failed, using local fallback:', err.message);
-    }
+  if (!address.name || !address.phone || !address.street || !address.city || !address.pincode) {
+    showToast('Please fill in all address fields', 'error');
+    return;
   }
 
-  // Save to localStorage as backup
-  const localOrder = { orderNumber, createdAt: new Date().toISOString(), items: cart, total: finalTotal, status: 'placed', paymentMethod: method };
-  const orders = JSON.parse(localStorage.getItem('curfee_orders') || '[]');
-  orders.unshift(localOrder);
-  localStorage.setItem('curfee_orders', JSON.stringify(orders));
+  // Save address to user profile
+  await fsSaveUserAddress(address);
 
-  // Clear cart
-  localStorage.removeItem('curfee_cart');
-  
-  // Show success modal
-  document.getElementById('orderNumber').textContent = orderNumber;
-  document.getElementById('successModal').style.display = 'flex';
+  if (method === 'razorpay' || method === 'upi' || method === 'credit_card') {
+    // ── Razorpay Payment ──
+    await initiateRazorpay(address);
+  } else {
+    // ── Cash on Delivery ──
+    await saveOrderToFirestore(address, 'cod', null, null);
+  }
 }
+
+async function initiateRazorpay(address) {
+  try {
+    showToast('Initializing payment...', 'info');
+
+    // Call Cloud Function to create Razorpay order
+    // If Cloud Functions not set up, use demo mode
+    let razorpayOrderId = 'demo_order_' + Date.now();
+    let razorpayKeyId = 'rzp_test_demo'; // Will be replaced with real key
+
+    try {
+      const response = await fetch('https://us-central1-curfee-10551.cloudfunctions.net/createRazorpayOrder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: grandTotal })
+      });
+      const data = await response.json();
+      razorpayOrderId = data.orderId;
+      razorpayKeyId = data.keyId;
+    } catch (e) {
+      console.warn('Cloud Functions not set up — using demo mode');
+      showToast('Razorpay Cloud Functions not configured yet. Placing COD order.', 'warning');
+      await saveOrderToFirestore(address, 'cod', null, null);
+      return;
+    }
+
+    const user = auth.currentUser;
+    const profile = getUser() || {};
+
+    const options = {
+      key: razorpayKeyId,
+      amount: grandTotal * 100, // paise
+      currency: 'INR',
+      name: 'Curfee Organic Market',
+      description: 'Order Payment',
+      order_id: razorpayOrderId,
+      prefill: {
+        name: profile.name || user.displayName || '',
+        email: user.email || '',
+        contact: profile.phone || ''
+      },
+      theme: { color: '#2d6a4f' },
+      handler: async function (response) {
+        // Payment success — verify and save order
+        try {
+          await fetch('https://us-central1-curfee-10551.cloudfunctions.net/verifyPayment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+        } catch (e) {
+          console.warn('Verification skipped (Cloud Functions not set up)');
+        }
+
+        await saveOrderToFirestore(address, 'razorpay', response.razorpay_payment_id, response.razorpay_order_id);
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch (err) {
+    showToast('Payment error: ' + err.message, 'error');
+  }
+}
+
+async function saveOrderToFirestore(address, paymentMethod, paymentId, razorpayOrderId) {
+  try {
+    const items = cartItems.map(i => ({
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      unit: i.unit || '',
+      imageUrl: i.imageUrl || ''
+    }));
+
+    const orderId = await fsSaveOrder({
+      items,
+      total: grandTotal,
+      address,
+      paymentMethod,
+      paymentId: paymentId || null,
+      razorpayOrderId: razorpayOrderId || null,
+      paymentStatus: paymentId ? 'paid' : 'pending'
+    });
+
+    // Clear cart
+    await fsClearCart();
+
+    // Show success
+    const orderNumEl = document.getElementById('orderNumber');
+    if (orderNumEl) orderNumEl.textContent = orderId || 'Order Placed';
+    const modal = document.getElementById('successModal');
+    if (modal) {
+      modal.style.display = 'flex';
+    } else {
+      showToast('Order placed successfully! 🎉', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+    }
+  } catch (err) {
+    showToast('Error placing order: ' + err.message, 'error');
+  }
+}
+
+// Expose placeOrder globally
+window.placeOrder = placeOrder;

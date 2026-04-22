@@ -2,25 +2,46 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users — only the authenticated owner can read/write their own profile
+    // ── Helper: Check if user is admin ──
+    function isAdmin() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/admins/config) &&
+             request.auth.token.email in get(/databases/$(database)/documents/admins/config).data.emails;
+    }
+
+    // ── 1. Products — Public read, Admin write ──
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── 2. Users — Only own profile ──
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // ── 3. Cart — Only own cart ──
+      match /cart/{productId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // ── 4. Orders — User can read, Cloud Functions write ──
+      match /orders/{orderId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        // Only admin or Cloud Functions (Admin SDK) can update status
+        allow update: if isAdmin();
+      }
     }
 
-    // Orders — only the owner can read/write their orders
-    match /orders/{orderId} {
-      allow create: if request.auth != null;
-      allow read: if request.auth != null &&
-                    request.auth.uid == resource.data.userId;
-      allow write: if false; // Only admin can update (via backend later)
+    // ── 5. Admins config — Read for admin check, write by Admin SDK only ──
+    match /admins/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only Admin SDK (Cloud Functions) can write
     }
 
-    // Admin overrides — anyone can READ (so product prices show on website)
-    // Only admin users can WRITE
-    match /admin_overrides/{docId} {
-      allow read: if true;   // Public read so all visitors see updated prices
-      allow write: if request.auth != null &&
-                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    // ── 6. Block everything else ──
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -12,21 +12,34 @@ function initHeroSlider() {
 
 async function loadHomeProducts() {
   try {
-    const res = await api('/products?limit=20').catch(()=>null);
-    if (res?.products?.length) {
-      const all = res.products;
-      renderProducts('featuredProducts', all.filter(p=>p.isFeatured).slice(0,8));
-      const cats = ['vegetables','fruits','biscuits','snacks','mushroom','chicken','mutton','grocery','herbal','dryfruits','flour','beverages','spreads','pickles','superfoods','readytocook'];
-      cats.forEach(c => { const el = c+'Products'; renderProducts(el, all.filter(p=>p.category===c).slice(0,8)); });
-    } else loadFallbackProducts();
-  } catch { loadFallbackProducts(); }
+    // 1. Check if Firestore is configured & available
+    if (typeof fsGetProducts !== 'function') {
+      console.warn('Firestore helpers not found. Using fallback.');
+      loadFallbackProducts();
+      return;
+    }
+    
+    const all = await fsGetProducts();
+    if (!all || !all.length) {
+      loadFallbackProducts();
+      return;
+    }
+
+    renderProducts('featuredProducts', all.filter(p=>p.isFeatured).slice(0,8));
+    renderProducts('dealsProducts', all.filter(p=>p.isBestseller).slice(0,8));
+    const cats = ['vegetables','fruits','biscuits','snacks','mushroom','chicken','mutton','grocery','herbal','dryfruits','flour','beverages','spreads','pickles','superfoods','readytocook'];
+    cats.forEach(c => { const el = c+'Products'; renderProducts(el, all.filter(p=>p.category===c).slice(0,8)); });
+  } catch(e) {
+    console.error('Failed to load products from Firestore:', e);
+    loadFallbackProducts();
+  }
 }
 
 function renderProducts(id, products) {
   const c = document.getElementById(id);
   if (!c || !products.length) return;
   c.innerHTML = products.map(p => productCardHTML(p)).join('');
-  products.forEach(p => { productsCache[p.slug] = p; });
+  products.forEach(p => { productsCache[p.id || p.slug] = p; });
 }
 
 function loadFallbackProducts() {

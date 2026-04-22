@@ -24,17 +24,35 @@ function logout() {
   localStorage.removeItem('curfee_token');
   localStorage.removeItem('curfee_user');
   localStorage.removeItem('curfee_cart');
+  if (typeof auth !== 'undefined') auth.signOut().catch(() => {});
   window.location.href = 'index.html';
 }
-function isLoggedIn() { return !!getToken(); }
+function isLoggedIn() { return !!(getUser() || getToken()); }
 function isAdmin() { const u = getUser(); return u && u.role === 'admin'; }
 function requireAuth() { if (!isLoggedIn()) { window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname); return false; } return true; }
 
 function updateAuthUI() {
   const btn = document.getElementById('authBtn'); if (!btn) return;
   const user = getUser();
-  if (user) { btn.innerHTML = `<i class="fas fa-user-circle"></i><span>${user.name.split(' ')[0]}</span>`; btn.href = 'dashboard.html'; }
-  else { btn.innerHTML = '<i class="fas fa-user"></i><span>Login</span>'; btn.href = 'login.html'; }
+  if (user) { 
+    btn.innerHTML = `<i class="fas fa-user-circle"></i><span style="font-size:0.8rem">${user.name.split(' ')[0]}</span>`; 
+    btn.href = 'dashboard.html'; 
+    let logoutBtn = document.getElementById('globalLogoutBtn');
+    if(!logoutBtn) {
+      logoutBtn = document.createElement('a');
+      logoutBtn.id = 'globalLogoutBtn';
+      logoutBtn.className = btn.className;
+      logoutBtn.style.cursor = 'pointer';
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+      logoutBtn.onclick = logout;
+      btn.parentNode.insertBefore(logoutBtn, btn.nextSibling);
+    }
+  } else { 
+    btn.innerHTML = '<i class="fas fa-user"></i><span style="font-size:0.8rem">Login</span>'; 
+    btn.href = 'login.html'; 
+    const logoutBtn = document.getElementById('globalLogoutBtn');
+    if(logoutBtn) logoutBtn.remove();
+  }
 }
 
 function getLocalCart() { return JSON.parse(localStorage.getItem('curfee_cart') || '[]'); }
@@ -95,41 +113,53 @@ function applyCardOverrides(p) {
 
 function productCardHTML(product) {
   product = applyCardOverrides(product);
-  const firstW = product.weights?.[0]; const showPrice = firstW ? (firstW.discountPrice || firstW.price) : (product.discountPrice || product.price); const showOriginal = firstW ? firstW.price : product.price;
-  const discount = showOriginal > 0 ? Math.round(((showOriginal - showPrice) / showOriginal) * 100) : 0;
-  const inW = isInWishlist(product._id || product.slug); const outOfStock = product.stock <= 0;
-  const stockLabel = product.stock > 20 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock';
-  const stockClass = product.stock > 20 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock';
-  return `<div class="product-card${outOfStock?' out-of-stock-card':''}" data-id="${product._id||product.slug}"><div class="product-badges">${discount>0?`<span class="badge badge-sale">${discount}% OFF</span>`:''}</div><button class="wishlist-btn ${inW?'active':''}" onclick="handleWishlist('${product._id||product.slug}',this)"><i class="${inW?'fas':'far'} fa-heart"></i></button><a href="product-detail.html?slug=${product.slug}" class="product-image">${product.images&&product.images.length?`<img src="${product.images[0]}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;">`:`<div class="placeholder-icon">${getCategoryEmoji(product.category)}</div>`}</a><div class="product-info"><div class="product-category">${product.category}</div><h3 class="product-name"><a href="product-detail.html?slug=${product.slug}">${product.name}</a></h3><div class="product-rating"><span class="stars">${starsHTML(product.rating)}</span><span class="rating-count">(${product.numReviews||0})</span></div><div class="product-price"><span class="price-current">₹${showPrice}</span>${discount>0?`<span class="price-original">₹${showOriginal}</span><span class="price-discount">${discount}% off</span>`:''}</div><div class="weight-options">${(product.weights||[]).slice(0,3).map((w,i)=>`<span class="weight-option ${i===0?'active':''}" data-weight="${w.label}" data-price="${w.discountPrice||w.price}">${w.label}</span>`).join('')}</div><div class="product-stock ${stockClass}"><i class="fas fa-circle" style="font-size:0.5rem"></i> ${stockLabel}</div><button class="add-to-cart-btn" ${outOfStock?'disabled style="opacity:0.5;cursor:not-allowed;"':''}onclick="handleAddToCart(event,'${product.slug}')"><i class="fas fa-${outOfStock?'ban':'cart-plus'}"></i> ${outOfStock?'Out of Stock':'Add to Cart'}</button></div></div>`;
+  const pid = product._id || product.id || product.slug;
+  const imgSrc = product.imageUrl || (product.images && product.images[0]) || '';
+  const firstW = product.weights?.[0];
+  const showPrice = firstW ? (firstW.discountPrice || firstW.price) : (product.discountPrice || product.price);
+  const showOriginal = firstW ? firstW.price : (product.originalPrice || product.price);
+  const discount = showOriginal > showPrice ? Math.round(((showOriginal - showPrice) / showOriginal) * 100) : 0;
+  const detailUrl = product.id ? 'product-detail.html?id=' + product.id : 'product-detail.html?slug=' + product.slug;
+  const inW = isInWishlist(pid);
+  const stockVal = product.stock != null ? product.stock : 100;
+  const outOfStock = stockVal <= 0;
+  const stockLabel = stockVal > 20 ? 'In Stock' : stockVal > 0 ? 'Only ' + stockVal + ' left' : 'Out of Stock';
+  const stockClass = stockVal > 20 ? 'in-stock' : stockVal > 0 ? 'low-stock' : 'out-of-stock';
+  const catEmoji = getCategoryEmoji(product.category);
+  const imgHTML = imgSrc ? '<img src="' + imgSrc + '" alt="' + product.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;">' : '<div class="placeholder-icon">' + catEmoji + '</div>';
+  const unitHTML = product.unit ? '<div style="font-size:0.75rem;color:#64748b;margin-top:2px;">' + product.unit + '</div>' : '';
+  return '<div class="product-card' + (outOfStock ? ' out-of-stock-card' : '') + '" data-id="' + pid + '"><div class="product-badges">' + (discount > 0 ? '<span class="badge badge-sale">' + discount + '% OFF</span>' : '') + '</div><button class="wishlist-btn ' + (inW ? 'active' : '') + '" onclick="handleWishlist(\'' + pid + '\',this)"><i class="' + (inW ? 'fas' : 'far') + ' fa-heart"></i></button><a href="' + detailUrl + '" class="product-image">' + imgHTML + '</a><div class="product-info"><div class="product-category">' + (product.category || '') + '</div><h3 class="product-name"><a href="' + detailUrl + '">' + product.name + '</a></h3><div class="product-price"><span class="price-current">₹' + showPrice + '</span>' + (discount > 0 ? '<span class="price-original">₹' + showOriginal + '</span><span class="price-discount">' + discount + '% off</span>' : '') + '</div>' + unitHTML + '<div class="product-stock ' + stockClass + '"><i class="fas fa-circle" style="font-size:0.5rem"></i> ' + stockLabel + '</div><button class="add-to-cart-btn" ' + (outOfStock ? 'disabled style="opacity:0.5;cursor:not-allowed;" ' : '') + 'onclick="handleAddToCart(event,\'' + pid + '\')"><i class="fas fa-' + (outOfStock ? 'ban' : 'cart-plus') + '"></i> ' + (outOfStock ? 'Out of Stock' : 'Add to Cart') + '</button></div></div>';
 }
 
 function handleWishlist(productId, btn) { const active = toggleWishlist(productId); const icon = btn.querySelector('i'); if (active) { btn.classList.add('active'); icon.className='fas fa-heart'; } else { btn.classList.remove('active'); icon.className='far fa-heart'; } }
 
 let productsCache = {};
-async function handleAddToCart(event, slug) {
+async function handleAddToCart(event, productId) {
   event.preventDefault(); event.stopPropagation();
+
+  // Try Firestore first
+  if (typeof fsAddToCart === 'function') {
+    let product = productsCache[productId];
+    if (!product) {
+      // Try fetching from Firestore
+      try { product = await fsGetProduct(productId); productsCache[productId] = product; } catch {}
+    }
+    if (!product) {
+      // Fallback: build from card HTML
+      const card = event.target.closest('.product-card');
+      product = { id: productId, _id: productId, name: card?.querySelector('.product-name a')?.textContent || 'Product', price: parseInt(card?.querySelector('.price-current')?.textContent?.replace('₹','') || '0'), imageUrl: card?.querySelector('img')?.src || '' };
+    }
+    await fsAddToCart(product);
+    return;
+  }
+
+  // Fallback to local cart
   const card = event.target.closest('.product-card'); let weight = '250g';
   if (card) { const aw = card.querySelector('.weight-option.active'); if (aw) weight = aw.dataset.weight; }
-
-  // First try local product data (with overrides applied) — no API call needed
-  let product = productsCache[slug];
+  let product = productsCache[productId];
   if (!product) {
-    const part1 = (typeof ALL_PRODUCTS !== 'undefined') ? ALL_PRODUCTS : [];
-    const part2 = (typeof ALL_PRODUCTS_PART2 !== 'undefined') ? ALL_PRODUCTS_PART2 : [];
-    const local = part1.concat(part2).find(p => p.slug === slug);
-    if (local) { product = applyCardOverrides(Object.assign({}, local)); productsCache[slug] = product; }
+    product = { _id: productId, slug: productId, name: card?.querySelector('.product-name a')?.textContent || productId, price: 0, images: [], stock: 100 };
   }
-
-  // Fallback: try API (for when backend is live)
-  if (!product) {
-    try { const d = await api(`/products/slug/${slug}`); product = d; productsCache[slug] = product; } catch {}
-  }
-
-  // Last resort fallback from card HTML
-  if (!product) {
-    product = { _id: slug, slug, name: card?.querySelector('.product-name a')?.textContent || slug, price: 0, discountPrice: 0, images: [], stock: 100 };
-  }
-
   addToLocalCart(product, weight);
 }
 
