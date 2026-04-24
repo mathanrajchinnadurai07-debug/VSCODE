@@ -159,7 +159,7 @@ async function initiateRazorpay(address) {
       handler: async function (response) {
         // Payment success — verify and save order
         try {
-          await fetch('https://us-central1-curfee-10551.cloudfunctions.net/verifyPayment', {
+          await fetch('https://us-central1-curfee-10551.cloudfunctions.net/verifyRazorpayPayment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
