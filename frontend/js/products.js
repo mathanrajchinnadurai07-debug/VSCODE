@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bestseller = params.get('bestseller');
   const featured = params.get('featured');
 
-  const grid = document.getElementById('productsGrid') || document.querySelector('.products-grid');
+  const grid = document.getElementById('productGrid') || document.querySelector('.product-grid');
   const title = document.getElementById('pageTitle') || document.querySelector('.page-title');
 
   if (!grid) return;
