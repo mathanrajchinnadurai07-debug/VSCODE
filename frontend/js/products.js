@@ -232,7 +232,7 @@ function productCard(p) {
   const imgHTML = img
     ? `<img src="${imgSrc}" alt="${p.name}" loading="lazy"
            style="width:100%;height:100%;object-fit:cover;"
-           onerror="this.onerror=null;this.parentElement.innerHTML='<div style=\\'font-size:3rem;text-align:center;padding:20px\\'>🌿</div>'">`
+           onerror="this.onerror=null;this.parentElement.innerHTML='<div style=\'font-size:3rem;text-align:center;padding:20px\'>🌿</div>'">`
     : `<div style="font-size:3rem;text-align:center;padding:20px;line-height:1;">🌿</div>`;
 
   // Safe product name for JS string
