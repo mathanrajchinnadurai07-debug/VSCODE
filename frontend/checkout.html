@@ -1,180 +1,211 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Checkout — <span data-brand='full-name'>Curfee Organic Market</span></title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/checkout-mobile.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src='js/branding.js'></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Checkout — Curfee Organic Market</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--p:#1a6b3a;--pl:#2d9f5a;--bg:#f0f7f2;--card:#fff;--border:#dde8df;--text:#1e293b;--muted:#64748b;--r:12px;--sh:0 2px 12px rgba(0,0,0,.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.topbar{background:var(--p);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px}
+.topbar a{color:#fff;text-decoration:none}.topbar h1{font-size:1.05rem;font-weight:700}
+
+/* Progress */
+.progress{display:flex;align-items:center;max-width:600px;margin:24px auto;padding:0 16px}
+.prog-step{display:flex;align-items:center;gap:6px}
+.prog-num{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:#fff;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;transition:.3s}
+.prog-step.active .prog-num{background:var(--p);border-color:var(--p);color:#fff}
+.prog-step.done .prog-num{background:#10b981;border-color:#10b981;color:#fff}
+.prog-label{font-size:.78rem;font-weight:600;color:var(--muted)}
+.prog-step.active .prog-label{color:var(--p)}
+.prog-step.done .prog-label{color:#10b981}
+.prog-line{flex:1;height:2px;background:var(--border);margin:0 8px;transition:.3s}
+.prog-line.done{background:var(--p)}
+
+/* Layout */
+.co-wrap{max-width:960px;margin:0 auto;padding:0 16px 80px;display:flex;gap:24px}
+.co-main{flex:1;min-width:0}
+.co-side{width:340px;flex-shrink:0}
+@media(max-width:768px){.co-wrap{flex-direction:column}.co-side{width:100%}}
+#orderSidebar{display:none}
+
+/* Steps */
+.co-step{display:none;animation:fadeIn .35s ease}
+.co-step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--border);padding:22px;margin-bottom:20px}
+.card-title{font-size:.95rem;font-weight:700;color:var(--p);margin-bottom:16px;display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+
+/* Cart items */
+.co-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f2}
+.co-item:last-child{border:none}
+.co-item-img{width:56px;height:56px;background:#f0f7f2;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden;flex-shrink:0}
+.co-item-img img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.co-item-info{flex:1}
+.co-item-name{font-weight:600;font-size:.88rem;margin-bottom:2px}
+.co-item-unit{font-size:.75rem;color:var(--muted)}
+.co-item-qty{display:flex;align-items:center;gap:0;margin-top:6px}
+.co-item-qty button{width:28px;height:28px;border:1.5px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:1rem;font-weight:700;color:var(--p)}
+.co-item-qty span{width:32px;text-align:center;font-weight:600;font-size:.88rem}
+.co-item-right{text-align:right}
+.co-item-price{font-weight:700;color:var(--p);font-size:.95rem}
+.co-item-remove{background:none;border:none;color:#ef4444;cursor:pointer;font-size:.8rem;margin-top:6px}
+
+/* Summary row */
+.sum-row{display:flex;justify-content:space-between;padding:5px 0;font-size:.87rem}
+.sum-row.total{font-weight:800;font-size:1.05rem;color:var(--p);border-top:1.5px solid var(--border);padding-top:12px;margin-top:6px}
+
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.form-grid{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select{padding:11px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;color:var(--text);background:#fff;transition:.2s}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(26,107,58,.1)}
+
+/* Payment */
+.pay-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:480px){.pay-opts{grid-template-columns:1fr}}
+.pay-opt{border:2px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;transition:.2s;background:#fff;position:relative}
+.pay-opt:hover{border-color:var(--pl);background:#f0faf4}
+.pay-opt.selected{border-color:var(--p);background:#e8f5ee}
+.pay-opt .po-icon{font-size:1.8rem;margin-bottom:6px}
+.pay-opt .po-name{font-size:.78rem;font-weight:600}
+.pay-opt .po-check{position:absolute;top:6px;right:6px;width:18px;height:18px;background:var(--p);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:.6rem}
+.pay-opt.selected .po-check{display:flex}
+#cardFields{display:none}
+.cod-note{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:12px;font-size:.82rem;color:#92400e;display:none;gap:8px;align-items:flex-start;margin-bottom:12px}
+
+/* Buttons */
+.co-btns{display:flex;gap:12px;margin-top:20px}
+.btn-next{flex:1;padding:14px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn-next:hover{background:var(--pl);transform:translateY(-1px)}
+.btn-back{padding:14px 20px;background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-back:hover{border-color:var(--p);color:var(--p)}
+
+/* Sidebar */
+.sb-item{display:flex;justify-content:space-between;font-size:.84rem;padding:6px 0;border-bottom:1px solid #f5f5f5}
+.sb-item:last-child{border:none}
+
+/* Confirm */
+.confirm-check{width:80px;height:80px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;animation:popIn .5s ease}
+@keyframes popIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.confirm-title{text-align:center;font-size:1.4rem;color:var(--p);margin-bottom:8px}
+.confirm-id{text-align:center;color:var(--muted);margin-bottom:20px}
+.confirm-details{background:#f8faf9;border-radius:10px;padding:16px;margin-bottom:20px}
+.cd-row{display:flex;justify-content:space-between;padding:8px 0;font-size:.87rem;border-bottom:1px solid #eef2ef}
+.cd-row:last-child{border:none}
+.cd-row.total{font-weight:800;color:var(--p);font-size:1rem;border-top:1.5px solid var(--border);margin-top:4px;padding-top:12px}
+.confirm-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cbtn{padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:8px;transition:.2s}
+.cbtn-primary{background:var(--p);color:#fff}
+.cbtn-primary:hover{background:var(--pl)}
+.cbtn-outline{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:20px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:#1e293b;color:#fff;padding:12px 18px;border-radius:10px;font-size:.85rem;border-left:4px solid var(--p);animation:fadeIn .3s}
+.toast.success{border-left-color:#10b981}.toast.error{border-left-color:#ef4444}
+.secure{text-align:center;font-size:.72rem;color:var(--muted);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:5px}
+</style>
+<script src="js/branding.js"></script>
 </head>
-<body class="checkout-body">
+<body>
+<div class="topbar"><a href="cart.html"><i class="fas fa-arrow-left"></i></a><h1>🌿 Checkout</h1></div>
 
-  <!-- STEP 1 & 2: ADDRESS & SUMMARY -->
-  <div id="viewSummary" style="display: block;">
-    <div class="pay-top-header" style="border:none;">
-      <i class="fas fa-arrow-left" onclick="window.history.back()"></i>
-      <h1 style="font-size:1.1rem;">Order Summary</h1>
-    </div>
+<!-- Progress Bar -->
+<div class="progress">
+  <div class="prog-step active" id="ps1"><div class="prog-num">1</div><div class="prog-label">Cart</div></div>
+  <div class="prog-line" id="pl1"></div>
+  <div class="prog-step" id="ps2"><div class="prog-num">2</div><div class="prog-label">Details</div></div>
+  <div class="prog-line" id="pl2"></div>
+  <div class="prog-step" id="ps3"><div class="prog-num">3</div><div class="prog-label">Payment</div></div>
+  <div class="prog-line" id="pl3"></div>
+  <div class="prog-step" id="ps4"><div class="prog-num">4</div><div class="prog-label">Confirm</div></div>
+</div>
 
-    <!-- Timeline Banner -->
-    <div class="checkout-timeline">
-      <div class="timeline-line"></div>
-      <div class="timeline-step completed">
-        <div class="timeline-circle"><i class="fas fa-check"></i></div>
-        <div class="timeline-label">Address</div>
-      </div>
-      <div class="timeline-step active">
-        <div class="timeline-circle">2</div>
-        <div class="timeline-label">Order Summary</div>
-      </div>
-      <div class="timeline-step">
-        <div class="timeline-circle">3</div>
-        <div class="timeline-label">Payment</div>
-      </div>
-    </div>
+<div class="co-wrap">
+<div class="co-main">
 
-    <!-- Delivery Address Block -->
-    <div class="co-section">
-      <div class="co-header">
-        <span>Deliver to:</span>
-        <button class="co-header-btn" onclick="changeAddress()">Change</button>
-      </div>
-      <div style="font-size:0.95rem;font-weight:700;margin-bottom:8px;" id="dispName">User</div>
-      <div style="font-size:0.85rem;color:#444;line-height:1.4;" id="dispAddress">
-        Loading address...
-      </div>
-      <div style="font-size:0.85rem;color:#444;margin-top:8px;font-weight:600;" id="dispPhone"></div>
-    </div>
-
-    <!-- Order Items Block -->
-    <div class="co-section" id="checkoutItemsContainer">
-      <!-- Items generated by JS -->
-    </div>
-
-    <!-- Savings Banner -->
-    <div class="co-banner-green" id="savingsBanner">
-      <i class="fas fa-tags"></i> You'll save ₹0 on this order!
-    </div>
-
-    <!-- Sticky Footer 1 -->
-    <div class="co-sticky-footer">
-      <div class="co-price-info">
-        <div class="co-price-strike" id="sumStrike">₹0</div>
-        <div class="co-price-final" id="sumFinal">₹0</div>
-        <i class="fas fa-info-circle" style="font-size:0.75rem;color:#aaa;"></i>
-      </div>
-      <button class="co-btn-continue" onclick="showPayments()">Continue</button>
+<!-- STEP 1: Cart -->
+<div class="co-step active" id="step1">
+  <div class="card"><div class="card-title"><i class="fas fa-shopping-cart"></i> Your Cart</div><div id="cartItems"></div>
+    <div style="margin-top:16px;border-top:1.5px solid var(--border);padding-top:14px">
+      <div class="sum-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+      <div class="sum-row"><span>Delivery</span><span id="cartDelivery">FREE</span></div>
+      <div class="sum-row total"><span>Total</span><span id="cartTotal">₹0</span></div>
     </div>
   </div>
+  <div class="co-btns"><button class="btn-next" onclick="goStep(2)">Proceed to Details <i class="fas fa-arrow-right"></i></button></div>
+</div>
 
-
-  <!-- STEP 3: PAYMENTS -->
-  <div id="viewPayments" style="display: none;">
-    
-    <!-- Top Header -->
-    <div class="pay-top-header">
-      <i class="fas fa-arrow-left" onclick="showSummary()"></i>
-      <div>
-        <div style="font-size:0.75rem;color:#666;">Step 3 of 3</div>
-        <h1 style="margin:0;">Payments</h1>
-      </div>
-      <div class="pay-secure"><i class="fas fa-lock"></i> 100% Secure</div>
-    </div>
-
-    <!-- Total Amount Dropdown -->
-    <div class="co-section" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px;">
-      <span style="color:var(--primary);font-weight:600;">Total Amount <i class="fas fa-chevron-down"></i></span>
-      <span style="font-size:1.1rem;font-weight:700;" id="payFinalAmount">₹0</span>
-    </div>
-
-    <div class="co-banner-green" style="margin:8px 0;">
-      <div>
-        <div style="font-weight:700;">5% Cashback</div>
-        <div style="font-size:0.75rem;font-weight:400;">Claim now with payment offers</div>
-      </div>
-    </div>
-
-    <!-- Accordions -->
-    <div class="pay-accordion" id="accUPI">
-      <div class="pay-header" onclick="togglePay('UPI')">
-        <i class="fas fa-qrcode"></i> UPI <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
-      </div>
-      <div class="pay-content">
-        <div class="pay-radio-row">
-          <input type="radio" name="payment_method" value="upi_app" checked>
-          <span>super.money (GPay, PhonePe active)</span>
-        </div>
-        <button class="pay-inner-btn" onclick="placeOrder()">Pay <span class="btnAmt">₹0</span></button>
-      </div>
-    </div>
-
-    <div class="pay-accordion" id="accCard">
-      <div class="pay-header" onclick="togglePay('Card')">
-        <i class="fas fa-credit-card"></i> Credit / Debit / ATM Card <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
-      </div>
-      <div class="pay-content">
-        <div style="font-size:0.8rem;color:#666;margin-bottom:12px;">Add and secure cards as per RBI guidelines</div>
-        <div class="pay-radio-row">
-          <input type="radio" name="payment_method" value="card">
-          <span>Add new card</span>
-        </div>
-        <button class="pay-inner-btn" onclick="placeOrder()">Pay <span class="btnAmt">₹0</span></button>
-      </div>
-    </div>
-
-    <div class="pay-accordion" id="accCOD">
-      <div class="pay-header" onclick="togglePay('COD')">
-        <i class="fas fa-money-bill-wave"></i> Cash on Delivery <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
-      </div>
-      <div class="pay-content">
-        <div class="pay-radio-row">
-          <input type="radio" name="payment_method" value="cod">
-          <span>Pay at your doorstep</span>
-        </div>
-        <button class="pay-inner-btn" onclick="placeOrder()">Confirm Order</button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Success Modal -->
-  <div class="modal-overlay" id="successModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-    <div class="modal" style="background:#fff;border-radius:12px;padding:40px;text-align:center;">
-      <div style="font-size:4rem;margin-bottom:12px;color:var(--primary);">✓</div>
-      <h2 style="margin-bottom:8px;">Order Placed!</h2>
-      <p style="color:#666;margin-bottom:24px;">Your order number: <strong id="orderNumber">...</strong></p>
-      <a href="dashboard.html" class="co-btn-continue" style="display:inline-block;text-decoration:none;">View Orders</a>
+<!-- STEP 2: Address -->
+<div class="co-step" id="step2">
+  <div class="card"><div class="card-title"><i class="fas fa-map-marker-alt"></i> Delivery Address</div>
+    <div class="form-grid">
+      <div class="fg"><label>First Name *</label><input type="text" id="firstName" placeholder="Raj"></div>
+      <div class="fg"><label>Last Name</label><input type="text" id="lastName" placeholder="Kumar"></div>
+      <div class="fg"><label>Phone *</label><input type="tel" id="phone" placeholder="+91 98765 43210"></div>
+      <div class="fg"><label>Email *</label><input type="email" id="email" placeholder="raj@email.com"></div>
+      <div class="fg full"><label>Address Line 1 *</label><input type="text" id="address1" placeholder="House/Flat No, Street"></div>
+      <div class="fg full"><label>Address Line 2</label><input type="text" id="address2" placeholder="Landmark, Area"></div>
+      <div class="fg"><label>City *</label><input type="text" id="city" placeholder="Chennai"></div>
+      <div class="fg"><label>State *</label><select id="state"><option>Tamil Nadu</option><option>Kerala</option><option>Karnataka</option><option>Andhra Pradesh</option><option>Telangana</option><option>Maharashtra</option><option>Delhi</option><option>Gujarat</option><option>Rajasthan</option><option>West Bengal</option><option>Uttar Pradesh</option><option>Bihar</option><option>Madhya Pradesh</option><option>Other</option></select></div>
+      <div class="fg"><label>PIN Code *</label><input type="text" id="pincode" placeholder="600001" maxlength="6"></div>
+      <div class="fg"><label>Delivery Instructions</label><input type="text" id="deliveryNote" placeholder="Leave at door..."></div>
     </div>
   </div>
+  <div class="co-btns"><button class="btn-back" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button><button class="btn-next" onclick="goStep(3)">Proceed to Payment <i class="fas fa-arrow-right"></i></button></div>
+</div>
 
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Address Edit Modal -->
-  <div id="addressModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
-    <div style="background:#fff; width:90%; max-width:400px; padding:20px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-      <h3 style="margin-top:0; margin-bottom:16px; font-family:'Inter',sans-serif; color:#212121; font-size:1.2rem;">Delivery Address</h3>
-      <textarea id="editAddrText" rows="3" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid #d1d5db; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; margin-bottom:12px; resize:none;" placeholder="Full Address (e.g., House No, Street, Landmark)..."></textarea>
-      <input id="editAddrPhone" type="tel" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid #d1d5db; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; margin-bottom:20px;" placeholder="10-digit Phone Number...">
-      <div style="display:flex; justify-content:flex-end; gap:12px;">
-        <button onclick="document.getElementById('addressModal').style.display='none'" style="padding:10px 16px; border:none; background:#f1f3f6; color:#444; border-radius:6px; font-weight:600; font-size:0.9rem;">Cancel</button>
-        <button onclick="saveAddress()" style="padding:10px 16px; border:none; background:#2D6A4F; color:#fff; border-radius:6px; font-weight:600; font-size:0.9rem;">Save Address</button>
-      </div>
+<!-- STEP 3: Payment -->
+<div class="co-step" id="step3">
+  <div class="card"><div class="card-title"><i class="fas fa-credit-card"></i> Payment Method</div>
+    <div class="pay-opts">
+      <div class="pay-opt selected" id="pay-razorpay" onclick="selectPay('razorpay')"><div class="po-check"><i class="fas fa-check"></i></div><div class="po-icon">💳</div><div class="po-name">Credit/Debit Card</div></div>
+      <div class="pay-opt" id="pay-gpay" onclick="selectPay('gpay')"><div class="po-check"><i class="fas fa-check"></i></div><div class="po-icon">🇬</div><div class="po-name">Google Pay / UPI</div></div>
+      <div class="pay-opt" id="pay-cod" onclick="selectPay('cod')"><div class="po-check"><i class="fas fa-check"></i></div><div class="po-icon">💵</div><div class="po-name">Cash on Delivery</div></div>
     </div>
+    <div id="cardFields"><div class="form-grid"><div class="fg full"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19"></div><div class="fg"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5"></div><div class="fg"><label>CVV</label><input type="password" placeholder="•••" maxlength="4"></div></div></div>
+    <div class="cod-note" id="codNote"><i class="fas fa-info-circle" style="margin-top:2px"></i><span>COD available. Extra ₹25 handling fee. Keep exact change ready.</span></div>
+    <div class="secure"><i class="fas fa-shield-alt"></i> 100% Secure Payment via Razorpay · RBI Approved · PCI DSS</div>
   </div>
-  
-  <!-- Firebase Compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
-  <script src="js/firebase-init.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/checkout.js"></script>
+  <div class="co-btns"><button class="btn-back" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Back</button><button class="btn-next" onclick="processPayment()"><i class="fas fa-lock"></i> Pay Securely <span id="payBtnAmt">₹0</span></button></div>
+</div>
+
+<!-- STEP 4: Confirm -->
+<div class="co-step" id="step4"><div class="card" id="confirmContent"></div></div>
+
+</div>
+
+<!-- ORDER SIDEBAR -->
+<div class="co-side" id="orderSidebar">
+  <div class="card" style="position:sticky;top:16px">
+    <div class="card-title"><i class="fas fa-shopping-bag"></i> Order Summary</div>
+    <div id="sidebarItems"></div>
+    <div style="margin-top:14px;border-top:1.5px solid var(--border);padding-top:12px">
+      <div class="sum-row"><span>Subtotal</span><span id="sbSubtotal">₹0</span></div>
+      <div class="sum-row"><span>Delivery</span><span id="sbDelivery">FREE</span></div>
+      <div class="sum-row"><span style="color:#10b981">Discount</span><span id="sbDiscount" style="color:#10b981">-₹0</span></div>
+      <div class="sum-row total"><span>Total</span><span id="sbTotal">₹0</span></div>
+    </div>
+    <div style="margin-top:14px"><input type="text" id="couponInput" placeholder="Coupon code" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;margin-bottom:8px"><button onclick="applyCoupon()" style="width:100%;padding:9px;background:#f0faf4;color:var(--p);border:1.5px solid var(--p);border-radius:8px;font-weight:600;cursor:pointer;font-size:.85rem">Apply Coupon</button></div>
+  </div>
+</div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-init.js"></script>
+<script src="js/checkout.js"></script>
 </body>
 </html>
-
-
-
-

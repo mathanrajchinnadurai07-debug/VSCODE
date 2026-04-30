@@ -1,225 +1,164 @@
-/* ==========================================================
-   Curfee — Checkout Page (Firestore + Razorpay)
-   ========================================================== */
+/* Curfee — Multi-Step Checkout */
+let cartItems=[], currentStep=1, subtotal=0, deliveryFee=0, discount=0, codFee=0, selectedPayment='razorpay';
+const RZP_KEY='rzp_test_XXXXXXXXXXXXXXXX', STORE_WA='917845744038';
 
-let cartItems = [];
-let grandTotal = 0;
-
-document.addEventListener('DOMContentLoaded', async () => {
-  // Must be logged in
-  if (!auth.currentUser && !localStorage.getItem('curfee_user')) {
-    window.location.href = 'login.html?redirect=checkout.html';
-    return;
-  }
-
-  // Wait for auth to be ready
-  auth.onAuthStateChanged(async user => {
-    if (!user) {
-      window.location.href = 'login.html?redirect=checkout.html';
-      return;
-    }
-
-    // Load cart items from Firestore
-    cartItems = await fsGetCart();
-    if (!cartItems.length) {
-      document.getElementById('checkoutContent').innerHTML = '<div style="text-align:center;padding:60px;"><h3>Your cart is empty</h3><a href="products.html" class="btn btn-primary" style="margin-top:16px;">Shop Now</a></div>';
-      return;
-    }
-
-    renderCheckoutItems();
-    prefillAddress(user);
+document.addEventListener('DOMContentLoaded',()=>{
+  auth.onAuthStateChanged(u=>{
+    if(!u){window.location.href='login.html?redirect=checkout.html';return;}
+    document.getElementById('email').value=u.email||'';
+    const s=JSON.parse(localStorage.getItem('curfee_user')||'{}');
+    if(s.phone)document.getElementById('phone').value=s.phone;
+    if(s.name){const p=(s.name||'').split(' ');document.getElementById('firstName').value=p[0]||'';document.getElementById('lastName').value=p.slice(1).join(' ')||'';}
+    loadCart(u.uid);
   });
 });
 
-function renderCheckoutItems() {
-  const container = document.getElementById('checkoutItems') || document.getElementById('orderItems');
-  if (!container) return;
+async function loadCart(uid){
+  const snap=await db.collection('users').doc(uid).collection('cart').get();
+  cartItems=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(!cartItems.length){window.location.href='cart.html';return;}
+  renderCartStep();renderSidebar();
+}
 
-  const subtotal = cartItems.reduce((s, i) => s + (i.price * i.quantity), 0);
-  const delivery = subtotal >= 499 ? 0 : 49;
-  grandTotal = subtotal + delivery;
-
-  container.innerHTML = cartItems.map(item => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0;">
-      <div style="width:50px;height:50px;min-width:50px;border-radius:8px;background:#f5f5f5;overflow:hidden;">
-        ${item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem;">🌿</div>'}
+function renderCartStep(){
+  const c=document.getElementById('cartItems');if(!c)return;
+  c.innerHTML=cartItems.map((item,i)=>`
+  <div class="co-item">
+    <div class="co-item-img">${item.imageUrl?`<img src="${item.imageUrl}" onerror="this.parentElement.innerHTML='🌿'">`:'🌿'}</div>
+    <div class="co-item-info">
+      <div class="co-item-name">${item.name}</div>
+      <div class="co-item-unit">${item.unit||''}</div>
+      <div class="co-item-qty">
+        <button onclick="changeQty(${i},-1)">−</button>
+        <span>${item.quantity}</span>
+        <button onclick="changeQty(${i},1)">+</button>
       </div>
-      <div style="flex:1;">
-        <div style="font-weight:600;">${item.name}</div>
-        <div style="color:#999;font-size:0.8rem;">${item.unit || ''} × ${item.quantity}</div>
-      </div>
-      <div style="font-weight:700;color:var(--primary);">₹${item.price * item.quantity}</div>
     </div>
-  `).join('');
-
-  // Update totals
-  const subtotalEl = document.getElementById('subtotal') || document.getElementById('checkoutSubtotal');
-  const deliveryEl = document.getElementById('delivery') || document.getElementById('checkoutDelivery');
-  const totalEl = document.getElementById('total') || document.getElementById('checkoutTotal');
-  const payBtn = document.getElementById('payBtn') || document.getElementById('placeOrderBtn');
-  if (subtotalEl) subtotalEl.textContent = '₹' + subtotal;
-  if (deliveryEl) deliveryEl.textContent = delivery === 0 ? 'FREE' : '₹' + delivery;
-  if (totalEl) totalEl.textContent = '₹' + grandTotal;
-  if (payBtn) payBtn.textContent = 'Pay Now ₹' + grandTotal;
+    <div class="co-item-right">
+      <div class="co-item-price">₹${item.price*item.quantity}</div>
+      <button class="co-item-remove" onclick="removeItem(${i})"><i class="fas fa-trash"></i></button>
+    </div>
+  </div>`).join('');
+  updateTotals();
 }
 
-async function prefillAddress(user) {
-  try {
-    const profile = await fsGetUserProfile();
-    if (profile && profile.address) {
-      const a = profile.address;
-      const nameEl = document.getElementById('addrName') || document.getElementById('fullName');
-      const phoneEl = document.getElementById('addrPhone') || document.getElementById('phone');
-      const streetEl = document.getElementById('addrStreet') || document.getElementById('address');
-      const cityEl = document.getElementById('addrCity') || document.getElementById('city');
-      const pincodeEl = document.getElementById('addrPincode') || document.getElementById('pincode');
-      const stateEl = document.getElementById('addrState') || document.getElementById('state');
-      if (nameEl && profile.name) nameEl.value = profile.name;
-      if (phoneEl && profile.phone) phoneEl.value = profile.phone;
-      if (streetEl && a.street) streetEl.value = a.street;
-      if (cityEl && a.city) cityEl.value = a.city;
-      if (pincodeEl && a.pincode) pincodeEl.value = a.pincode;
-      if (stateEl && a.state) stateEl.value = a.state;
-    }
-  } catch (e) {}
+function changeQty(i,d){cartItems[i].quantity=Math.max(1,cartItems[i].quantity+d);renderCartStep();renderSidebar();}
+async function removeItem(i){
+  const id=cartItems[i].id;cartItems.splice(i,1);
+  if(!cartItems.length){window.location.href='cart.html';return;}
+  try{await fsRemoveFromCart(id);}catch(e){}
+  renderCartStep();renderSidebar();
 }
 
-// ── Place Order (COD or Razorpay) ──
-async function placeOrder() {
-  const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
-
-  // Collect address
-  const address = {
-    name: (document.getElementById('addrName') || document.getElementById('fullName'))?.value || '',
-    phone: (document.getElementById('addrPhone') || document.getElementById('phone'))?.value || '',
-    street: (document.getElementById('addrStreet') || document.getElementById('address'))?.value || '',
-    city: (document.getElementById('addrCity') || document.getElementById('city'))?.value || '',
-    pincode: (document.getElementById('addrPincode') || document.getElementById('pincode'))?.value || '',
-    state: (document.getElementById('addrState') || document.getElementById('state'))?.value || ''
-  };
-
-  if (!address.name || !address.phone || !address.street || !address.city || !address.pincode) {
-    showToast('Please fill in all address fields', 'error');
-    return;
-  }
-
-  // Save address to user profile
-  await fsSaveUserAddress(address);
-
-  if (method === 'razorpay' || method === 'upi' || method === 'credit_card') {
-    // ── Razorpay Payment ──
-    await initiateRazorpay(address);
-  } else {
-    // ── Cash on Delivery ──
-    await saveOrderToFirestore(address, 'cod', null, null);
-  }
+function updateTotals(){
+  subtotal=cartItems.reduce((s,i)=>s+(i.price*i.quantity),0);
+  deliveryFee=subtotal>=499?0:49;
+  codFee=selectedPayment==='cod'?25:0;
+  const total=subtotal+deliveryFee-discount+codFee;
+  const el=id=>document.getElementById(id);
+  if(el('cartSubtotal'))el('cartSubtotal').textContent='₹'+subtotal;
+  if(el('cartDelivery'))el('cartDelivery').textContent=deliveryFee===0?'FREE':'₹'+deliveryFee;
+  if(el('cartTotal'))el('cartTotal').textContent='₹'+total;
 }
 
-async function initiateRazorpay(address) {
-  try {
-    showToast('Initializing payment...', 'info');
-
-    // Call Cloud Function to create Razorpay order
-    // If Cloud Functions not set up, use demo mode
-    let razorpayOrderId = 'demo_order_' + Date.now();
-    let razorpayKeyId = 'rzp_test_demo'; // Will be replaced with real key
-
-    try {
-      const response = await fetch('https://us-central1-curfee-10551.cloudfunctions.net/createRazorpayOrder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: grandTotal })
-      });
-      const data = await response.json();
-      razorpayOrderId = data.orderId;
-      razorpayKeyId = data.keyId;
-    } catch (e) {
-      console.warn('Cloud Functions not set up — using demo mode');
-      showToast('Razorpay Cloud Functions not configured yet. Placing COD order.', 'warning');
-      await saveOrderToFirestore(address, 'cod', null, null);
-      return;
-    }
-
-    const user = auth.currentUser;
-    const profile = getUser() || {};
-
-    const options = {
-      key: razorpayKeyId,
-      amount: grandTotal * 100, // paise
-      currency: 'INR',
-      name: 'Curfee Organic Market',
-      description: 'Order Payment',
-      order_id: razorpayOrderId,
-      prefill: {
-        name: profile.name || user.displayName || '',
-        email: user.email || '',
-        contact: profile.phone || ''
-      },
-      theme: { color: '#2d6a4f' },
-      handler: async function (response) {
-        // Payment success — verify and save order
-        try {
-          await fetch('https://us-central1-curfee-10551.cloudfunctions.net/verifyRazorpayPayment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            })
-          });
-        } catch (e) {
-          console.warn('Verification skipped (Cloud Functions not set up)');
-        }
-
-        await saveOrderToFirestore(address, 'razorpay', response.razorpay_payment_id, response.razorpay_order_id);
-      }
-    };
-
-    const rzp = new Razorpay(options);
-    rzp.open();
-  } catch (err) {
-    showToast('Payment error: ' + err.message, 'error');
-  }
+function renderSidebar(){
+  const c=document.getElementById('sidebarItems');if(!c)return;
+  subtotal=cartItems.reduce((s,i)=>s+(i.price*i.quantity),0);
+  deliveryFee=subtotal>=499?0:49;
+  codFee=selectedPayment==='cod'?25:0;
+  const total=subtotal+deliveryFee-discount+codFee;
+  c.innerHTML=cartItems.map(i=>`<div class="sb-item"><span>${i.name} ×${i.quantity}</span><span>₹${i.price*i.quantity}</span></div>`).join('');
+  const el=id=>document.getElementById(id);
+  if(el('sbSubtotal'))el('sbSubtotal').textContent='₹'+subtotal;
+  if(el('sbDelivery'))el('sbDelivery').textContent=deliveryFee===0?'FREE':'₹'+deliveryFee;
+  if(el('sbDiscount'))el('sbDiscount').textContent='-₹'+discount;
+  if(el('sbTotal'))el('sbTotal').textContent='₹'+total;
+  if(el('payBtnAmt'))el('payBtnAmt').textContent='₹'+total;
 }
 
-async function saveOrderToFirestore(address, paymentMethod, paymentId, razorpayOrderId) {
-  try {
-    const items = cartItems.map(i => ({
-      name: i.name,
-      price: i.price,
-      quantity: i.quantity,
-      unit: i.unit || '',
-      imageUrl: i.imageUrl || ''
-    }));
-
-    const orderId = await fsSaveOrder({
-      items,
-      total: grandTotal,
-      address,
-      paymentMethod,
-      paymentId: paymentId || null,
-      razorpayOrderId: razorpayOrderId || null,
-      paymentStatus: paymentId ? 'paid' : 'pending'
-    });
-
-    // Clear cart
-    await fsClearCart();
-
-    // Show success
-    const orderNumEl = document.getElementById('orderNumber');
-    if (orderNumEl) orderNumEl.textContent = orderId || 'Order Placed';
-    const modal = document.getElementById('successModal');
-    if (modal) {
-      modal.style.display = 'flex';
-    } else {
-      showToast('Order placed successfully! 🎉', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
-    }
-  } catch (err) {
-    showToast('Error placing order: ' + err.message, 'error');
-  }
+function goStep(n){
+  if(n===2&&currentStep===1){}
+  if(n===3&&!validateForm())return;
+  document.querySelectorAll('.co-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  document.querySelectorAll('.prog-step').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i+1<n)s.classList.add('done');
+    if(i+1===n)s.classList.add('active');
+  });
+  document.querySelectorAll('.prog-line').forEach((l,i)=>{l.classList.toggle('done',i+1<n);});
+  currentStep=n;
+  if(n>=2)renderSidebar();
+  document.getElementById('orderSidebar').style.display=n>=2?'block':'none';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// Expose placeOrder globally
-window.placeOrder = placeOrder;
+function validateForm(){
+  const fields=['firstName','phone','email','address1','city','pincode'];
+  for(const f of fields){if(!document.getElementById(f).value.trim()){showToast('Please fill all required fields','error');document.getElementById(f).focus();return false;}}
+  if(!/^[6-9]\d{9}$/.test(document.getElementById('phone').value.replace(/\D/g,''))){showToast('Enter valid 10-digit mobile number','error');return false;}
+  if(!/^\d{6}$/.test(document.getElementById('pincode').value)){showToast('Enter valid 6-digit PIN','error');return false;}
+  return true;
+}
+
+function selectPay(m){
+  selectedPayment=m;
+  document.querySelectorAll('.pay-opt').forEach(e=>e.classList.remove('selected'));
+  document.getElementById('pay-'+m).classList.add('selected');
+  document.getElementById('cardFields').style.display=m==='card'?'block':'none';
+  document.getElementById('codNote').style.display=m==='cod'?'flex':'none';
+  renderSidebar();
+}
+
+function applyCoupon(){
+  const code=document.getElementById('couponInput').value.trim().toUpperCase();
+  const coupons={CURFEE10:10,ORGANIC20:20,FIRST50:50};
+  if(coupons[code]){discount=Math.round(subtotal*coupons[code]/100);showToast(coupons[code]+'% off applied! 🎉','success');renderSidebar();}
+  else showToast('Invalid coupon','error');
+}
+
+function getAddress(){return{name:document.getElementById('firstName').value+' '+document.getElementById('lastName').value,phone:document.getElementById('phone').value,email:document.getElementById('email').value,line1:document.getElementById('address1').value,line2:document.getElementById('address2').value,city:document.getElementById('city').value,state:document.getElementById('state').value,pincode:document.getElementById('pincode').value,note:document.getElementById('deliveryNote').value};}
+
+async function processPayment(){
+  const addr=getAddress(),total=subtotal+deliveryFee-discount+codFee,user=auth.currentUser,orderId='CF'+new Date().getFullYear()+Date.now().toString().slice(-6);
+  if(selectedPayment==='cod'){await saveOrder(orderId,addr,total,user,{method:'cod',status:'pending'});return;}
+  const opts={key:RZP_KEY,amount:total*100,currency:'INR',name:'Curfee Organic Market',description:'Order '+orderId,
+    prefill:{name:addr.name,email:addr.email,contact:addr.phone.replace(/\D/g,'')},theme:{color:'#1a6b3a'},
+    handler:async r=>{await saveOrder(orderId,addr,total,user,{method:selectedPayment,razorpayPaymentId:r.razorpay_payment_id,status:'paid'});},
+    modal:{ondismiss:()=>showToast('Payment cancelled','error')}};
+  new Razorpay(opts).open();
+}
+
+async function saveOrder(orderId,addr,total,user,payment){
+  const data={orderId,items:cartItems,address:addr,subtotal,deliveryFee,discount,codFee,total,payment,status:'placed',statusHistory:[{status:'placed',timestamp:new Date().toISOString()}],createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{
+    await db.collection('users').doc(user.uid).collection('orders').doc(orderId).set(data);
+    await db.collection('orders').doc(orderId).set({...data,userId:user.uid});
+    const snap=await db.collection('users').doc(user.uid).collection('cart').get();
+    const batch=db.batch();snap.docs.forEach(d=>batch.delete(d.ref));await batch.commit();
+    showConfirmation(orderId,addr,total,payment);
+  }catch(e){console.error(e);showToast('Order failed','error');}
+}
+
+function showConfirmation(orderId,addr,total,payment){
+  const est=new Date();est.setDate(est.getDate()+2);
+  const el=document.getElementById('confirmContent');
+  el.innerHTML=`
+  <div class="confirm-check"><i class="fas fa-check"></i></div>
+  <h2 class="confirm-title">Order Confirmed!</h2>
+  <p class="confirm-id">Order ID: <strong>#${orderId}</strong></p>
+  <div class="confirm-details">
+    <div class="cd-row"><span>📦 Items</span><span>${cartItems.length} products</span></div>
+    <div class="cd-row"><span>📍 Delivery</span><span>${addr.city}, ${addr.pincode}</span></div>
+    <div class="cd-row"><span>💳 Payment</span><span>${(payment.method||'online').toUpperCase()}${payment.status==='paid'?' ✅':' ⏳'}</span></div>
+    <div class="cd-row"><span>🚚 Est. Delivery</span><span>${est.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span></div>
+    <div class="cd-row total"><span>Total</span><span>₹${total}</span></div>
+  </div>
+  <div class="confirm-btns">
+    <a href="products.html" class="cbtn cbtn-outline"><i class="fas fa-shopping-bag"></i> Continue Shopping</a>
+    <a href="order-tracking.html?orderId=${orderId}&uid=${auth.currentUser.uid}" class="cbtn cbtn-primary"><i class="fas fa-truck"></i> Track Order</a>
+  </div>`;
+  goStep(4);
+}
+
+function showToast(msg,type='info'){const w=document.getElementById('toastWrap');if(!w)return;const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3500);}

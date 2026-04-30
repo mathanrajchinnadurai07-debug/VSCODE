@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Order — Curfee Organic Market</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--primary:#1a5c38;--primary-light:#40916c;--accent:#e05a2b;--bg:#f1f5f2;--card:#fff;--border:#e2e8f0;--text:#1e293b;--text-light:#64748b;--radius:14px;--shadow:0 2px 16px rgba(0,0,0,0.07)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+.header{background:linear-gradient(135deg,#1a5c38,#40916c);color:#fff;padding:20px 16px 60px;text-align:center}
+.header h1{font-size:1.3rem;font-weight:700;margin-bottom:6px}
+.header p{font-size:0.85rem;opacity:0.8}
+.order-id-badge{display:inline-block;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 16px;font-size:0.8rem;font-weight:600;margin-top:10px}
+.container{max-width:520px;margin:-40px auto 0;padding:0 16px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h2{font-size:0.95rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-body{padding:20px}
+.tracker{display:flex;flex-direction:column;gap:0;padding:8px 0}
+.tracker-step{display:flex;gap:16px;position:relative}
+.tracker-step:not(:last-child)::after{content:'';position:absolute;left:19px;top:40px;width:2px;height:calc(100% - 8px);background:var(--border);z-index:0}
+.tracker-step.done::after{background:var(--primary)}
+.tracker-step.active::after{background:linear-gradient(180deg,var(--primary) 50%,var(--border) 100%)}
+.step-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;position:relative;z-index:1;border:2px solid var(--border);background:#fff}
+.tracker-step.done .step-dot{background:var(--primary);border-color:var(--primary);color:#fff}
+.tracker-step.active .step-dot{background:#fff;border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 4px rgba(26,92,56,0.15);animation:pulse 2s infinite}
+.tracker-step.pending .step-dot{background:#f8fafc;border-color:var(--border);color:#cbd5e1}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(26,92,56,0.15)}50%{box-shadow:0 0 0 8px rgba(26,92,56,0.08)}}
+.step-info{padding:8px 0 24px}
+.step-name{font-weight:700;font-size:0.9rem}
+.tracker-step.done .step-name{color:var(--primary)}
+.tracker-step.active .step-name{color:var(--primary)}
+.tracker-step.pending .step-name{color:#cbd5e1}
+.step-desc{font-size:0.78rem;color:var(--text-light);margin-top:3px}
+.tracker-step.pending .step-desc{color:#e2e8f0}
+.step-time{font-size:0.72rem;color:var(--text-light);margin-top:4px;display:flex;align-items:center;gap:4px}
+.tracker-step.pending .step-time{display:none}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:0.78rem;font-weight:700}
+.status-placed{background:#dbeafe;color:#1d4ed8}
+.status-processing{background:#fef3c7;color:#92400e}
+.status-shipped{background:#e0f2fe;color:#0369a1}
+.status-delivered{background:#d1fae5;color:#065f46}
+.status-cancelled{background:#fee2e2;color:#991b1b}
+.live-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.order-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc}
+.order-item:last-child{border-bottom:none}
+.item-thumb{width:44px;height:44px;background:#f1f5f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;overflow:hidden}
+.item-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.item-name{font-size:0.85rem;font-weight:600;flex:1}
+.item-qty{font-size:0.75rem;color:var(--text-light)}
+.item-price{font-size:0.88rem;font-weight:700;color:var(--primary)}
+.info-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.info-icon{width:32px;height:32px;background:#f0faf4;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:0.85rem;flex-shrink:0}
+.info-label{font-size:0.72rem;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
+.info-value{font-size:0.87rem;font-weight:500;margin-top:2px}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:10px 18px;border-radius:9px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;gap:7px;text-decoration:none;transition:all 0.2s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light)}
+.btn-whatsapp{background:#25D366;color:#fff}
+.btn-whatsapp:hover{background:#128C7E}
+.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:#fee2e2;color:#991b1b;border:1.5px solid #fecaca}
+.search-order{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;display:none}
+.search-order.show{display:block}
+.search-row{display:flex;gap:10px}
+.search-row input{flex:1;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem}
+.search-row button{padding:10px 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.sum-row{display:flex;justify-content:space-between;font-size:0.85rem;padding:5px 0}
+.sum-row.total{font-weight:800;font-size:1rem;border-top:1px solid var(--border);padding-top:10px;margin-top:5px;color:var(--primary)}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--text-light);font-size:0.65rem;font-weight:600;padding:4px}
+.bnav-item.active{color:var(--primary)}
+.bnav-item i{font-size:1.1rem}
+.loading{text-align:center;padding:40px;color:var(--text-light)}
+.loading i{font-size:2rem;color:var(--primary);margin-bottom:12px;display:block}
+</style>
+<script src='js/branding.js'></script>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌿 Track Your Order</h1>
+  <p>Real-time order status updates</p>
+  <div class="order-id-badge" id="headerOrderId">Loading...</div>
+</div>
+
+<div class="container">
+  <div class="search-order" id="searchBox">
+    <div style="font-size:0.85rem;font-weight:600;margin-bottom:10px;color:var(--text-light)">Track a different order</div>
+    <div class="search-row">
+      <input type="text" id="searchOrderId" placeholder="Enter Order ID (e.g. ORD1234567890)">
+      <button onclick="searchOrder()">Track</button>
+    </div>
+  </div>
+  <div id="mainContent">
+    <div class="loading"><i class="fas fa-spinner fa-spin"></i><div>Loading your order...</div></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html" class="bnav-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="categories.html" class="bnav-item"><i class="fas fa-th-large"></i><span>Shop</span></a>
+  <a href="cart.html" class="bnav-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+  <a href="dashboard.html" class="bnav-item active"><i class="fas fa-user"></i><span>Account</span></a>
+</nav>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-init.js"></script>
+
+<script>
+const STORE_WHATSAPP = '917845744038';
+
+const STATUS_STEPS = [
+  { key:'placed',     icon:'🛍️', name:'Order Placed',     desc:'Your order has been received and confirmed.' },
+  { key:'processing', icon:'👨‍🍳', name:'Being Prepared',   desc:'Our team is carefully packing your items.' },
+  { key:'shipped',    icon:'🚚', name:'Out for Delivery',  desc:'Your order is on the way to your address.' },
+  { key:'delivered',  icon:'✅', name:'Delivered',         desc:'Order delivered successfully. Enjoy!' }
+];
+
+const STATUS_ORDER = ['placed','processing','shipped','delivered'];
+let currentOrder = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('orderId');
+  const uid = params.get('uid');
+
+  if (orderId && uid) {
+    loadOrder(orderId, uid);
+  } else {
+    document.getElementById('searchBox').classList.add('show');
+    document.getElementById('mainContent').innerHTML = `
+      <div class="loading">
+        <i class="fas fa-search" style="animation:none;color:#94a3b8"></i>
+        <div style="margin-top:8px">Enter your Order ID above to track</div>
+      </div>`;
+    document.getElementById('headerOrderId').textContent = 'Enter Order ID';
+  }
+});
+
+async function loadOrder(orderId, uid) {
+  try {
+    let doc = await db.collection('users').doc(uid).collection('orders').doc(orderId).get();
+    if (!doc.exists) doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { showNotFound(orderId); return; }
+
+    currentOrder = { id: doc.id, ...doc.data() };
+    document.getElementById('headerOrderId').textContent = '📦 ' + orderId;
+    renderOrder(currentOrder);
+
+    // Live listener
+    db.collection('orders').doc(orderId).onSnapshot(snap => {
+      if (snap.exists) { currentOrder = { id: snap.id, ...snap.data() }; renderOrder(currentOrder); }
+    });
+  } catch (err) { console.error(err); showNotFound(orderId); }
+}
+
+function renderOrder(order) {
+  const statusIdx = STATUS_ORDER.indexOf(order.status || 'placed');
+  const addr = order.address || {};
+  const items = order.items || [];
+  const payment = order.payment || {};
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-route" style="color:var(--primary)"></i> Order Status</h2>
+        <span class="status-badge status-${order.status || 'placed'}">
+          <span class="live-dot"></span>
+          ${(order.status || 'placed').charAt(0).toUpperCase() + (order.status || 'placed').slice(1)}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="tracker">
+          ${STATUS_STEPS.map((step, i) => {
+            const cls = i < statusIdx ? 'done' : i === statusIdx ? 'active' : 'pending';
+            const timeEntry = (order.statusHistory || []).find(h => h.status === step.key);
+            const timeStr = timeEntry ? new Date(timeEntry.timestamp).toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+            return `
+            <div class="tracker-step ${cls}">
+              <div class="step-dot">${i < statusIdx ? '<i class="fas fa-check"></i>' : step.icon}</div>
+              <div class="step-info">
+                <div class="step-name">${step.name}</div>
+                <div class="step-desc">${step.desc}</div>
+                ${timeStr ? `<div class="step-time"><i class="fas fa-clock"></i> ${timeStr}</div>` : ''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        ${order.status === 'delivered' ? `
+        <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;margin-top:8px">
+          <div style="font-size:1.5rem">🎉</div>
+          <div style="font-weight:700;color:#065f46;margin-top:4px">Delivered Successfully!</div>
+          <div style="font-size:0.8rem;color:#047857;margin-top:2px">Hope you enjoy your organic products!</div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-box-open" style="color:var(--accent)"></i> Items Ordered</h2>
+        <span style="font-size:0.78rem;color:var(--text-light)">${items.length} item${items.length>1?'s':''}</span>
+      </div>
+      <div class="card-body" style="padding:14px 20px">
+        ${items.map(item => `
+        <div class="order-item">
+          <div class="item-thumb">${item.imageUrl ? `<img src="${item.imageUrl}" onerror="this.parentElement.innerHTML='🌿'">` : '🌿'}</div>
+          <div style="flex:1"><div class="item-name">${item.name}</div><div class="item-qty">Qty: ${item.quantity}${item.unit ? ' · ' + item.unit : ''}</div></div>
+          <div class="item-price">₹${item.price * item.quantity}</div>
+        </div>`).join('')}
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+          <div class="sum-row"><span>Subtotal</span><span>₹${order.subtotal || 0}</span></div>
+          <div class="sum-row"><span>Delivery</span><span>${order.deliveryFee === 0 ? 'FREE' : '₹' + (order.deliveryFee||0)}</span></div>
+          ${order.discount ? `<div class="sum-row"><span style="color:#10b981">Discount</span><span style="color:#10b981">-₹${order.discount}</span></div>` : ''}
+          ${order.codFee ? `<div class="sum-row"><span>COD Fee</span><span>₹${order.codFee}</span></div>` : ''}
+          <div class="sum-row total"><span>Total Paid</span><span>₹${order.total || 0}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2><i class="fas fa-map-marker-alt" style="color:#ef4444"></i> Delivery Details</h2></div>
+      <div class="card-body">
+        <div class="info-row"><div class="info-icon"><i class="fas fa-user"></i></div><div><div class="info-label">Customer</div><div class="info-value">${addr.name || '—'}</div></div></div>
+        <div class="info-row"><div class="info-icon"><i class="fas fa-phone"></i></div><div><div class="info-label">Phone</div><div class="info-value">${addr.phone || '—'}</div></div></div>
+        <div class="info-row"><div class="info-icon"><i class="fas fa-home"></i></div><div><div class="info-label">Address</div><div class="info-value">${addr.line1 || ''}${addr.line2 ? ', ' + addr.line2 : ''}, ${addr.city || ''} - ${addr.pincode || ''}, ${addr.state || ''}</div></div></div>
+        <div class="info-row"><div class="info-icon"><i class="fas fa-credit-card"></i></div><div><div class="info-label">Payment</div><div class="info-value">${payment.method ? payment.method.toUpperCase() : 'Online'} — <span style="color:#10b981;font-weight:600">${payment.status === 'paid' ? '✅ Paid' : '⏳ Pending'}</span></div></div></div>
+        ${payment.razorpayPaymentId ? `<div class="info-row"><div class="info-icon"><i class="fas fa-receipt"></i></div><div><div class="info-label">Payment ID</div><div class="info-value" style="font-size:0.78rem;font-family:monospace">${payment.razorpayPaymentId}</div></div></div>` : ''}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2><i class="fas fa-headset" style="color:#25D366"></i> Need Help?</h2></div>
+      <div class="card-body">
+        <div class="action-row">
+          <a href="https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent('Hi Curfee! I need help with my order: ' + order.orderId)}" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Support</a>
+          <a href="tel:+917845744038" class="btn btn-outline"><i class="fas fa-phone"></i> Call Us</a>
+          ${order.status === 'placed' ? `<button class="btn btn-danger" onclick="cancelOrder('${order.orderId}')"><i class="fas fa-times"></i> Cancel Order</button>` : ''}
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-light);margin-top:12px"><i class="fas fa-info-circle"></i> Orders can only be cancelled before they are shipped.</div>
+      </div>
+    </div>
+
+    ${order.status === 'delivered' ? `
+    <div class="card" style="background:linear-gradient(135deg,#1a5c38,#40916c);border:none">
+      <div class="card-body" style="text-align:center;padding:24px">
+        <div style="font-size:2rem;margin-bottom:8px">🌿</div>
+        <div style="color:#fff;font-weight:700;font-size:1rem;margin-bottom:6px">Loved your order?</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.83rem;margin-bottom:16px">Order again and get 10% off with code REPEAT10</div>
+        <a href="products.html" class="btn btn-primary" style="background:#fff;color:var(--primary);display:inline-flex;margin:0 auto"><i class="fas fa-shopping-bag"></i> Shop Again</a>
+      </div>
+    </div>` : ''}
+  `;
+  document.getElementById('searchBox').classList.add('show');
+}
+
+function showNotFound(orderId) {
+  document.getElementById('headerOrderId').textContent = 'Order Not Found';
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card"><div class="card-body" style="text-align:center;padding:40px">
+      <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+      <h3 style="margin-bottom:8px">Order not found</h3>
+      <p style="color:var(--text-light);font-size:0.87rem;margin-bottom:20px">We couldn't find order <strong>${orderId}</strong>. Please check the order ID.</p>
+      <a href="dashboard.html" class="btn btn-primary" style="display:inline-flex;margin:0 auto"><i class="fas fa-list"></i> View All Orders</a>
+    </div></div>`;
+}
+
+function searchOrder() {
+  const id = document.getElementById('searchOrderId').value.trim();
+  if (!id) return;
+  const user = auth.currentUser;
+  const uid = user ? user.uid : 'guest';
+  window.location.href = `order-tracking.html?orderId=${id}&uid=${uid}`;
+}
+
+async function cancelOrder(orderId) {
+  if (!confirm('Cancel this order? This cannot be undone.')) return;
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    const timestamp = new Date().toISOString();
+    await db.collection('users').doc(user.uid).collection('orders').doc(orderId)
+      .update({ status:'cancelled', statusHistory: firebase.firestore.FieldValue.arrayUnion({status:'cancelled',timestamp}) });
+    await db.collection('orders').doc(orderId)
+      .update({ status:'cancelled', statusHistory: firebase.firestore.FieldValue.arrayUnion({status:'cancelled',timestamp}) });
+    alert('Order cancelled successfully.');
+    location.reload();
+  } catch(e) { alert('Could not cancel order. Please contact support.'); }
+}
+</script>
+</body>
+</html>
