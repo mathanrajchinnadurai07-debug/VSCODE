@@ -1,4 +1,4 @@
-/* Homepage Logic — loads 200+ products from products-data.js + products-data2.js */
+/* Homepage Logic — loads 50+ products from products-data.js + products-data2.js */
 document.addEventListener('DOMContentLoaded', () => { initHeroSlider(); loadHomeProducts(); initNewsletter(); });
 
 function initHeroSlider() {

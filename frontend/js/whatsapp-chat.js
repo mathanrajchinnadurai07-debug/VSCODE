@@ -13,7 +13,7 @@
     order_tracking: `📦 Track Your Order\n\nTo track your order:\n🔗 ${window.location.origin}/order-tracking.html\n\nOr share your Order ID and we'll check it for you!\n\nOrders placed before 2 PM ship same day.`,
     delivery: `🚚 Delivery Info\n\n✅ Free delivery above ₹499\n📦 Standard: 2-4 business days\n⚡ Express: Next day (select areas)\n\nBelow ₹499 → ₹49 fee\nAbove ₹499 → FREE\n\n📍 We deliver across India!`,
     returns: `↩️ Returns & Refunds\n\n✅ 7-day easy returns\n✅ Full refund for damaged items\n✅ Replacement for wrong items\n\n1. Share order ID\n2. Tell us the issue\n3. We'll arrange pickup\n4. Refund in 5-7 days`,
-    products: `🌿 Our Products\n\n16 categories including:\n• 🥬 Fresh Vegetables\n• 🍎 Organic Fruits\n• 🍗 Country Chicken & Mutton\n• 🍯 Honey & Spreads\n• 🌾 Flour & Grains\n• And 200+ more!\n\n🛒 Shop: ${window.location.origin}/products.html`,
+    products: `🌿 Our Products\n\n16 categories including:\n• 🥬 Fresh Vegetables\n• 🍎 Organic Fruits\n• 🍗 Country Chicken & Mutton\n• 🍯 Honey & Spreads\n• 🌾 Flour & Grains\n• And 50+ more!\n\n🛒 Shop: ${window.location.origin}/products.html`,
     payment: `💳 Payment Methods\n\n✅ Google Pay / UPI\n✅ PhonePe\n✅ Credit / Debit Cards\n✅ Net Banking\n✅ Cash on Delivery\n\n🔒 Secured by Razorpay (RBI approved)`,
     hours: `🕐 Store Hours\n\n⏰ ${STORE_HOURS}\n📅 Monday to Sunday\n\n${IS_OPEN ? '🟢 We are OPEN!' : '🔴 Currently CLOSED\nLeave a message!'}\n\nBot is 24/7! 🤖`,
     fallback: `Thanks for reaching out! 🌿\n\nOur team will reply within ${IS_OPEN ? '5 minutes' : 'a few hours'}.\n\n📦 Track: ${window.location.origin}/order-tracking.html\n🛒 Shop: ${window.location.origin}/products.html`
