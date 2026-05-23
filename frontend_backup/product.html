@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curfee — Upload Products to Firestore</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#0f2318;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card{background:#1a3c2e;border-radius:16px;padding:36px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08)}
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+  .logo span{font-size:2rem}
+  .logo h1{font-size:1.3rem;font-weight:700}
+  .logo p{font-size:0.75rem;color:rgba(255,255,255,0.45)}
+  .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px}
+  .stat{background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;text-align:center}
+  .stat-val{font-size:1.6rem;font-weight:800;color:#52b788}
+  .stat-lbl{font-size:0.7rem;color:rgba(255,255,255,0.45);margin-top:3px;text-transform:uppercase}
+  .progress-bar-bg{height:10px;background:rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;margin-bottom:8px}
+  .progress-bar{height:100%;background:linear-gradient(90deg,#40916c,#52b788);border-radius:20px;width:0%;transition:width 0.3s}
+  .progress-text{font-size:0.8rem;color:rgba(255,255,255,0.5);text-align:right;margin-bottom:16px}
+  .log-box{background:rgba(0,0,0,0.3);border-radius:10px;padding:14px;height:200px;overflow-y:auto;font-size:0.78rem;font-family:monospace;margin-bottom:20px}
+  .ok{color:#52b788}.skip{color:#f59e0b}.err{color:#ef4444}.info{color:rgba(255,255,255,0.5)}
+  .btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:10px}
+  .btn-up{background:#40916c;color:#fff}
+  .btn-up:hover:not(:disabled){background:#52b788;transform:translateY(-1px)}
+  .btn-up:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-del{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3)}
+  .done{text-align:center;padding:16px;display:none}
+  .done .icon{font-size:2.5rem}
+  .done p{color:#6ee7b7;font-weight:600;margin-top:8px}
+  .done small{color:rgba(255,255,255,0.4);font-size:0.78rem}
+  .warn{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#fcd34d;padding:12px;border-radius:8px;font-size:0.82rem;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><span>🌿</span><div><h1>Curfee Product Uploader</h1><p>One-click: upload all products to Firestore</p></div></div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-val" id="totalCount">122</div><div class="stat-lbl">Total</div></div>
+    <div class="stat"><div class="stat-val" id="doneCount">0</div><div class="stat-lbl">Uploaded</div></div>
+    <div class="stat"><div class="stat-val" id="skipCount" style="color:#f59e0b">0</div><div class="stat-lbl">Skipped</div></div>
+  </div>
+
+  <div class="warn">⚠️ First fix your <strong>firebase-config.js</strong> API key (full 39-char key from Firebase Console), then open this file in your browser.</div>
+
+  <div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div>
+  <div class="progress-text" id="ptext">Ready</div>
+
+  <div class="log-box" id="log"><span class="info">Click Upload to start...</span></div>
+
+  <div class="done" id="done"><div class="icon">🎉</div><p>All products uploaded to Firestore!</p><small>Search and cart on your website will now work.</small></div>
+
+  <button class="btn btn-up" id="upBtn" onclick="startUpload()">🚀 Upload All Products to Firestore</button>
+  <button class="btn btn-del" id="delBtn" onclick="clearAll()" disabled>🗑️ Delete All & Reset</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const PRODUCTS = [
+  {id:'b1',name:'Ragi Cookies',category:'biscuits',price:120,discountedPrice:99,rating:4.5,stock:200,isFeatured:true,description:'Crispy organic ragi cookies made with finger millet, jaggery & coconut oil. Zero refined sugar.'},
+  {id:'b2',name:'Millet Biscuits',category:'biscuits',price:110,discountedPrice:89,rating:4.4,stock:180,description:'Crunchy multigrain millet biscuits with zero maida.'},
+  {id:'b3',name:'Jaggery Cookies',category:'biscuits',price:130,discountedPrice:109,rating:4.6,stock:150,isFeatured:true,description:'Traditional jaggery cookies with whole wheat & cardamom.'},
+  {id:'b4',name:'Coconut Cookies',category:'biscuits',price:140,discountedPrice:119,rating:4.5,stock:120,description:'Organic coconut cookies with desiccated coconut & jaggery.'},
+  {id:'b5',name:'Oats Digestive Biscuits',category:'biscuits',price:95,discountedPrice:79,rating:4.3,stock:220,description:'High-fiber oats digestive biscuits for healthy snacking.'},
+  {id:'b6',name:'Almond Biscotti',category:'biscuits',price:250,discountedPrice:219,rating:4.7,stock:80,description:'Italian-style almond biscotti with organic almonds.'},
+  {id:'b7',name:'Choco Millet Cookies',category:'biscuits',price:160,discountedPrice:135,rating:4.6,stock:100,isFeatured:true,description:'Dark chocolate millet cookies with organic cocoa.'},
+  {id:'b8',name:'Bajra Biscuits',category:'biscuits',price:105,discountedPrice:85,rating:4.3,stock:170,description:'Pearl millet bajra biscuits with natural sweetness.'},
+  {id:'b9',name:'Cashew Butter Cookies',category:'biscuits',price:280,discountedPrice:239,rating:4.8,stock:60,description:'Premium cashew butter cookies with organic cashews.'},
+  {id:'b10',name:'Whole Wheat Rusks',category:'biscuits',price:85,discountedPrice:69,rating:4.2,stock:300,description:'Crunchy whole wheat rusks with zero preservatives.'},
+  {id:'b11',name:'Jowar Cookies',category:'biscuits',price:115,discountedPrice:95,rating:4.4,stock:140,description:'Sorghum jowar cookies with organic jaggery.'},
+  {id:'b12',name:'Peanut Butter Cookies',category:'biscuits',price:150,discountedPrice:129,rating:4.5,stock:110,description:'Protein-rich peanut butter cookies with organic peanuts.'},
+  {id:'b13',name:'Flax Seed Crackers',category:'biscuits',price:175,discountedPrice:149,rating:4.6,stock:90,description:'Omega-3 rich flax seed crackers with herbs.'},
+  {id:'b14',name:'Multigrain Health Cookies',category:'biscuits',price:135,discountedPrice:115,rating:4.5,stock:160,description:'7-grain health cookies with seeds and nuts.'},
+  {id:'b15',name:'Date & Walnut Biscuits',category:'biscuits',price:195,discountedPrice:169,rating:4.7,stock:75,description:'Natural date-sweetened biscuits with walnut pieces.'},
+  {id:'s1',name:'Kerala Banana Chips',category:'snacks',price:99,discountedPrice:79,rating:4.5,stock:300,isFeatured:true,description:'Crispy Kerala banana chips fried in coconut oil.'},
+  {id:'s2',name:'Millet Chips (Salted)',category:'snacks',price:85,discountedPrice:69,rating:4.3,stock:250,description:'Crunchy millet chips with Himalayan pink salt.'},
+  {id:'s3',name:'Quinoa Puffs',category:'snacks',price:120,discountedPrice:99,rating:4.4,stock:140,isFeatured:true,description:'Light & crispy quinoa puffs with herbs & spices.'},
+  {id:'s4',name:'Multigrain Chips',category:'snacks',price:75,discountedPrice:59,rating:4.2,stock:280,description:'Baked multigrain chips with zero trans fat.'},
+  {id:'s5',name:'Roasted Peanuts (Salted)',category:'snacks',price:95,discountedPrice:75,rating:4.3,stock:350,description:'Dry roasted peanuts with pink salt.'},
+  {id:'s6',name:'Jackfruit Chips',category:'snacks',price:110,discountedPrice:89,rating:4.5,stock:120,description:'Crispy jackfruit chips from Kerala.'},
+  {id:'s7',name:'Ragi Chips (Spicy)',category:'snacks',price:80,discountedPrice:65,rating:4.2,stock:200,description:'Spiced ragi finger millet chips.'},
+  {id:'s8',name:'Premium Trail Mix',category:'snacks',price:399,discountedPrice:349,rating:4.8,stock:80,isFeatured:true,description:'Premium mix of almonds, cashews, cranberries, seeds.'},
+  {id:'s9',name:'Sweet Potato Chips',category:'snacks',price:95,discountedPrice:79,rating:4.4,stock:150,description:'Thinly sliced sweet potato chips with sea salt.'},
+  {id:'s10',name:'Roasted Makhana',category:'snacks',price:150,discountedPrice:125,rating:4.6,stock:180,isFeatured:true,description:'Roasted fox nuts with pepper & turmeric.'},
+  {id:'s11',name:'Tapioca Chips',category:'snacks',price:70,discountedPrice:55,rating:4.1,stock:220,description:'Crispy tapioca cassava chips from Kerala.'},
+  {id:'s12',name:'Brown Rice Crackers',category:'snacks',price:130,discountedPrice:109,rating:4.4,stock:100,description:'Gluten-free brown rice crackers with sesame.'},
+  {id:'s13',name:'Organic Protein Bars',category:'snacks',price:60,discountedPrice:49,rating:4.3,stock:400,description:'Plant-based protein bar with dates & nuts.'},
+  {id:'s14',name:'Organic Corn Puffs',category:'snacks',price:55,discountedPrice:45,rating:4.1,stock:300,description:'Non-GMO corn puffs with natural flavoring.'},
+  {id:'s15',name:'5-Seed Snack Mix',category:'snacks',price:199,discountedPrice:169,rating:4.6,stock:110,description:'Pumpkin, sunflower, flax, chia & sesame seeds mix.'},
+  {id:'m1',name:'Dried Shiitake Mushrooms',category:'mushroom',price:350,discountedPrice:299,rating:4.7,stock:60,isFeatured:true,description:'Premium dried shiitake mushrooms from organic farms.'},
+  {id:'m2',name:'Mushroom Powder Mix',category:'mushroom',price:280,discountedPrice:239,rating:4.5,stock:90,isFeatured:true,description:'5-mushroom immunity powder blend.'},
+  {id:'m3',name:'Mushroom Soup Mix',category:'mushroom',price:120,discountedPrice:99,rating:4.4,stock:150,description:'Instant organic mushroom soup mix with herbs.'},
+  {id:'m4',name:'Mushroom Pickle',category:'mushroom',price:180,discountedPrice:149,rating:4.3,stock:80,description:'Spicy organic mushroom pickle in mustard oil.'},
+  {id:'m5',name:'Dried Oyster Mushrooms',category:'mushroom',price:250,discountedPrice:215,rating:4.6,stock:70,description:'Farm-fresh dried oyster mushrooms.'},
+  {id:'m6',name:'Mushroom Masala Powder',category:'mushroom',price:95,discountedPrice:79,rating:4.2,stock:120,description:'Ready-to-use mushroom curry masala blend.'},
+  {id:'m7',name:"Lion's Mane Powder",category:'mushroom',price:450,discountedPrice:399,rating:4.8,stock:40,description:"Organic lion's mane mushroom powder for brain health."},
+  {id:'m8',name:'Reishi Mushroom Extract',category:'mushroom',price:520,discountedPrice:449,rating:4.7,stock:35,description:'Premium reishi adaptogen extract for immunity.'},
+  {id:'m9',name:'Mushroom Chips (Crispy)',category:'mushroom',price:140,discountedPrice:119,rating:4.4,stock:110,description:'Crispy vacuum-fried mushroom chips.'},
+  {id:'m10',name:'Mushroom Jerky',category:'mushroom',price:160,discountedPrice:135,rating:4.3,stock:90,description:'Smoky mushroom jerky — plant-based protein snack.'},
+  {id:'m11',name:'Cordyceps Powder',category:'mushroom',price:680,discountedPrice:599,rating:4.9,stock:25,description:'Premium organic cordyceps powder for energy.'},
+  {id:'m12',name:'Mushroom Coffee Blend',category:'mushroom',price:320,discountedPrice:279,rating:4.5,stock:70,description:"Arabica coffee blended with chaga & lion's mane."},
+  {id:'c1',name:'Organic Chicken Breast',category:'chicken',price:380,discountedPrice:329,rating:4.6,stock:50,isFeatured:true,description:'Antibiotic-free organic chicken breast, vacuum sealed.'},
+  {id:'c2',name:'Chicken Mince (Keema)',category:'chicken',price:320,discountedPrice:279,rating:4.5,stock:60,description:'Fresh organic chicken mince for kebabs & curries.'},
+  {id:'c3',name:'Chicken Sausages',category:'chicken',price:280,discountedPrice:239,rating:4.4,stock:80,isFeatured:true,description:'Organic chicken sausages with herbs — no preservatives.'},
+  {id:'c4',name:'Chicken Nuggets',category:'chicken',price:260,discountedPrice:219,rating:4.3,stock:70,description:'Crunchy organic chicken nuggets — oven ready.'},
+  {id:'c5',name:'Chicken Seekh Kebab',category:'chicken',price:340,discountedPrice:289,rating:4.6,stock:45,description:'Charcoal-style chicken seekh kebabs, ready to cook.'},
+  {id:'c6',name:'Chicken Drumsticks',category:'chicken',price:350,discountedPrice:299,rating:4.5,stock:55,description:'Farm-fresh organic chicken drumsticks.'},
+  {id:'c7',name:'Chicken Curry Cut',category:'chicken',price:300,discountedPrice:259,rating:4.5,stock:65,description:'Pre-cut organic chicken for curry — skin removed.'},
+  {id:'c8',name:'Chicken Wings',category:'chicken',price:290,discountedPrice:249,rating:4.4,stock:50,description:'Organic chicken wings — perfect for grilling.'},
+  {id:'c9',name:'Chicken Salami',category:'chicken',price:220,discountedPrice:189,rating:4.3,stock:90,description:'Organic chicken salami slices — no nitrates.'},
+  {id:'c10',name:'Chicken Tikka (Marinated)',category:'chicken',price:360,discountedPrice:309,rating:4.7,stock:40,description:'Pre-marinated organic chicken tikka — grill ready.'},
+  {id:'c11',name:'Chicken Burger Patty',category:'chicken',price:240,discountedPrice:199,rating:4.4,stock:70,description:'Juicy organic chicken burger patties.'},
+  {id:'c12',name:'Chicken Liver (Fresh)',category:'chicken',price:180,discountedPrice:149,rating:4.2,stock:40,description:'Iron-rich organic chicken liver, cleaned & packed.'},
+  {id:'mt1',name:'Mutton Curry Cut',category:'mutton',price:650,discountedPrice:569,rating:4.6,stock:40,isFeatured:true,description:'Premium organic goat meat curry cut with bone.'},
+  {id:'mt2',name:'Mutton Mince (Keema)',category:'mutton',price:580,discountedPrice:499,rating:4.5,stock:35,isFeatured:true,description:'Fresh organic goat mince for kebabs & parathas.'},
+  {id:'mt3',name:'Mutton Seekh Kebab',category:'mutton',price:520,discountedPrice:449,rating:4.7,stock:30,description:'Hand-made organic mutton seekh kebabs.'},
+  {id:'mt4',name:'Mutton Chops',category:'mutton',price:720,discountedPrice:629,rating:4.6,stock:25,description:'Premium organic mutton chops — bone-in.'},
+  {id:'mt5',name:'Mutton Liver',category:'mutton',price:350,discountedPrice:299,rating:4.3,stock:30,description:'Organic goat liver — iron & protein rich.'},
+  {id:'mt6',name:'Mutton Boneless',category:'mutton',price:850,discountedPrice:749,rating:4.7,stock:20,description:'Premium boneless organic goat meat.'},
+  {id:'mt7',name:'Lamb Leg Piece',category:'mutton',price:780,discountedPrice:679,rating:4.6,stock:15,description:'Whole organic lamb leg piece for roasting.'},
+  {id:'mt8',name:'Mutton Ribs',category:'mutton',price:690,discountedPrice:599,rating:4.5,stock:20,description:'Organic goat ribs — great for slow cooking.'},
+  {id:'mt9',name:'Mutton Biryani Cut',category:'mutton',price:680,discountedPrice:589,rating:4.7,stock:30,description:'Special biryani cut organic mutton with bone.'},
+  {id:'mt10',name:'Mutton Keema Samosa',category:'mutton',price:320,discountedPrice:275,rating:4.4,stock:50,description:'Ready-to-fry organic mutton keema samosas.'},
+  {id:'g1',name:'Pure Honey (NMR Tested)',category:'grocery',price:499,discountedPrice:399,rating:4.5,stock:150,isFeatured:true,description:'100% pure, NMR tested organic honey.'},
+  {id:'g2',name:'Sunflower Oil',category:'grocery',price:172,discountedPrice:159,rating:4.4,stock:200,description:'Cold-pressed organic sunflower oil.'},
+  {id:'g3',name:'Iodised Salt',category:'grocery',price:27,discountedPrice:24,rating:4.5,stock:500,description:'Premium iodised rock salt.'},
+  {id:'g4',name:'Chana Dal',category:'grocery',price:109,discountedPrice:89,rating:4.4,stock:180,isFeatured:true,description:'Organic chana dal — pesticide free.'},
+  {id:'g5',name:'Oats (Honey Flavour)',category:'grocery',price:150,discountedPrice:109,rating:4.4,stock:120,description:'Organic oats with natural honey flavour.'},
+  {id:'g6',name:'Green Moong Dal',category:'grocery',price:87,discountedPrice:75,rating:4.5,stock:200,description:'Whole organic green moong dal.'},
+  {id:'g7',name:'Toor Dal',category:'grocery',price:355,discountedPrice:299,rating:4.5,stock:160,isFeatured:true,description:'Unpolished organic toor dal.'},
+  {id:'g8',name:'Turmeric Powder',category:'grocery',price:85,discountedPrice:72,rating:4.6,stock:300,description:'High curcumin organic turmeric powder.'},
+  {id:'g9',name:'Red Chilli Powder',category:'grocery',price:95,discountedPrice:79,rating:4.5,stock:250,description:'Premium Guntur red chilli powder.'},
+  {id:'g10',name:'Basmati Rice (Long Grain)',category:'grocery',price:499,discountedPrice:429,rating:4.7,stock:100,isFeatured:true,description:'Aged long-grain organic basmati rice.'},
+  {id:'g11',name:'Mustard Oil',category:'grocery',price:210,discountedPrice:179,rating:4.3,stock:140,description:'Cold-pressed organic mustard oil.'},
+  {id:'g12',name:'Jaggery Powder',category:'grocery',price:145,discountedPrice:119,rating:4.6,stock:180,description:'Organic sugarcane jaggery powder.'},
+  {id:'g13',name:'Coriander Powder',category:'grocery',price:65,discountedPrice:55,rating:4.4,stock:280,description:'Freshly ground organic coriander powder.'},
+  {id:'g14',name:'Cumin Seeds (Jeera)',category:'grocery',price:120,discountedPrice:99,rating:4.5,stock:220,description:'Premium Rajasthan organic cumin seeds.'},
+  {id:'g15',name:'Black Pepper (Whole)',category:'grocery',price:180,discountedPrice:149,rating:4.6,stock:160,description:'Organic Malabar black pepper.'},
+  {id:'g16',name:'Garam Masala',category:'grocery',price:110,discountedPrice:89,rating:4.5,stock:200,description:'Hand-ground organic garam masala.'},
+  {id:'g17',name:'Coconut Oil (Virgin)',category:'grocery',price:350,discountedPrice:299,rating:4.7,stock:120,isFeatured:true,description:'Cold-pressed virgin coconut oil.'},
+  {id:'g18',name:'Organic Sugar',category:'grocery',price:75,discountedPrice:65,rating:4.2,stock:400,description:'Unrefined organic cane sugar.'},
+  {id:'g19',name:'Pink Himalayan Salt',category:'grocery',price:95,discountedPrice:79,rating:4.5,stock:250,description:'100% natural Himalayan pink rock salt.'},
+  {id:'g20',name:'Sesame Oil (Gingelly)',category:'grocery',price:280,discountedPrice:239,rating:4.6,stock:100,description:'Cold-pressed organic sesame gingelly oil.'},
+  {id:'h1',name:'Neem Soap',category:'herbal',price:150,discountedPrice:125,rating:4.6,stock:200,isFeatured:true,description:'Cold-process neem soap — antibacterial.'},
+  {id:'h2',name:'Coconut Hair Oil',category:'herbal',price:220,discountedPrice:189,rating:4.7,stock:120,isFeatured:true,description:'Pure coconut oil for hair with curry leaves.'},
+  {id:'h3',name:'Organic Lip Balm',category:'herbal',price:199,discountedPrice:169,rating:4.5,stock:150,description:'Beeswax lip balm with shea butter.'},
+  {id:'h4',name:'Bhringraj Hair Oil',category:'herbal',price:320,discountedPrice:269,rating:4.7,stock:90,isFeatured:true,description:'Ayurvedic bhringraj oil for hair growth.'},
+  {id:'h5',name:'Multani Mitti Face Pack',category:'herbal',price:180,discountedPrice:149,rating:4.5,stock:100,description:'Natural multani mitti with rose powder.'},
+  {id:'h6',name:'Amla Hair Pack',category:'herbal',price:160,discountedPrice:135,rating:4.4,stock:110,description:'Amla & henna hair conditioning pack.'},
+  {id:'h7',name:'Turmeric Soap',category:'herbal',price:130,discountedPrice:109,rating:4.4,stock:180,description:'Turmeric & sandalwood face soap.'},
+  {id:'h8',name:'Aloe Vera Gel',category:'herbal',price:250,discountedPrice:215,rating:4.6,stock:130,description:'99% pure organic aloe vera gel.'},
+  {id:'h9',name:'Neem Herbal Shampoo',category:'herbal',price:280,discountedPrice:239,rating:4.5,stock:100,description:'Sulfate-free neem shampoo with hibiscus.'},
+  {id:'h10',name:'Rose Water Toner',category:'herbal',price:150,discountedPrice:125,rating:4.5,stock:200,description:'Steam-distilled organic rose water.'},
+  {id:'h11',name:'Shea Body Lotion',category:'herbal',price:320,discountedPrice:279,rating:4.6,stock:80,description:'Organic shea butter body lotion.'},
+  {id:'h12',name:'Herbal Tooth Powder',category:'herbal',price:95,discountedPrice:79,rating:4.3,stock:220,description:'Neem, clove & charcoal tooth powder.'},
+  {id:'h13',name:'Organic Hand Cream',category:'herbal',price:180,discountedPrice:149,rating:4.4,stock:120,description:'Moisturizing hand cream with kokum butter.'},
+  {id:'h14',name:'Organic Kajal',category:'herbal',price:120,discountedPrice:99,rating:4.5,stock:180,description:'Chemical-free organic kajal with castor oil.'},
+  {id:'h15',name:'Himalayan Bath Salt',category:'herbal',price:210,discountedPrice:179,rating:4.4,stock:90,description:'Relaxing Himalayan bath salt with essential oils.'},
+  {id:'v1',name:'Organic Tomato',category:'vegetables',price:60,discountedPrice:49,rating:4.5,stock:200,isFeatured:true,description:'Farm-fresh organic tomatoes — pesticide free.'},
+  {id:'v2',name:'Organic Carrot',category:'vegetables',price:55,discountedPrice:45,rating:4.6,stock:150,isFeatured:true,description:'Crunchy organic carrots rich in beta-carotene.'},
+  {id:'v3',name:'Organic Spinach',category:'vegetables',price:35,discountedPrice:28,rating:4.4,stock:120,isFeatured:true,description:'Fresh organic spinach leaves — iron rich.'},
+  {id:'v4',name:'Organic Broccoli',category:'vegetables',price:85,discountedPrice:72,rating:4.7,stock:80,description:'Fresh organic broccoli florets.'},
+  {id:'v5',name:'Organic Onion',category:'vegetables',price:40,discountedPrice:32,rating:4.3,stock:300,description:'Premium organic onions — no chemicals.'},
+  {id:'v6',name:'Organic Potato',category:'vegetables',price:45,discountedPrice:38,rating:4.4,stock:350,description:'Fresh organic potatoes — from hill farms.'},
+  {id:'v7',name:'Organic Capsicum',category:'vegetables',price:70,discountedPrice:59,rating:4.5,stock:100,description:'Colorful organic bell peppers — rich in vitamin C.'},
+  {id:'v8',name:'Organic Cucumber',category:'vegetables',price:30,discountedPrice:25,rating:4.3,stock:200,description:'Crisp organic cucumbers — perfect for salads.'},
+  {id:'v9',name:'Organic Cauliflower',category:'vegetables',price:50,discountedPrice:42,rating:4.4,stock:120,description:'Fresh organic cauliflower heads.'},
+  {id:'v10',name:'Organic French Beans',category:'vegetables',price:65,discountedPrice:55,rating:4.5,stock:100,description:'Tender organic French beans.'},
+  {id:'v11',name:'Organic Lady Finger (Okra)',category:'vegetables',price:45,discountedPrice:38,rating:4.3,stock:150,description:'Fresh organic okra — tender & young.'},
+  {id:'v12',name:'Organic Beetroot',category:'vegetables',price:50,discountedPrice:42,rating:4.4,stock:120,description:'Deep red organic beetroot — iron rich.'},
+  {id:'v13',name:'Organic Green Peas',category:'vegetables',price:75,discountedPrice:62,rating:4.6,stock:80,description:'Sweet organic green peas — farm fresh.'},
+  {id:'v14',name:'Organic Bitter Gourd (Karela)',category:'vegetables',price:55,discountedPrice:45,rating:4.2,stock:90,description:'Fresh organic karela — great for diabetics.'},
+  {id:'v15',name:'Organic Drumstick (Moringa)',category:'vegetables',price:40,discountedPrice:32,rating:4.5,stock:110,description:'Fresh organic moringa drumsticks.'},
+  {id:'fr1',name:'Organic Banana',category:'fruits',price:50,discountedPrice:42,rating:4.5,stock:300,isFeatured:true,description:'Organic ripe bananas — naturally sweet.'},
+  {id:'fr2',name:'Organic Mango (Alphonso)',category:'fruits',price:350,discountedPrice:299,rating:4.8,stock:60,isFeatured:true,description:'Premium organic Alphonso mangoes from Ratnagiri.'},
+  {id:'fr3',name:'Organic Apple (Shimla)',category:'fruits',price:180,discountedPrice:155,rating:4.6,stock:100,isFeatured:true,description:'Crisp organic Shimla apples.'},
+  {id:'fr4',name:'Organic Strawberry',category:'fruits',price:120,discountedPrice:99,rating:4.7,stock:50,isFeatured:true,description:'Sweet organic strawberries from Mahabaleshwar.'},
+  {id:'fr5',name:'Organic Papaya',category:'fruits',price:60,discountedPrice:49,rating:4.4,stock:120,description:'Ripe organic papaya — rich in enzymes.'},
+  {id:'fr6',name:'Organic Pomegranate',category:'fruits',price:150,discountedPrice:129,rating:4.6,stock:80,description:'Ruby red organic pomegranates — antioxidant rich.'},
+  {id:'fr7',name:'Organic Grapes (Green)',category:'fruits',price:90,discountedPrice:75,rating:4.5,stock:90,description:'Seedless organic green grapes — Nashik farms.'},
+  {id:'fr8',name:'Organic Watermelon',category:'fruits',price:80,discountedPrice:65,rating:4.3,stock:60,description:'Juicy organic watermelon — perfect summer fruit.'},
+  {id:'fr9',name:'Organic Guava',category:'fruits',price:55,discountedPrice:45,rating:4.4,stock:130,description:'Organic pink guava — vitamin C rich.'},
+  {id:'fr10',name:'Organic Orange (Nagpur)',category:'fruits',price:70,discountedPrice:59,rating:4.5,stock:110,description:'Juicy organic Nagpur oranges.'},
+  {id:'fr11',name:'Organic Kiwi',category:'fruits',price:120,discountedPrice:99,rating:4.6,stock:50,description:'Premium organic kiwi fruit — immune booster.'},
+  {id:'fr12',name:'Organic Coconut (Fresh)',category:'fruits',price:45,discountedPrice:38,rating:4.4,stock:200,description:'Fresh organic coconuts — straight from the farm.'},
+];
+
+document.getElementById('totalCount').textContent = PRODUCTS.length;
+let uploaded=0, skipped=0;
+
+function addLog(msg,type){
+  const d=document.createElement('div');
+  d.className=type; d.textContent=msg;
+  const box=document.getElementById('log');
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+
+function setProgress(done,total){
+  const pct=Math.round(done/total*100);
+  document.getElementById('bar').style.width=pct+'%';
+  document.getElementById('ptext').textContent=done+' / '+total+' ('+pct+'%)';
+  document.getElementById('doneCount').textContent=uploaded;
+  document.getElementById('skipCount').textContent=skipped;
+}
+
+async function startUpload(){
+  const btn=document.getElementById('upBtn');
+  btn.disabled=true; btn.textContent='⏳ Uploading...';
+  document.getElementById('log').innerHTML='';
+  uploaded=0; skipped=0;
+  addLog('Starting upload of '+PRODUCTS.length+' products...','info');
+
+  for(let i=0;i<PRODUCTS.length;i++){
+    const p=PRODUCTS[i];
+    try{
+      const ref=db.collection('products').doc(p.id);
+      const ex=await ref.get();
+      if(ex.exists){
+        addLog('SKIP ['+p.id+'] '+p.name,'skip');
+        skipped++;
+      } else {
+        await ref.set({
+          name:p.name, category:p.category,
+          price:p.price, discountedPrice:p.discountedPrice,
+          rating:p.rating, stock:p.stock,
+          isFeatured:p.isFeatured||false,
+          description:p.description||'',
+          imageUrl:'', images:[],
+          createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        addLog('OK ['+p.id+'] '+p.name,'ok');
+        uploaded++;
+      }
+    } catch(e){
+      addLog('ERROR ['+p.id+'] '+p.name+': '+e.message,'err');
+    }
+    setProgress(i+1,PRODUCTS.length);
+    await new Promise(r=>setTimeout(r,40));
+  }
+
+  addLog('Done! Uploaded:'+uploaded+' Skipped:'+skipped,'ok');
+  document.getElementById('done').style.display='block';
+  document.getElementById('delBtn').disabled=false;
+  btn.textContent='✅ Done!';
+}
+
+async function clearAll(){
+  if(!confirm('Delete ALL products from Firestore?')) return;
+  const btn=document.getElementById('delBtn');
+  btn.disabled=true; btn.textContent='Deleting...';
+  document.getElementById('log').innerHTML='';
+  addLog('Deleting all products...','info');
+  const snap=await db.collection('products').get();
+  const batch=db.batch();
+  snap.docs.forEach(d=>batch.delete(d.ref));
+  await batch.commit();
+  addLog('Deleted '+snap.size+' products.','ok');
+  uploaded=0; skipped=0;
+  document.getElementById('doneCount').textContent=0;
+  document.getElementById('skipCount').textContent=0;
+  document.getElementById('bar').style.width='0%';
+  document.getElementById('ptext').textContent='Cleared';
+  document.getElementById('upBtn').disabled=false;
+  document.getElementById('upBtn').textContent='🚀 Upload All Products to Firestore';
+  btn.textContent='🗑️ Delete All & Reset';
+}
+</script>
+</body>
+</html>

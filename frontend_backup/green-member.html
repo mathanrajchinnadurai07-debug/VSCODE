@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Green Member — <span data-brand='full-name'>Curfee Organic Market</span></title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/flipkart-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { margin:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f5f5f5; color:#1a1a1a; }
+    .gm-header { position:sticky; top:0; z-index:100; background:#fff; padding:14px 16px; display:flex; align-items:center; gap:14px; border-bottom:1px solid #eee; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+    .gm-header button { background:none; border:none; font-size:1.2rem; color:#333; cursor:pointer; padding:4px; }
+    .gm-header h1 { font-size:1.15rem; font-weight:700; margin:0; }
+
+    .gm-greeting { padding:24px 20px 16px; }
+    .gm-greeting h2 { font-size:1.5rem; font-weight:300; margin:0; }
+    .gm-greeting h2 strong { font-weight:700; }
+
+    .gm-progress-card { background:#fff; border-radius:16px; margin:0 16px 20px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+    .gm-progress-text { font-size:0.88rem; color:#555; margin-bottom:18px; }
+    .gm-progress-bar { position:relative; height:6px; background:#e8e8e8; border-radius:3px; margin-bottom:10px; }
+    .gm-progress-fill { height:100%; background:linear-gradient(90deg,#2d6a4f,#52b788); border-radius:3px; transition:width 0.8s ease; }
+    .gm-progress-dot { position:absolute; top:50%; border-radius:50%; border:3px solid #fff; transform:translate(-50%,-50%); box-shadow:0 0 6px rgba(0,0,0,0.15); }
+    .gm-progress-labels { display:flex; justify-content:space-between; font-size:0.72rem; color:#999; }
+    .gm-progress-labels div strong { display:block; color:#1a1a1a; }
+    .gm-progress-labels .leaf { color:#2d6a4f; font-weight:700; }
+    .gm-progress-labels .leaf span { font-weight:400; color:#999; }
+    .gm-progress-labels .tree { color:#c9a227; font-weight:700; text-align:right; }
+    .gm-progress-labels .tree span { font-weight:400; color:#999; }
+
+    .gm-tier { padding:20px 16px 8px; }
+    .gm-tier-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+    .gm-tier-head .emoji { font-size:1.4rem; }
+    .gm-tier-head h3 { margin:0; font-size:1.1rem; font-weight:400; }
+    .gm-tier-head h3 strong { font-weight:800; }
+    .gm-tier-sub { font-size:0.78rem; color:#999; margin:0 0 14px 40px; }
+    .gm-tier.current .gm-tier-sub { color:#2d6a4f; font-weight:600; }
+
+    .gm-benefits { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .gm-card { border-radius:16px; padding:18px; position:relative; overflow:hidden; }
+    .gm-card .big { font-size:2.2rem; font-weight:900; line-height:1; }
+    .gm-card .label { font-size:0.88rem; font-weight:700; margin-top:2px; line-height:1.3; }
+    .gm-card .desc { font-size:0.72rem; color:#555; margin-top:6px; line-height:1.4; }
+    .gm-card .arrow { margin-top:10px; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .gm-card .arrow i { color:#fff; font-size:0.75rem; }
+    .gm-card .bolt-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+
+    .gm-footer-space { height:80px; }
+  </style>
+<script src='js/branding.js'></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="gm-header">
+    <button onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+    <h1>Green Member</h1>
+  </div>
+
+  <!-- Greeting -->
+  <div class="gm-greeting">
+    <h2>Hello, <strong id="gmUserName">User</strong></h2>
+  </div>
+
+  <!-- Progress Card -->
+  <div class="gm-progress-card">
+    <div class="gm-progress-text">
+      <strong>Green Leaf</strong> benefits are <strong style="color:#2d6a4f;" id="gmOrdersAway">2 orders</strong> away
+    </div>
+    <div class="gm-progress-bar">
+      <div class="gm-progress-fill" id="gmProgressFill" style="width:40%;"></div>
+      <div class="gm-progress-dot" id="gmCurrentDot" style="left:40%; width:16px; height:16px; background:#52b788;"></div>
+      <div class="gm-progress-dot" style="left:50%; width:12px; height:12px; background:#ccc;"></div>
+      <div class="gm-progress-dot" style="left:100%; width:12px; height:12px; background:linear-gradient(135deg,#c9a227,#e6c84d);"></div>
+    </div>
+    <div class="gm-progress-labels">
+      <div>You completed<br><strong id="gmCompletedOrders">8 orders</strong></div>
+      <div class="leaf">Green Leaf<br><span>10 orders</span></div>
+      <div class="tree">Green Tree<br><span>20 orders</span></div>
+    </div>
+  </div>
+
+  <!-- 🌱 Green Seed (Current Tier) -->
+  <div class="gm-tier current">
+    <div class="gm-tier-head"><span class="emoji">🌱</span><h3><strong>Green Seed</strong> Benefits</h3></div>
+    <p class="gm-tier-sub">✓ Your current tier</p>
+    <div class="gm-benefits">
+      <div class="gm-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);">
+        <div class="big" style="color:#2d6a4f;">5%</div>
+        <div class="label" style="color:#2d6a4f;">Instant<br>discount</div>
+        <div class="desc">on all organic<br>products</div>
+        <div class="arrow" style="background:#2d6a4f;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#f1f8e9,#dcedc8);">
+        <div class="label" style="color:#33691e;font-size:1rem;">Free<br>Delivery</div>
+        <div class="desc">On orders<br>above ₹299</div>
+        <div class="arrow" style="background:#558b2f;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);">
+        <div class="big" style="color:#f57f17;">1%</div>
+        <div class="label" style="color:#f57f17;">GreenCoins<br>cashback</div>
+        <div class="desc">up to <span style="color:#f57f17;font-weight:700;">🪙25</span></div>
+        <div class="arrow" style="background:#f57f17;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);">
+        <div class="bolt-icon" style="background:linear-gradient(135deg,#e53935,#ef5350);"><i class="fas fa-bolt" style="color:#fff;font-size:1rem;"></i></div>
+        <div class="label" style="color:#c62828;">Priority<br>Support</div>
+        <div class="desc">24/7 chat help</div>
+        <div class="arrow" style="background:#c62828;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <span data-brand='logo-emoji'>🌿</span> Green Leaf -->
+  <div class="gm-tier">
+    <div class="gm-tier-head"><span class="emoji"><span data-brand='logo-emoji'>🌿</span></span><h3><strong>Green Leaf</strong> Benefits</h3></div>
+    <p class="gm-tier-sub">with 10 orders in 12 months</p>
+    <div class="gm-benefits">
+      <div class="gm-card" style="background:linear-gradient(135deg,#e0f2f1,#b2dfdb);">
+        <div class="big" style="color:#00695c;">12%</div>
+        <div class="label" style="color:#00695c;">Instant<br>discount</div>
+        <div class="desc">during sale<br>early access</div>
+        <div class="arrow" style="background:#00695c;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);">
+        <div class="label" style="color:#c62828;font-size:1rem;line-height:1.2;">24 Hrs<br>Early<br>Access</div>
+        <div class="desc">During sale</div>
+        <div class="arrow" style="background:#c62828;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);">
+        <div class="big" style="color:#f57f17;">1%</div>
+        <div class="label" style="color:#f57f17;">GreenCoins<br>cashback</div>
+        <div class="desc">up to <span style="color:#f57f17;font-weight:700;">🪙25</span></div>
+        <div class="arrow" style="background:#f57f17;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9);">
+        <div class="bolt-icon" style="background:linear-gradient(135deg,#3949ab,#5c6bc0);"><i class="fas fa-bolt" style="color:#fff;font-size:1rem;"></i></div>
+        <div class="label" style="color:#283593;">Extra 5%<br>off with<br>GreenCoins*</div>
+        <div class="desc">up to 🪙100<br><span style="font-size:0.65rem;color:#aaa;">*T&Cs Apply</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🌳 Green Tree -->
+  <div class="gm-tier" style="margin:0 16px 16px;background:linear-gradient(180deg,rgba(201,162,39,0.06),rgba(201,162,39,0.02));border-radius:18px;padding:20px 16px 16px;">
+    <div class="gm-tier-head"><span class="emoji">🌳</span><h3><strong style="color:#9e7c0c;">Green Tree</strong> Benefits</h3></div>
+    <p class="gm-tier-sub">with 20 orders in 12 months</p>
+    <div class="gm-benefits">
+      <div class="gm-card" style="background:linear-gradient(135deg,#fff8e1,#ffe082);">
+        <div class="big" style="color:#9e7c0c;">15%</div>
+        <div class="label" style="color:#9e7c0c;">Instant<br>discount</div>
+        <div class="desc">during sale<br>early access</div>
+        <div class="arrow" style="background:#9e7c0c;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);">
+        <div class="label" style="color:#c62828;font-size:1rem;line-height:1.2;">24 Hrs<br>Early<br>Access</div>
+        <div class="desc">During sale</div>
+        <div class="arrow" style="background:#c62828;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);">
+        <div class="big" style="color:#f57f17;">2%</div>
+        <div class="label" style="color:#f57f17;">GreenCoins<br>cashback</div>
+        <div class="desc">up to <span style="color:#f57f17;font-weight:700;">🪙25</span></div>
+        <div class="arrow" style="background:#f57f17;"><i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="gm-card" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9);">
+        <div class="bolt-icon" style="background:linear-gradient(135deg,#3949ab,#5c6bc0);"><i class="fas fa-bolt" style="color:#fff;font-size:1rem;"></i></div>
+        <div class="label" style="color:#283593;">Extra 5%<br>off with<br>GreenCoins*</div>
+        <div class="desc">up to 🪙100<br><span style="font-size:0.65rem;color:#aaa;">*T&Cs Apply</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gm-footer-space"></div>
+
+  <!-- Bottom Nav -->
+  <nav class="fk-bottom-nav">
+    <a href="index.html" class="fk-bnav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="categories.html" class="fk-bnav-item"><i class="fas fa-th-large"></i><span>Categories</span></a>
+    <a href="products.html?featured=true" class="fk-bnav-item"><i class="fas fa-star"></i><span>Top Picks</span></a>
+    <a href="dashboard.html" class="fk-bnav-item active"><i class="fas fa-user"></i><span>Account</span></a>
+    <a href="cart.html" class="fk-bnav-item"><i class="fas fa-shopping-cart"></i><span class="fk-bnav-badge" id="cartCount" style="display:none">0</span><span>Cart</span></a>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <div id="wishlistCount" style="display:none"></div>
+  
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('curfee_user')||'null');
+      if (user && user.name) {
+        document.getElementById('gmUserName').textContent = user.name;
+      }
+      const orders = JSON.parse(localStorage.getItem('curfee_orders')||'[]');
+      const count = orders.length;
+
+      // Update completed orders count
+      document.getElementById('gmCompletedOrders').textContent = count + ' orders';
+
+      // Update progress bar
+      const pct = Math.min(100, Math.round((count / 20) * 100));
+      document.getElementById('gmProgressFill').style.width = pct + '%';
+      document.getElementById('gmCurrentDot').style.left = pct + '%';
+
+      // Update "orders away" text  
+      const awayEl = document.getElementById('gmOrdersAway');
+      if (count < 10) {
+        awayEl.textContent = (10 - count) + ' orders';
+      } else if (count < 20) {
+        awayEl.parentElement.innerHTML = '<strong>Green Tree</strong> benefits are <strong style="color:#c9a227;">' + (20 - count) + ' orders</strong> away';
+      } else {
+        awayEl.parentElement.innerHTML = '🌳 You are a <strong style="color:#9e7c0c;">Green Tree</strong> member! Enjoy all benefits.';
+      }
+    });
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Shopping Cart — <span data-brand='full-name'>Curfee Organic Market</span></title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src='js/branding.js'></script>
+<link rel="stylesheet" href="css/mobile-home.css">
+</head>
+<body class="mobile-home-body">
+  <!-- Mobile Header -->
+  <header class="m-header" id="mHeader">
+    <div class="m-header-top">
+      <a href="index.html" class="m-logo">
+        <div class="m-logo-icon"><span data-brand='logo-emoji'>🌿</span></div>
+        <div class="m-logo-text"><span data-brand='name'>Curfee</span><span>Organic</span></div>
+      </a>
+      <div class="m-header-actions">
+        <a href="dashboard.html" class="m-header-btn"><i class="fas fa-user"></i></a>
+      </div>
+    </div>
+  </header>
+  <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> <span class="app-dynamic-helpline">+91 78457 44038</span></div><div><a href="index.html">Continue Shopping</a></div></div></div>
+  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon"><span data-brand='logo-emoji'>🌿</span></div><span data-brand='name'>Curfee</span><span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option></select><input type="text" id="searchInput" placeholder="Search..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
+  <div class="container section">
+    <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:24px;"><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+    <div id="cartContent" class="cart-layout"><div id="cartItems"></div>
+      <div class="cart-summary" id="cartSummary"><h3>Order Summary</h3><div class="summary-row"><span>Subtotal</span><span id="subtotal">₹0</span></div><div class="summary-row"><span>Delivery</span><span id="delivery">₹0</span></div><div class="summary-row"><span>Discount</span><span id="discount" style="color:var(--success);">-₹0</span></div><div class="summary-row summary-total"><span>Total</span><span id="total">₹0</span></div><div style="margin-top:16px;"><input type="text" placeholder="Coupon code" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;"><button class="btn btn-outline btn-sm btn-block" onclick="showToast('Coupon feature coming soon!','info')">Apply Coupon</button></div><a href="checkout.html" class="btn btn-primary btn-lg btn-block" style="margin-top:16px;" id="checkoutBtn">Proceed to Checkout <i class="fas fa-arrow-right"></i></a></div>
+    </div>
+    <div id="emptyCart" style="display:none;text-align:center;padding:30px 16px;min-height:60vh;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="width: 160px; height: 160px; background: #E8F4EC; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+        <i class="fas fa-shopping-basket" style="font-size: 4.5rem; color: #52B788;"></i>
+      </div>
+      <h2 style="font-size:1.5rem;margin-bottom:12px;font-weight:700;color:var(--text);">Your cart is empty!</h2>
+      <p style="color:var(--text-light);max-width:280px;margin:0 auto 28px;font-size:0.95rem;line-height:1.5;">Looks like you haven't added anything yet.<br>Explore fresh organic produce!</p>
+      <a href="categories.html" class="btn" style="padding:14px 36px;border-radius:10px;font-weight:700;font-size:1rem;background:var(--accent);color:#fff;border:none;box-shadow:0 4px 16px rgba(231,111,81,0.25);">Browse Products</a>
+    </div>
+  </div>
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 <span data-brand='full-name'>Curfee Organic Market</span>.</p></div></div></footer>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="m-bottom-nav">
+    <a href="index.html" class="m-bnav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="categories.html" class="m-bnav-item"><i class="fas fa-th-large"></i><span>Categories</span></a>
+    <a href="cart.html" class="m-bnav-item active"><div class="m-bnav-cart-icon"><i class="fas fa-shopping-cart"></i><span class="m-bnav-badge" id="cartCountMob" style="display:none">0</span></div><span>Cart</span></a>
+    <a href="dashboard.html" class="m-bnav-item"><i class="fas fa-user"></i><span>Account</span></a>
+    <a href="support.html" class="m-bnav-item"><i class="fas fa-headset"></i><span>Support</span></a>
+  </nav>
+  <div class="toast-container" id="toastContainer"></div><div id="wishlistCount" style="display:none"></div>
+  
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/whatsapp-chat.js"></script>
+</body></html>
+
+
+

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Browse 50+ organic products at <span data-brand='full-name'>Curfee Organic Market</span> — 16 categories."><title>Products — <span data-brand='full-name'>Curfee Organic Market</span></title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src='js/branding.js'></script>
+</head>
+<body>
+  <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> <span class="app-dynamic-helpline">+91 78457 44038</span> | <a href="support.html">Help</a></div><div><a href="#" id="locationBtn"><i class="fas fa-map-marker-alt"></i> <span id="userLocation">Detect Location</span></a></div></div></div>
+  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon"><span data-brand='logo-emoji'>🌿</span></div><span data-brand='name'>Curfee</span><span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option><option value="vegetables">Vegetables</option><option value="fruits">Fruits</option><option value="biscuits">Biscuits</option><option value="snacks">Snacks</option><option value="mushroom">Mushroom</option><option value="chicken">Chicken</option><option value="mutton">Mutton</option><option value="grocery">Grocery</option><option value="herbal">Herbal</option><option value="dryfruits">Dry Fruits</option><option value="flour">Flour</option><option value="beverages">Beverages</option><option value="spreads">Spreads</option><option value="pickles">Pickles</option><option value="superfoods">Superfoods</option><option value="readytocook">Ready to Cook</option></select><input type="text" id="searchInput" placeholder="Search 50+ organic products..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="dashboard.html" class="nav-btn" id="wishlistNavBtn"><i class="fas fa-heart"></i><span>Wishlist</span><div class="count" id="wishlistCount" style="display:none">0</div></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
+  <div class="container"><div class="page-layout">
+    <aside class="filter-sidebar" id="desktopFilterSidebar"><h2 style="font-size:1.1rem;margin-bottom:20px;">Filters</h2>
+      <div class="filter-group"><h3>Category</h3>
+        <label><input type="checkbox" name="category" value="vegetables"> 🥬 Vegetables</label>
+        <label><input type="checkbox" name="category" value="fruits"> 🍎 Fruits</label>
+        <label><input type="checkbox" name="category" value="biscuits"> 🍪 Biscuits</label>
+        <label><input type="checkbox" name="category" value="snacks"> 🥜 Snacks</label>
+        <label><input type="checkbox" name="category" value="mushroom"> 🍄 Mushroom</label>
+        <label><input type="checkbox" name="category" value="chicken"> 🍗 Chicken</label>
+        <label><input type="checkbox" name="category" value="mutton"> 🍖 Mutton</label>
+        <label><input type="checkbox" name="category" value="grocery"> 🏪 Grocery</label>
+        <label><input type="checkbox" name="category" value="herbal"> <span data-brand='logo-emoji'>🌿</span> Herbal</label>
+        <label><input type="checkbox" name="category" value="dryfruits"> 🥣 Dry Fruits</label>
+        <label><input type="checkbox" name="category" value="flour"> 🌾 Flour</label>
+        <label><input type="checkbox" name="category" value="beverages"> ☕ Beverages</label>
+        <label><input type="checkbox" name="category" value="spreads"> 🍯 Spreads</label>
+        <label><input type="checkbox" name="category" value="pickles"> 🥒 Pickles</label>
+        <label><input type="checkbox" name="category" value="superfoods"> 🧬 Superfoods</label>
+        <label><input type="checkbox" name="category" value="readytocook"> 🍲 Ready to Cook</label>
+      </div>
+      <div class="filter-group"><h3>Price Range</h3><div class="price-range"><input type="number" id="minPrice" placeholder="Min" min="0"><span>—</span><input type="number" id="maxPrice" placeholder="Max" min="0"></div></div>
+      <div class="filter-group"><h3>Rating</h3><label><input type="radio" name="rating" value="4"> ★★★★☆ & up</label><label><input type="radio" name="rating" value="3"> ★★★☆☆ & up</label></div>
+      <div class="filter-group"><h3>Availability</h3><label><input type="checkbox" id="inStockFilter" checked> In Stock</label><label><input type="checkbox" id="featuredFilter"> Featured only</label></div>
+      <button class="clear-filters" id="clearFilters">Clear All Filters</button>
+    </aside>
+    <main style="padding-bottom:60px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;"><h1 style="font-size:1.4rem;font-weight:700;" id="pageTitle">All Products</h1><div style="display:flex;align-items:center;gap:12px;"><span id="productCount" style="font-size:0.85rem;color:var(--text-light);"></span><select id="sortSelect" class="desktop-sort" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.85rem;"><option value="">Sort by: Relevance</option><option value="price_low">Price: Low to High</option><option value="price_high">Price: High to Low</option><option value="rating">Highest Rated</option></select></div></div>
+      <div class="product-grid" id="productGrid"></div>
+      <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin:30px 0;"></div>
+      
+      <!-- Mobile Sticky Sort/Filter Bar -->
+      <div class="mob-sort-bar">
+        <button onclick="document.getElementById('mobSortModal').classList.add('active')"><strong>Sort</strong></button>
+        <button onclick="document.getElementById('mobFilterDrawer').classList.add('active')"><i class="fas fa-filter" style="margin-right:6px"></i> <strong>Filter</strong></button>
+      </div>
+
+      <!-- Mobile Fullscreen Filter Drawer -->
+      <div id="mobFilterDrawer" class="mob-filter-drawer">
+        <div class="mob-filter-header">
+          <button onclick="document.getElementById('mobFilterDrawer').classList.remove('active')"><i class="fas fa-arrow-left"></i></button>
+          <h2>Filters</h2>
+          <button class="clear-btn" onclick="document.getElementById('clearFilters').click()">Clear Filters</button>
+        </div>
+        <div class="mob-filter-body">
+          <div class="mob-filter-sidebar">
+            <button class="active" onclick="switchFilterTab('category',this)">Category</button>
+            <button onclick="switchFilterTab('price',this)">Price</button>
+            <button onclick="switchFilterTab('rating',this)">Rating</button>
+            <button onclick="switchFilterTab('availability',this)">Availability</button>
+          </div>
+          <div class="mob-filter-content">
+            <div id="mob-panel-category" class="mob-panel active">
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=vegetables]').click()"> Vegetables</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=fruits]').click()"> Fruits</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=biscuits]').click()"> Biscuits</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=chicken]').click()"> Chicken</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=mutton]').click()"> Mutton</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=grocery]').click()"> Grocery</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=herbal]').click()"> Herbal</label>
+              <label><input type="checkbox" onchange="document.querySelector('input[name=category][value=dryfruits]').click()"> Dry Fruits</label>
+            </div>
+            <div id="mob-panel-price" class="mob-panel">
+              <label>Min: <input type="number" onchange="document.getElementById('minPrice').value=this.value; document.getElementById('minPrice').dispatchEvent(new Event('change'))" style="border:1px solid #ccc;padding:4px;width:100px;margin-bottom:10px;"></label>
+              <label>Max: <input type="number" onchange="document.getElementById('maxPrice').value=this.value; document.getElementById('maxPrice').dispatchEvent(new Event('change'))" style="border:1px solid #ccc;padding:4px;width:100px;"></label>
+            </div>
+            <div id="mob-panel-rating" class="mob-panel">
+              <label><input type="radio" name="mob_rating" onchange="document.querySelector('input[name=rating][value=\'4\']').click()"> ★★★★☆ & up</label>
+              <label><input type="radio" name="mob_rating" onchange="document.querySelector('input[name=rating][value=\'3\']').click()"> ★★★☆☆ & up</label>
+            </div>
+            <div id="mob-panel-availability" class="mob-panel">
+              <label><input type="checkbox" onchange="const el=document.getElementById('inStockFilter');el.checked=this.checked;el.dispatchEvent(new Event('change'))" checked> In Stock</label>
+              <label><input type="checkbox" onchange="const el=document.getElementById('featuredFilter');el.checked=this.checked;el.dispatchEvent(new Event('change'))"> Featured</label>
+            </div>
+          </div>
+        </div>
+        <div class="mob-filter-footer">
+          <div style="font-weight:700;"><span id="mobFoundCount">...</span> products found</div>
+          <button class="apply-btn" onclick="document.getElementById('mobFilterDrawer').classList.remove('active')">Apply</button>
+        </div>
+      </div>
+      
+      <!-- Mobile Sort Modal -->
+      <div id="mobSortModal" class="mob-sort-modal" onclick="if(event.target===this) this.classList.remove('active')">
+        <div class="mob-sort-content">
+          <h3 style="padding:16px;border-bottom:1px solid #eee;margin:0;">Sort By</h3>
+          <div style="padding:10px;">
+            <label class="mob-sort-option"><input type="radio" name="mob_sort" onchange="const s=document.getElementById('sortSelect');s.value='';s.dispatchEvent(new Event('change'));document.getElementById('mobSortModal').classList.remove('active')"> Relevance</label>
+            <label class="mob-sort-option"><input type="radio" name="mob_sort" onchange="const s=document.getElementById('sortSelect');s.value='price_low';s.dispatchEvent(new Event('change'));document.getElementById('mobSortModal').classList.remove('active')"> Price: Low to High</label>
+            <label class="mob-sort-option"><input type="radio" name="mob_sort" onchange="const s=document.getElementById('sortSelect');s.value='price_high';s.dispatchEvent(new Event('change'));document.getElementById('mobSortModal').classList.remove('active')"> Price: High to Low</label>
+            <label class="mob-sort-option"><input type="radio" name="mob_sort" onchange="const s=document.getElementById('sortSelect');s.value='rating';s.dispatchEvent(new Event('change'));document.getElementById('mobSortModal').classList.remove('active')"> Highest Rated</label>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div></div>
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 <span data-brand='full-name'>Curfee Organic Market</span>.</p></div></div></footer>
+  <div class="toast-container" id="toastContainer"></div>
+  
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/whatsapp-chat.js"></script>
+</body></html>
+
+
+
+

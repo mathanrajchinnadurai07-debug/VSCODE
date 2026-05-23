@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Search — <span data-brand='full-name'>Curfee Organic Market</span></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/search.css">
+  <script src='js/branding.js'></script>
+</head>
+<body class="search-mode">
+
+  <!-- Search Header perfectly matched to screenshot -->
+  <header class="search-view-header">
+    <button class="search-back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <div class="search-input-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="activeSearchInput" placeholder="Search products..." autocomplete="off">
+      <div class="search-actions">
+      </div>
+    </div>
+  </header>
+
+  <!-- Recent Searches -->
+  <section class="search-section">
+    <h2 class="search-section-title">Recent Searches</h2>
+    <div class="recent-searches">
+      <a href="products.html?search=incubator" class="recent-item">
+        <div class="recent-img-wrap"><img src="assets/images/products/ghee.png" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<span style=\'font-size:2rem\'>🍅</span>'" alt="Recent"></div>
+        <span class="recent-label">organic<br>tomatoes</span>
+      </a>
+      <a href="products.html?search=timer" class="recent-item">
+        <div class="recent-img-wrap"><img src="assets/images/products/green-tea.png" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<span style=\'font-size:2rem\'>🍵</span>'" alt="Recent"></div>
+        <span class="recent-label">green<br>tea</span>
+      </a>
+      <a href="products.html?search=motor" class="recent-item">
+        <div class="recent-icon-wrap"><i class="fas fa-history"></i></div>
+        <span class="recent-label">herbal<br>soap</span>
+      </a>
+      <a href="products.html?search=blower" class="recent-item">
+        <div class="recent-img-wrap"><img src="assets/images/products/almond.png" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<span style=\'font-size:2rem\'>🌰</span>'" alt="Recent"></div>
+        <span class="recent-label">premium<br>almond</span>
+      </a>
+      <a href="products.html?search=seeds" class="recent-item">
+        <div class="recent-img-wrap"><img src="assets/images/products/seeds.png" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<span style=\'font-size:2rem\'>🌱</span>'" alt="Recent"></div>
+        <span class="recent-label">chia<br>seeds</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Trending Searches Grid -->
+  <section class="search-section">
+    <h2 class="search-section-title">Trending Searches</h2>
+    <div class="trending-grid">
+      
+      <a href="products.html?search=chicken" class="trending-item">
+        <div class="trending-img" style="background:#fce7f3;"><span style="font-size:1.5rem">🍗</span></div>
+        <div class="trending-text">Country chicken cuts</div>
+      </a>
+
+      <a href="products.html?search=ghee" class="trending-item">
+        <div class="trending-img" style="background:#fef3c7;"><span style="font-size:1.5rem">🍯</span></div>
+        <div class="trending-text">Pure cow ghee</div>
+      </a>
+
+      <a href="products.html?search=honey" class="trending-item">
+        <div class="trending-img" style="background:#fdedd3;"><span style="font-size:1.5rem">🐝</span></div>
+        <div class="trending-text">Raw forest honey</div>
+      </a>
+
+      <a href="products.html?search=cashews" class="trending-item">
+        <div class="trending-img" style="background:#e0f2fe;"><span style="font-size:1.5rem">🥜</span></div>
+        <div class="trending-text">Whole cashews</div>
+      </a>
+
+      <a href="products.html?search=mango" class="trending-item">
+        <div class="trending-img" style="background:#fef08a;"><span style="font-size:1.5rem">🥭</span></div>
+        <div class="trending-text">Fresh alphonso mango</div>
+      </a>
+
+      <a href="products.html?search=mushroom" class="trending-item">
+        <div class="trending-img" style="background:#f3f4f6;"><span style="font-size:1.5rem">🍄</span></div>
+        <div class="trending-text">Oyster mushrooms</div>
+      </a>
+
+    </div>
+  </section>
+
+  <script>
+    // Autofocus input so the keyboard pops up on mobile
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById('activeSearchInput');
+      // Adding a slight delay to allow the DOM transition
+      setTimeout(() => {
+        input.focus();
+      }, 300);
+
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && input.value.trim()) {
+          window.location.href = 'products.html?search=' + encodeURIComponent(input.value.trim());
+        }
+      });
+    });
+
+    function goBack() {
+      // If there's history, go back, else go to home
+      if (document.referrer) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+

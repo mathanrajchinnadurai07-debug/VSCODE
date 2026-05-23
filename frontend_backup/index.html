@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="<span data-brand='full-name'>Curfee Organic Market</span> — 50+ organic products: biscuits, snacks, mushroom, chicken, mutton, grocery, herbal, dry fruits, beverages & more.">
+  <title><span data-brand='full-name'>Curfee Organic Market</span> — 50+ Organic Products</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/mobile-home.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src='js/branding.js'></script>
+</head>
+<body class="mobile-home-body">
+
+  <!-- ===== HEADER ===== -->
+  <header class="m-header" id="mHeader">
+    <div class="m-header-top">
+      <a href="index.html" class="m-logo">
+        <div class="m-logo-icon"><span data-brand='logo-emoji'>🌿</span></div>
+        <div class="m-logo-text"><span data-brand='name'>Curfee</span><span>Organic</span></div>
+      </a>
+      <div class="m-header-actions">
+        <a href="login.html" class="m-header-btn" id="authBtn"><i class="fas fa-user"></i></a>
+        <a href="dashboard.html" class="m-header-btn"><i class="fas fa-heart"></i></a>
+      </div>
+    </div>
+    <div class="m-search-wrap">
+      <select class="m-search-dept" id="searchCategory">
+        <option value="">All</option>
+        <option value="biscuits">Biscuits</option>
+        <option value="snacks">Snacks</option>
+        <option value="mushroom">Mushroom</option>
+        <option value="chicken">Chicken</option>
+        <option value="mutton">Mutton</option>
+        <option value="grocery">Grocery</option>
+        <option value="herbal">Herbal</option>
+        <option value="dryfruits">Dry Fruits</option>
+        <option value="flour">Flour</option>
+        <option value="beverages">Beverages</option>
+        <option value="spreads">Spreads</option>
+        <option value="pickles">Pickles</option>
+        <option value="superfoods">Superfoods</option>
+        <option value="readytocook">Ready to Cook</option>
+        <option value="vegetables">Vegetables</option>
+        <option value="fruits">Fruits</option>
+      </select>
+      <i class="fas fa-search m-search-icon"></i>
+      <input type="text" id="searchInputMob" placeholder="Search 50+ organic products..." class="m-search-input" readonly onclick="window.location.href='search.html'">
+    </div>
+    <div class="m-location-bar">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Deliver to <strong id="userLocation">Detect Location</strong></span>
+      <i class="fas fa-chevron-down" style="font-size:0.6rem;margin-left:2px;"></i>
+      <a href="products.html?bestseller=true" class="m-prime-btn">🔥 Today's Deals</a>
+    </div>
+  </header>
+
+
+  <!-- ===== CATEGORY TABS ===== -->
+  <div class="m-category-tabs">
+    <a href="products.html" class="m-cat-tab active"><div class="m-cat-tab-icon">🏠</div><span>For You</span></a>
+    <a href="products.html?category=biscuits" class="m-cat-tab"><div class="m-cat-tab-icon">🍪</div><span>Biscuits</span></a>
+    <a href="products.html?category=snacks" class="m-cat-tab"><div class="m-cat-tab-icon">🥜</div><span>Snacks</span></a>
+    <a href="products.html?category=mushroom" class="m-cat-tab"><div class="m-cat-tab-icon">🍄</div><span>Mushroom</span></a>
+    <a href="products.html?category=chicken" class="m-cat-tab"><div class="m-cat-tab-icon">🍗</div><span>Chicken</span></a>
+    <a href="products.html?category=mutton" class="m-cat-tab"><div class="m-cat-tab-icon">🍖</div><span>Mutton</span></a>
+    <a href="products.html?category=grocery" class="m-cat-tab"><div class="m-cat-tab-icon">🏪</div><span>Grocery</span></a>
+    <a href="products.html?category=dryfruits" class="m-cat-tab"><div class="m-cat-tab-icon">🥣</div><span>Dry Fruits</span></a>
+    <a href="products.html?category=flour" class="m-cat-tab"><div class="m-cat-tab-icon">🌾</div><span>Flour</span></a>
+    <a href="products.html?category=beverages" class="m-cat-tab"><div class="m-cat-tab-icon">☕</div><span>Beverages</span></a>
+    <a href="products.html?category=spreads" class="m-cat-tab"><div class="m-cat-tab-icon">🍯</div><span>Spreads</span></a>
+    <a href="products.html?category=pickles" class="m-cat-tab"><div class="m-cat-tab-icon">🥒</div><span>Pickles</span></a>
+    <a href="products.html?category=superfoods" class="m-cat-tab"><div class="m-cat-tab-icon">🧬</div><span>Superfoods</span></a>
+    <a href="products.html?category=readytocook" class="m-cat-tab"><div class="m-cat-tab-icon">🍲</div><span>Ready Cook</span></a>
+    <a href="products.html?category=vegetables" class="m-cat-tab"><div class="m-cat-tab-icon">🥬</div><span>Vegetables</span></a>
+    <a href="products.html?category=fruits" class="m-cat-tab"><div class="m-cat-tab-icon">🍎</div><span>Fruits</span></a>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="m-main-content">
+
+    <!-- Hero Slider -->
+    <div class="m-hero-slider" id="mHeroSlider">
+      <div class="m-hero-track" id="mHeroTrack">
+        <div class="m-hero-card" style="background:linear-gradient(135deg,#b5651d,#d4a574);"><div class="m-hero-text"><span class="m-hero-tag">🍪 ORGANIC BISCUITS</span><h2>Fresh Baked Cookies</h2><p>Millet, ragi, jaggery cookies — zero refined sugar</p><a href="products.html?category=biscuits" class="m-hero-cta">Shop Now →</a></div><div class="m-hero-img">🍪</div></div>
+        <div class="m-hero-card" style="background:linear-gradient(135deg,#6d4c41,#8d6e63);"><div class="m-hero-text"><span class="m-hero-tag">🍄 MUSHROOM POWER</span><h2>Mushroom Products</h2><p>Dried, powders, snacks & immunity blends</p><a href="products.html?category=mushroom" class="m-hero-cta">Explore →</a></div><div class="m-hero-img">🍄</div></div>
+        <div class="m-hero-card" style="background:linear-gradient(135deg,#c62828,#e53935);"><div class="m-hero-text"><span class="m-hero-tag">🍗 FARM FRESH</span><h2>Organic Chicken & Mutton</h2><p>Antibiotic-free, vacuum sealed & delivered fresh</p><a href="products.html?category=chicken" class="m-hero-cta">Order Now →</a></div><div class="m-hero-img">🍗</div></div>
+        <div class="m-hero-card" style="background:linear-gradient(135deg,#43a047,#66bb6a);"><div class="m-hero-text"><span class="m-hero-tag">🥬 FARM FRESH</span><h2>Organic Vegetables</h2><p>Tomato, carrot, spinach, broccoli — pesticide free</p><a href="products.html?category=vegetables" class="m-hero-cta">Shop Fresh →</a></div><div class="m-hero-img">🥬</div></div>
+        <div class="m-hero-card" style="background:linear-gradient(135deg,#ff6f00,#ffa726);"><div class="m-hero-text"><span class="m-hero-tag">🍎 SEASONAL FRUITS</span><h2>Organic Fruits</h2><p>Mango, apple, strawberry, banana — naturally grown</p><a href="products.html?category=fruits" class="m-hero-cta">Order Now →</a></div><div class="m-hero-img">🍎</div></div>
+        <div class="m-hero-card" style="background:linear-gradient(135deg,#1b4332,#2d6a4f);"><div class="m-hero-text"><span class="m-hero-tag">🔥 MEGA DEALS</span><h2>Up to 40% OFF</h2><p>On 50+ organic products — limited time!</p><a href="products.html?bestseller=true" class="m-hero-cta">Grab Now →</a></div><div class="m-hero-img">🎉</div></div>
+      </div>
+      <div class="m-hero-dots"><span class="m-dot active" data-slide="0"></span><span class="m-dot" data-slide="1"></span><span class="m-dot" data-slide="2"></span><span class="m-dot" data-slide="3"></span><span class="m-dot" data-slide="4"></span><span class="m-dot" data-slide="5"></span></div>
+    </div>
+
+    <!-- Sponsored -->
+    <div class="m-sponsored-banner"><div class="m-sponsored-label">Sponsored <i class="fas fa-info-circle"></i></div><div class="m-sponsored-content" style="background:linear-gradient(135deg,#fff8e1,#ffe0b2);"><div class="m-sponsored-text"><strong>Organic Biscuits & Cookies — 15 Varieties</strong><span>Kraft paper packaging | Zero preservatives</span></div><a href="products.html?category=biscuits" class="m-sponsored-btn">Shop Now</a></div></div>
+
+    <!-- Results Header -->
+    <div class="m-results-header"><span class="m-results-count">Showing 50+ organic products, with fast delivery</span><p>See all products across 16 categories.</p></div>
+
+    <!-- Featured -->
+    <section class="m-section"><div class="m-section-header"><h2>⭐ Featured Products</h2><a href="products.html?featured=true" class="m-see-all">See All →</a></div><div class="m-product-scroll" id="featuredProducts"></div></section>
+
+    <!-- Today's Deals -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(255,111,0,0.06);"><div class="m-section-header"><h2>🔥 Today's Deals</h2><a href="products.html?bestseller=true" class="m-see-all">See All →</a></div><p class="m-section-sub">Top bestsellers with massive discounts</p><div class="m-product-scroll" id="dealsProducts"></div></section>
+
+    <!-- Deal Cards -->
+    <section class="m-deal-grid">
+      <a href="products.html?category=biscuits" class="m-deal-card" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);"><h3>Biscuits & Cookies</h3><p class="m-deal-off">15 varieties</p><div class="m-deal-img">🍪🥜🧁</div><span class="m-deal-link">Shop now</span></a>
+      <a href="products.html?category=mushroom" class="m-deal-card" style="background:linear-gradient(135deg,#efebe9,#d7ccc8);"><h3>Mushroom Products</h3><p class="m-deal-off">Up to <strong>35% OFF</strong></p><div class="m-deal-img">🍄🧪🍵</div><span class="m-deal-link">Shop now</span></a>
+      <a href="products.html?category=chicken" class="m-deal-card" style="background:linear-gradient(135deg,#ffebee,#ffcdd2);"><h3>Organic Chicken</h3><p class="m-deal-off"><strong>Farm Fresh</strong></p><div class="m-deal-img">🍗🥩🌡️</div><span class="m-deal-link">Shop now</span></a>
+      <a href="products.html?category=dryfruits" class="m-deal-card" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);"><h3>Dry Fruits & Nuts</h3><p class="m-deal-off">15 premium items</p><div class="m-deal-img">🥜🌰🍇</div><span class="m-deal-link">Shop now</span></a>
+    </section>
+
+    <!-- Biscuits -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(181,101,29,0.06);"><div class="m-section-header"><h2>🍪 Biscuits & Cookies</h2><a href="products.html?category=biscuits" class="m-see-all">See All →</a></div><p class="m-section-sub">Ragi, millet, jaggery, oats, coconut cookies in kraft packaging</p><div class="m-product-scroll" id="biscuitsProducts"></div></section>
+
+    <!-- Snacks -->
+    <section class="m-section"><div class="m-section-header"><h2>🥜 Snacks & Chips</h2><a href="products.html?category=snacks" class="m-see-all">See All →</a></div><p class="m-section-sub">Banana chips, millet chips, quinoa puffs, makhana, trail mix</p><div class="m-product-scroll" id="snacksProducts"></div></section>
+
+    <!-- Mushroom -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(109,76,65,0.06);"><div class="m-section-header"><h2>🍄 Mushroom Products</h2><a href="products.html?category=mushroom" class="m-see-all">See All →</a></div><p class="m-section-sub">Dried mushrooms, powder, soup mix, chips, coffee blend</p><div class="m-product-scroll" id="mushroomProducts"></div></section>
+
+    <!-- Deal Cards Row 2 -->
+    <section class="m-deal-grid">
+      <a href="products.html?category=mutton" class="m-deal-card" style="background:linear-gradient(135deg,#fbe9e7,#ffccbc);"><h3>Organic Mutton</h3><p class="m-deal-off"><strong>Premium Goat</strong></p><div class="m-deal-img">🍖🥩🔥</div><span class="m-deal-link">Shop now</span></a>
+      <a href="products.html?category=superfoods" class="m-deal-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);"><h3>Superfoods</h3><p class="m-deal-off">Chia, moringa, spirulina</p><div class="m-deal-img">🧬🌱✨</div><span class="m-deal-link">Shop now</span></a>
+      <a href="products.html?category=beverages" class="m-deal-card" style="background:linear-gradient(135deg,#efebe9,#d7ccc8);"><h3>Tea & Coffee</h3><p class="m-deal-off">12 organic blends</p><div class="m-deal-img">☕🍵<span data-brand='logo-emoji'>🌿</span></div><span class="m-deal-link">Shop now</span></a>
+      <a href="products.html?category=spreads" class="m-deal-card" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);"><h3>Honey & Spreads</h3><p class="m-deal-off">Raw honey, nut butters</p><div class="m-deal-img">🍯🥜🫙</div><span class="m-deal-link">Shop now</span></a>
+    </section>
+
+    <!-- Chicken -->
+    <section class="m-section"><div class="m-section-header"><h2>🍗 Chicken Products</h2><a href="products.html?category=chicken" class="m-see-all">See All →</a></div><p class="m-section-sub">Breast, mince, sausages, nuggets, tikka — antibiotic-free</p><div class="m-product-scroll" id="chickenProducts"></div></section>
+
+    <!-- Mutton -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(141,110,99,0.06);"><div class="m-section-header"><h2>🍖 Mutton Products</h2><a href="products.html?category=mutton" class="m-see-all">See All →</a></div><p class="m-section-sub">Curry cut, mince, seekh kebab, chops, biryani cut</p><div class="m-product-scroll" id="muttonProducts"></div></section>
+
+    <!-- Promo Banner -->
+    <div class="m-promo-banner" style="background:linear-gradient(135deg,#1b4332,#2d6a4f);"><div class="m-promo-text"><span><span data-brand='logo-emoji'>🌿</span> LIMITED TIME</span><h3>Free Delivery on ₹499+</h3><p>Use code: CURFEE499</p></div><a href="products.html" class="m-promo-cta">Shop Now</a></div>
+
+    <!-- Grocery -->
+    <section class="m-section"><div class="m-section-header"><h2>🏪 Grocery Essentials</h2><a href="products.html?category=grocery" class="m-see-all">See All →</a></div><p class="m-section-sub">Honey, oils, dal, rice, spices, salt & more</p><div class="m-product-scroll" id="groceryProducts"></div></section>
+
+    <!-- Dry Fruits -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(255,143,0,0.06);"><div class="m-section-header"><h2>🥣 Dry Fruits & Nuts</h2><a href="products.html?category=dryfruits" class="m-see-all">See All →</a></div><p class="m-section-sub">Almonds, cashews, walnuts, pistachios, seeds, dates</p><div class="m-product-scroll" id="dryfruitsProducts"></div></section>
+
+    <!-- Herbal -->
+    <section class="m-section"><div class="m-section-header"><h2><span data-brand='logo-emoji'>🌿</span> Herbal & Personal Care</h2><a href="products.html?category=herbal" class="m-see-all">See All →</a></div><p class="m-section-sub">Soaps, oils, shampoo, lip balm, face pack, kajal</p><div class="m-product-scroll" id="herbalProducts"></div></section>
+
+    <!-- Flour -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(139,195,74,0.06);"><div class="m-section-header"><h2>🌾 Flour & Grains</h2><a href="products.html?category=flour" class="m-see-all">See All →</a></div><p class="m-section-sub">Wheat, ragi, bajra, jowar, quinoa, oats</p><div class="m-product-scroll" id="flourProducts"></div></section>
+
+    <!-- Beverages -->
+    <section class="m-section"><div class="m-section-header"><h2>☕ Beverages</h2><a href="products.html?category=beverages" class="m-see-all">See All →</a></div><p class="m-section-sub">Green tea, masala chai, filter coffee, herbal teas</p><div class="m-product-scroll" id="beveragesProducts"></div></section>
+
+    <!-- Honey & Spreads -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(255,152,0,0.06);"><div class="m-section-header"><h2>🍯 Honey & Spreads</h2><a href="products.html?category=spreads" class="m-see-all">See All →</a></div><p class="m-section-sub">Raw honey, peanut butter, almond butter, jams</p><div class="m-product-scroll" id="spreadsProducts"></div></section>
+
+    <!-- Pickles -->
+    <section class="m-section"><div class="m-section-header"><h2>🥒 Pickles & Chutneys</h2><a href="products.html?category=pickles" class="m-see-all">See All →</a></div><p class="m-section-sub">Mango, lemon, garlic pickle, coconut chutney powder</p><div class="m-product-scroll" id="picklesProducts"></div></section>
+
+    <!-- Superfoods -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(76,175,80,0.06);"><div class="m-section-header"><h2>🧬 Superfoods</h2><a href="products.html?category=superfoods" class="m-see-all">See All →</a></div><p class="m-section-sub">Chia seeds, moringa, spirulina, ashwagandha, triphala</p><div class="m-product-scroll" id="superfoodsProducts"></div></section>
+
+    <!-- Ready to Cook -->
+    <section class="m-section"><div class="m-section-header"><h2>🍲 Ready to Cook</h2><a href="products.html?category=readytocook" class="m-see-all">See All →</a></div><p class="m-section-sub">Dosa, idli, upma, khichdi, pancake mixes</p><div class="m-product-scroll" id="readytocookProducts"></div></section>
+
+    <!-- Vegetables -->
+    <section class="m-section m-section-tinted" style="--tint-color:rgba(67,160,71,0.06);"><div class="m-section-header"><h2>🥬 Fresh Vegetables</h2><a href="products.html?category=vegetables" class="m-see-all">See All →</a></div><p class="m-section-sub">Tomato, carrot, spinach, broccoli, onion, potato & more</p><div class="m-product-scroll" id="vegetablesProducts"></div></section>
+
+    <!-- Fruits -->
+    <section class="m-section"><div class="m-section-header"><h2>🍎 Fresh Fruits</h2><a href="products.html?category=fruits" class="m-see-all">See All →</a></div><p class="m-section-sub">Banana, mango, apple, strawberry, pomegranate, grapes</p><div class="m-product-scroll" id="fruitsProducts"></div></section>
+
+    <!-- Brand Row -->
+    <section class="m-brand-row">
+      <div class="m-brand-card"><div class="m-brand-img">🥬</div><strong>Vegetables</strong><span>15 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">🍎</div><strong>Fruits</strong><span>12 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">🍪</div><strong>Biscuits</strong><span>15 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">🍄</div><strong>Mushroom</strong><span>12 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">🍗</div><strong>Chicken</strong><span>12 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">🥜</div><strong>Dry Fruits</strong><span>15 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">☕</div><strong>Beverages</strong><span>12 items</span></div>
+      <div class="m-brand-card"><div class="m-brand-img">🧬</div><strong>Superfoods</strong><span>10 items</span></div>
+    </section>
+
+    <!-- Reviews -->
+    <section class="m-section"><div class="m-section-header"><h2>💬 Customer Reviews</h2></div>
+      <div class="m-review-scroll">
+        <div class="m-review-card"><div class="m-review-top"><div class="m-review-avatar" style="background:linear-gradient(135deg,#2d6a4f,#52b788);">P</div><div><strong>Priya Sharma</strong><div class="m-review-stars">★★★★★</div></div></div><p>"The organic biscuits are amazing! Kids love the ragi cookies."</p></div>
+        <div class="m-review-card"><div class="m-review-top"><div class="m-review-avatar" style="background:linear-gradient(135deg,#f77f00,#fcbf49);">R</div><div><strong>Rahul Verma</strong><div class="m-review-stars">★★★★★</div></div></div><p>"Fresh organic chicken delivered perfectly — vacuum sealed!"</p></div>
+        <div class="m-review-card"><div class="m-review-top"><div class="m-review-avatar" style="background:linear-gradient(135deg,#9b59b6,#c39bd3);">A</div><div><strong>Anita Patel</strong><div class="m-review-stars">★★★★☆</div></div></div><p>"Mushroom products are top quality. The lion's mane powder works great!"</p></div>
+      </div>
+    </section>
+
+    <!-- Help -->
+    <div class="m-help-section"><h3>Need help?</h3><p>Visit the <a href="support.html">help section</a> or <a href="support.html">contact us</a></p></div>
+
+    <!-- Newsletter -->
+    <section class="m-newsletter"><div class="m-newsletter-inner"><h2><span data-brand='logo-emoji'>🌿</span> Get Weekly Deals</h2><p>50+ organic products — exclusive offers every week!</p><form id="newsletterForm" class="m-newsletter-form"><input type="email" placeholder="Enter your email..." required><button type="submit"><i class="fas fa-paper-plane"></i></button></form></div></section>
+
+    <!-- Footer -->
+    <footer class="m-footer">
+      <div class="m-footer-top">
+        <div class="m-footer-brand"><div class="m-logo" style="justify-content:flex-start;margin-bottom:8px;"><div class="m-logo-icon"><span data-brand='logo-emoji'>🌿</span></div><div class="m-logo-text"><span data-brand='name'>Curfee</span><span>Organic</span></div></div><p>50+ organic products across 14 categories.</p></div>
+        <div class="m-footer-links">
+          <div class="m-footer-col"><h4>Categories</h4><a href="products.html?category=biscuits">Biscuits</a><a href="products.html?category=snacks">Snacks</a><a href="products.html?category=mushroom">Mushroom</a><a href="products.html?category=chicken">Chicken</a><a href="products.html?category=grocery">Grocery</a></div>
+          <div class="m-footer-col"><h4>More</h4><a href="products.html?category=dryfruits">Dry Fruits</a><a href="products.html?category=beverages">Beverages</a><a href="products.html?category=herbal">Herbal</a><a href="products.html?category=superfoods">Superfoods</a><a href="support.html">Help</a></div>
+        </div>
+      </div>
+      <div class="m-footer-bottom"><p>&copy; 2024 <span data-brand='full-name'>Curfee Organic Market</span>. Made with <span data-brand='logo-emoji'>🌿</span> in India</p></div>
+    </footer>
+    <div style="height:70px;"></div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="m-bottom-nav">
+    <a href="index.html" class="m-bnav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="categories.html" class="m-bnav-item"><i class="fas fa-th-large"></i><span>Categories</span></a>
+    <a href="cart.html" class="m-bnav-item"><div class="m-bnav-cart-icon"><i class="fas fa-shopping-cart"></i><span class="m-bnav-badge" id="cartCount" style="display:none">0</span></div><span>Cart</span></a>
+    <a href="dashboard.html" class="m-bnav-item"><i class="fas fa-user"></i><span>Account</span></a>
+    <a href="support.html" class="m-bnav-item"><i class="fas fa-headset"></i><span>Support</span></a>
+  </nav>
+
+  
+  <div class="toast-container" id="toastContainer"></div>
+  
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/products-data.js"></script>
+  <script src="js/products-data2.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/mobile-home.js"></script>
+  <script src="js/whatsapp-chat.js"></script>
+</body>
+</html>
+
+
+

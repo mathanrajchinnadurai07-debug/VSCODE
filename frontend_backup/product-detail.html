@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Product Details — <span data-brand='full-name'>Curfee Organic Market</span></title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src='js/branding.js'></script>
+</head>
+<body>
+  <div class="topbar"><div class="container"><div><i class="fas fa-phone-alt"></i> <span class="app-dynamic-helpline">+91 78457 44038</span></div><div><a href="#" id="locationBtn"><i class="fas fa-map-marker-alt"></i> <span id="userLocation">Detect Location</span></a></div></div></div>
+  <nav class="navbar"><div class="container"><a href="index.html" class="logo"><div class="logo-icon"><span data-brand='logo-emoji'>🌿</span></div><span data-brand='name'>Curfee</span><span>Organic</span></a><div class="search-bar"><select id="searchCategory"><option value="">All</option></select><input type="text" id="searchInput" placeholder="Search..."><button id="searchBtn"><i class="fas fa-search"></i></button></div><div class="nav-actions"><a href="login.html" class="nav-btn" id="authBtn"><i class="fas fa-user"></i><span>Login</span></a><a href="cart.html" class="nav-btn"><i class="fas fa-shopping-cart"></i><span>Cart</span><div class="count" id="cartCount" style="display:none">0</div></a></div></div></nav>
+  <div class="container product-detail">
+    <div style="padding:16px 0;font-size:0.85rem;color:var(--text-light);"><a href="index.html" style="color:var(--primary);">Home</a> / <a href="products.html" style="color:var(--primary);">Products</a> / <span id="breadcrumbName">Loading...</span></div>
+    <div class="product-detail-grid" id="detailContent"><div style="padding:40px;text-align:center;grid-column:1/-1;"><div class="skeleton skeleton-image" style="max-width:400px;margin:0 auto 20px;"></div><div class="skeleton skeleton-text" style="max-width:300px;margin:0 auto;"></div></div></div>
+    <div id="tabsSection" style="display:none;"><div class="tabs"><button class="tab active" data-tab="description">Description</button><button class="tab" data-tab="nutrition">Nutritional Info</button><button class="tab" data-tab="farm">Farm Source</button><button class="tab" data-tab="delivery">Delivery & Returns</button><button class="tab" data-tab="reviews">Reviews</button></div><div class="tab-content active" id="tab-description"></div><div class="tab-content" id="tab-nutrition"></div><div class="tab-content" id="tab-farm"></div><div class="tab-content" id="tab-delivery"></div><div class="tab-content" id="tab-reviews"></div></div>
+    <section class="section"><h2 class="section-title">Related Products</h2><div class="product-grid" id="relatedProducts"></div></section>
+  </div>
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 <span data-brand='full-name'>Curfee Organic Market</span>.</p></div></div></footer>
+  <div class="toast-container" id="toastContainer"></div><div id="wishlistCount" style="display:none"></div>
+  
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/products-data.js"></script>
+  <script src="js/products-data2.js"></script>
+  <script src="js/product-detail.js"></script>
+  <script src="js/whatsapp-chat.js"></script>
+</body></html>
+
+
+
+
